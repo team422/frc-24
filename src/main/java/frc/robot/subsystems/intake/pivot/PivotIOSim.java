@@ -39,8 +39,8 @@ public class PivotIOSim implements PivotIO {
         inputs.curSpeed = m_armSim.getVelocityRadPerSec();
         double output = m_controller.calculate(inputs.curAngle, m_desiredAngle.getRadians());
         inputs.voltage = output;
-        System.out.println("Desired: "+ output);
-        System.out.println(inputs.curAngle);
+        // System.out.println("Desired: "+ output);
+        // System.out.println(inputs.curAngle);
         m_armSim.setInputVoltage(output);
         
     }

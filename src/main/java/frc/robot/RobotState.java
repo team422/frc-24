@@ -8,10 +8,14 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.lib.utils.SwerveTester;
+import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.ShooterConstants.PivotConstants;
 import frc.robot.Constants.Vision.AprilTagVision;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.drive.Drive;
@@ -19,6 +23,7 @@ import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.objectVision.ObjectDetectionCam;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.utils.ShooterMath;
 
 public class RobotState {
     // singleton class that handles all inter subsystem communication
@@ -30,7 +35,7 @@ public class RobotState {
     private ObjectDetectionCam[] m_objectDetectionCams;
     private AprilTagVision[] m_aprilTagVisions;
     private Intake m_intake;
-
+    private ShooterMath m_shooterMath;
     private SwerveTester m_swerveTester;
     private RobotState(Drive drive, Climb climb, Indexer indexer, Shooter shooter, ObjectDetectionCam[] objectDetectionCams, AprilTagVision[] aprilTagVisions, Intake intake) {
         this.m_drive = drive;
@@ -40,11 +45,14 @@ public class RobotState {
         this.m_objectDetectionCams = objectDetectionCams;
         this.m_aprilTagVisions = aprilTagVisions;
         this.m_intake = intake;
+        m_shooterMath = new ShooterMath(16.496);
         // this.m_swerveTester = new SwerveTester(drive);
     }
     public static RobotState startInstance(Drive drive, Climb climb, Indexer indexer, Shooter shooter, ObjectDetectionCam[] objectDetectionCams, AprilTagVision[] aprilTagVisions, Intake intake) {
         if (instance == null) {
+            
             instance = new RobotState(drive, climb, indexer,shooter, objectDetectionCams, aprilTagVisions, intake);
+
         }
         return instance;
     }
@@ -67,6 +75,13 @@ public class RobotState {
     }
 
     
+
+    public void calculateShooterAngle() {
+        // calculate the shooter angle
+        ArrayList<Rotation2d> angles = m_shooterMath.getShooterAngle(new Pose3d(FieldConstants.kShooterCenter,new Rotation3d()),new Pose3d(m_drive.getPose()));
+        m_shooter.setPivotAngle(angles.get(1));
+    }
+
 // under construction
      public SwerveTester getSwerveTester() {
         return m_swerveTester;

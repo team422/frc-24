@@ -37,6 +37,7 @@ public class Shooter extends ProfiledSubsystem {
         if (Robot.isSimulation()) {
             angle = angle.minus(PivotConstants.simOffset);
         }
+        System.out.println("Setting angle to: "+angle.getDegrees());
         m_pivotIO.setDesiredAngle(angle);
     }
 
