@@ -27,6 +27,11 @@ public final class Constants {
     public static final boolean AScopeLogging = true;
   }
 
+  public static final class Setpoints {
+    public static final double kClimberTop = 2.8;
+    public static final double kClimberBottom = 0.2;
+  }
+
   public static final class IntakeConstants {
     public static final double kIntakeVoltage = 12;
   }
@@ -163,6 +168,15 @@ public final class Constants {
       public static final TunableNumber kClimbP = new TunableNumber("Climb P", 10.0, "Climb");
       public static final TunableNumber kClimbI = new TunableNumber("Climb I", 0.005, "Climb");
       public static final TunableNumber kClimbD = new TunableNumber("Climb D", 0.01, "Climb");
+
+      public static final TunableNumber kClimbMoveSpeed = new TunableNumber("Climber Speed", 0.1, "Climb");
+    }
+
+    public static final class OIConstants {
+      public static final int kDriverLeftDriveStickPort = 0;
+      public static final int kDriverRightDriveStickPort = 1;
+
+      public static final double kDualFlightStickDeadzone = 0.3;
     }
   }
 }
