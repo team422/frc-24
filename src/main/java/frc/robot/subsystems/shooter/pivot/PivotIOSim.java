@@ -19,9 +19,9 @@ public class PivotIOSim implements PivotIO {
     public PIDController  m_Controller;
 
     public PivotIOSim() {
-        m_armSim = new SingleJointedArmSim(DCMotor.getFalcon500Foc(1),PivotConstants.gearboxRatio,10, .13,Rotation2d.fromDegrees(0).getRadians(),PivotConstants.maxAngle.getRadians(),false,PivotConstants.homeAngle.getRadians()); 
+        m_armSim = new SingleJointedArmSim(DCMotor.getFalcon500Foc(1),PivotConstants.gearboxRatio,10, .13,Rotation2d.fromDegrees(-20).getRadians(),PivotConstants.maxAngle.getRadians(),false,PivotConstants.homeAngle.getRadians()); 
         m_desiredAngle = Rotation2d.fromDegrees(30);
-        m_Controller = new PIDController(.7,0,0);
+        m_Controller = new PIDController(10.7,0,0);
     }
 
     @Override

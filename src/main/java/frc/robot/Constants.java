@@ -1,4 +1,6 @@
 package frc.robot;
+import org.apache.commons.math3.geometry.euclidean.threed.Plane;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -118,6 +120,22 @@ public final class Constants {
     public static final double kFieldWidthMeters = Units.feetToMeters(26.2916);
     public static final Pose2d kOppositeField = new Pose2d(kFieldLengthMeters, kFieldWidthMeters,
         Rotation2d.fromDegrees(180));
+
+    public static final double kShooterBaseHeight = Units.inchesToMeters(79.129 + 1/8);// ONE INCH HAS BEEN ADDED BECAUSE VISUAL MODELS SHOW IT TO BE ONE INCH HIGHER, CHECK IN REAL LIFE @JAMES REMINDER
+    public static final double kShooterTopHeight = Units.inchesToMeters(98.25);
+    public static final double kShooterBaseLength = Units.inchesToMeters(217.9585);
+    public static final Rotation2d kShooterAngle = Rotation2d.fromDegrees(14);
+    public static final Translation3d kShooterCenter = new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(217.9585), Units.inchesToMeters(162.138+4.875));
+    public static final double kShooterWidth = Units.inchesToMeters(41.375);
+    public static final double kShooterHeight = Units.inchesToMeters(4.875 * 2);
+    public static final double kShooterDepth = Units.inchesToMeters(18);
+    public static final Translation3d kShooterBackLeft = new Translation3d(Units.inchesToMeters(0), kShooterBaseLength+kShooterWidth/2,kShooterBaseHeight); 
+    public static final Translation3d kShooterBackRight = new Translation3d(Units.inchesToMeters(0), kShooterBaseLength-kShooterWidth/2, kShooterBaseHeight);
+    public static final Translation3d kShooterFrontLeft = new Translation3d(kShooterDepth, kShooterBaseLength+kShooterWidth/2, kShooterBaseHeight + kShooterHeight/2);
+    public static final Translation3d kShooterFrontRight = new Translation3d(kShooterDepth, kShooterBaseLength-kShooterWidth/2, kShooterBaseHeight+ kShooterHeight/2);
+    
+    // public static final Pose3d kShooterMiddle = Pose3d()
+    
   }
 
   public static final class Vision {

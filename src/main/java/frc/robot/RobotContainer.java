@@ -4,14 +4,19 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.drive.TeleopControllerNoAugmentation;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsDualFlightStick;
@@ -23,6 +28,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.pivot.PivotIO;
 import frc.robot.subsystems.shooter.pivot.PivotIOSim;
+import frc.robot.utils.ShooterMath;
 
 public class RobotContainer {
 
@@ -30,6 +36,7 @@ public class RobotContainer {
   Drive m_drive;
   Intake m_intake;
   Shooter m_shooter;
+
 
   DriverControls m_driverControls;
 
@@ -57,6 +64,10 @@ public class RobotContainer {
       DriverStation.silenceJoystickConnectionWarning(true);
       m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim());
     }
+    // Logger.recordOutput("kShooterBackLeft", new Pose3d(FieldConstants.kShooterBackLeft, new Rotation3d(0, 0, 0)));
+    // Logger.recordOutput("kShooterBackRight", new Pose3d(FieldConstants.kShooterBackRight, new Rotation3d(0, 0, 0)));
+    // Logger.recordOutput("kShooterFrontLeft", new Pose3d(FieldConstants.kShooterFrontLeft, new Rotation3d(0, 0, 0)));
+    // Logger.recordOutput("kShooterFrontRight", new Pose3d(FieldConstants.kShooterFrontRight, new Rotation3d(0, 0, 0)));
 
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
@@ -78,6 +89,7 @@ public class RobotContainer {
 
   public void updateRobotState(){
     m_robotState.updateRobotState();
+    m_robotState.calculateShooterAngle();
   }
 
   public void onDisabled(){
