@@ -51,7 +51,7 @@ public class Climb extends SubsystemBase {
     }
 
     public Command moveCommand(double delta) {
-        return run(() -> setDesiredHeight(m_inputs.height + delta));
+        return Commands.runOnce(() -> setDesiredHeight(m_inputs.height + delta));
     }
 
 }

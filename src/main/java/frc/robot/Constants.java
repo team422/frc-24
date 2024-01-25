@@ -158,8 +158,9 @@ public final class Constants {
     }
 
     public static final class ClimbConstants {
-      public static final double kClimbGearRatio = 25.0; // radians to meters, ie how many radians of rotation is one
-                                                         // meter of linear motion
+      public static final double kClimbGearRatio = 10.5;
+      public static final double kClimbBarrierDiameter = Units.inchesToMeters(1.5);
+
       public static final double kMaxVelocity = 3.0;
       public static final double kMaxAcceleration = 1.0;
       public static final double kMinHeight = 0.0;
