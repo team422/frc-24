@@ -35,6 +35,9 @@ import frc.robot.subsystems.intake.rollers.RollerIOSim;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.pivot.PivotIOSim;
 import frc.robot.utils.ShooterMath;
+import frc.robot.Constants.FlywheelConstants;
+import frc.robot.subsystems.shooter.flywheel.Flywheel;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
 
 public class RobotContainer {
 
@@ -43,6 +46,7 @@ public class RobotContainer {
   Intake m_intake;
   Shooter m_shooter;
   Climb m_climber;
+  Flywheel m_flywheel;
 
   DriverControls m_driverControls;
   OperatorControls m_operatorControls;
@@ -85,11 +89,13 @@ public class RobotContainer {
     // Instantiate our RobotContainer. This will perform all our button bindings,
 
     m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()), new Pose2d(),
-        new SwerveModuleIOSim(),
-        new SwerveModuleIOSim(),
-        new SwerveModuleIOSim(),
-        new SwerveModuleIOSim());
-
+          new SwerveModuleIOSim(),
+          new SwerveModuleIOSim(),
+          new SwerveModuleIOSim(),
+          new SwerveModuleIOSim());
+    m_flywheel = new Flywheel(new FlywheelIOSim(), Constants.FlywheelConstants.flywheelController, FlywheelConstants.tolerance); 
+    
+    
     if (Robot.isSimulation()) {
       m_shooter = new Shooter(new PivotIOSim());
     }

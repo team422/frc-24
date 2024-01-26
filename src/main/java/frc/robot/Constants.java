@@ -49,6 +49,15 @@ public final class Constants {
 
     }
   }
+//Shorya told me to just put ones here and he'll change the constants later
+  public static final class FlywheelConstants {
+    public static final double gearRatio = 1;
+    public static final double tolerance = 1;
+    public static final TunableNumber kP = new TunableNumber("Flywheel P", 1);
+    public static final TunableNumber kI = new TunableNumber("Flywheel I", 1);
+    public static final TunableNumber kD = new TunableNumber("Flywheel D", 1);
+    public static final PIDController flywheelController = new PIDController(kP.get(), kI.get(), kD.get());
+  }
 
   public static final class DriveConstants {
     public static final Integer kId = 1;
