@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.drive.TeleopControllerNoAugmentation;
 import frc.robot.oi.DriverControls;
@@ -25,6 +26,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveModuleIOSim;
 import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.rollers.RollerIOSim;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.pivot.PivotIO;
 import frc.robot.subsystems.shooter.pivot.PivotIOSim;
@@ -62,7 +64,8 @@ public class RobotContainer {
   public void configureSubsystems(){
     if (Robot.isSimulation()) {
       DriverStation.silenceJoystickConnectionWarning(true);
-      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim());
+      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim(),
+                            new RollerIOSim(), IntakeConstants.kIntakeVoltage);
     }
     // Logger.recordOutput("kShooterBackLeft", new Pose3d(FieldConstants.kShooterBackLeft, new Rotation3d(0, 0, 0)));
     // Logger.recordOutput("kShooterBackRight", new Pose3d(FieldConstants.kShooterBackRight, new Rotation3d(0, 0, 0)));
