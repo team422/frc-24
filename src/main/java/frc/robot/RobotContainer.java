@@ -7,6 +7,7 @@ package frc.robot;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -72,6 +73,9 @@ public class RobotContainer {
     m_operatorControls.climbUp().whileTrue(m_climber.moveCommand(ClimbConstants.kClimbUpSpeed.get()));
     m_operatorControls.climbDown().whileTrue(m_climber.moveCommand(-ClimbConstants.kClimbDownSpeed.get()));
 
+    m_driverControls.manualShoot().onTrue(
+      m_shooter.setVelocityCommand(8)
+    );
   }
 
   public void configureSubsystems() {
@@ -93,11 +97,10 @@ public class RobotContainer {
           new SwerveModuleIOSim(),
           new SwerveModuleIOSim(),
           new SwerveModuleIOSim());
-    m_flywheel = new Flywheel(new FlywheelIOSim(), Constants.FlywheelConstants.flywheelController, FlywheelConstants.tolerance); 
     
     
     if (Robot.isSimulation()) {
-      m_shooter = new Shooter(new PivotIOSim());
+      m_shooter = new Shooter(new PivotIOSim(), FlywheelConstants.flywheelController, new FlywheelIOSim(), FlywheelConstants.tolerance);
     }
 
     if (Robot.isSimulation()) {
@@ -132,8 +135,9 @@ public class RobotContainer {
     m_driverControls = new DriverControlsXboxController(4);
     m_operatorControls = new OperatorControlsXbox(5);
   }
-
+  
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
   }
 }
+

@@ -1,8 +1,7 @@
 package frc.robot.subsystems.shooter.flywheel;
 import org.littletonrobotics.junction.AutoLog;
-import frc.lib.advantagekit.LoggedIO;
 
-public interface flywheelIO {
+public interface FlywheelIO {
 
   @AutoLog
   public class FlywheelInputs {
@@ -17,6 +16,10 @@ public interface flywheelIO {
   public double getVelocityRadPerSec();
 
   public void setVoltage(double voltage);
+
+  public double getWheelLength();
+
+  public void updateInputs(FlywheelInputsAutoLogged inputs);
 
 }
 

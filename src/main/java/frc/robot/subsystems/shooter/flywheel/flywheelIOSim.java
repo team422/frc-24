@@ -17,7 +17,7 @@ public class FlywheelIOSim implements FlywheelIO {
         m_wheelLength = Units.inchesToMeters(1);
       }
 
-      public void updateInputs(FlywheelInputs inputs) {
+      public void updateInputs(FlywheelInputsAutoLogged inputs) {
         m_flywheel.update(.02);
         inputs.velocityMetersPerSec = getVelocityMetersPerSec();
         inputs.velocityRadPerSec = getVelocityRadPerSec();
@@ -43,7 +43,6 @@ public class FlywheelIOSim implements FlywheelIO {
         return m_flywheel.getAngularVelocityRPM();
       }
     
-      @Override
       public double getWheelLength() {
         return m_wheelLength;
       }
