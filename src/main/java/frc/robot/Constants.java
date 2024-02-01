@@ -30,7 +30,7 @@ public final class Constants {
   }
 
   public static final class IntakeConstants {
-
+    public static final double kIntakeVoltage = 12;
   }
 
   public static final class ShooterConstants {
