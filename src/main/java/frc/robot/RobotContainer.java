@@ -48,9 +48,9 @@ public class RobotContainer {
   OperatorControls m_operatorControls;
 
   public RobotContainer() {
+    configureSubsystems();
     configureControllers();
     configureBindings();
-    configureSubsystems();
     configureCommands();
 
   }
@@ -127,10 +127,10 @@ public class RobotContainer {
 
     // Climber commands (i dont know where to put this, either here or
     // configureCommands)
-    Command climbTop = Commands.runOnce(() -> m_climber.setDesiredHeightCommand(Setpoints.kClimberTop));
-    Command climbBottom = Commands.runOnce(() -> m_climber.setDesiredHeightCommand(Setpoints.kClimberBottom));
-    Command climbUp = Commands.runOnce(() -> m_climber.moveCommand(ClimbConstants.kClimbMoveSpeed.get()));
-    Command climbDown = Commands.runOnce(() -> m_climber.moveCommand(-ClimbConstants.kClimbMoveSpeed.get()));
+    Command climbTop = m_climber.setDesiredHeightCommand(Setpoints.kClimberTop);
+    Command climbBottom = m_climber.setDesiredHeightCommand(Setpoints.kClimberBottom);
+    Command climbUp = m_climber.moveCommand(ClimbConstants.kClimbUpSpeed.get());
+    Command climbDown = m_climber.moveCommand(-ClimbConstants.kClimbDownSpeed.get());
 
     m_operatorControls.setClimbTop().onTrue(climbTop);
     m_operatorControls.setClimbBottom().onTrue(climbBottom);

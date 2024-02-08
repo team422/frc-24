@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
 import frc.robot.subsystems.intake.pivot.PivotIO;
 import frc.robot.subsystems.intake.pivot.PivotIOInputsAutoLogged;
@@ -18,8 +19,8 @@ public class Intake extends ProfiledSubsystem {
     PivotIO m_PivotIO;
     RollerIO m_RollerIO;
 
-    PivotIOInputsAutoLogged m_pivotInputs;
-    RollerInputsAutoLogged m_rollerInputs;
+    public PivotIOInputsAutoLogged m_pivotInputs;
+    public RollerInputsAutoLogged m_rollerInputs;
 
     private final double m_intakeVoltage;
 

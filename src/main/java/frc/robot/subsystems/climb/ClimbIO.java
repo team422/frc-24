@@ -3,12 +3,12 @@ package frc.robot.subsystems.climb;
 import org.littletonrobotics.junction.AutoLog;
 
 import frc.lib.advantagekit.LoggedIO;
-import frc.robot.subsystems.climb.ClimbIO.ClimbIOInputs;
+import frc.robot.subsystems.climb.ClimbIO.ClimbInputs;
 
-public interface ClimbIO extends LoggedIO<ClimbIOInputs> {
+public interface ClimbIO extends LoggedIO<ClimbInputs> {
 
     @AutoLog
-    public static class ClimbIOInputs {
+    public static class ClimbInputs {
         public double height;
         public double velocity;
         public double outputVoltage;

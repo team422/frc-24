@@ -7,22 +7,22 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.hardwareprofiler.ProfiledSubsystem;
 
-public class Climb extends SubsystemBase {
-    private double kMinHeight;
-    private double kMaxHeight;
+public class Climb extends ProfiledSubsystem {
+    private final double kMinHeight;
+    private final double kMaxHeight;
     private ClimbIO m_io;
-    private ClimbIOInputsAutoLogged m_inputs;
-    public double m_desiredHeight;
-    private ProfiledPIDController m_controller;
+    public ClimbInputsAutoLogged m_inputs;
+    public ProfiledPIDController m_controller;
 
     public Climb(ClimbIO io, ProfiledPIDController controller, double minHeight, double maxHeight) {
         m_io = io;
-        m_inputs = new ClimbIOInputsAutoLogged();
+        m_inputs = new ClimbInputsAutoLogged();
 
         m_controller = controller;
         m_controller.setTolerance(0.05);
-        m_controller.setIntegratorRange(-0.5, 0.5);
+        // m_controller.setIntegratorRange(-0.5, 0.5);
 
         kMinHeight = minHeight;
         kMaxHeight = maxHeight;
@@ -30,16 +30,20 @@ public class Climb extends SubsystemBase {
 
     @Override
     public void periodic() {
-        double pidVoltage = m_controller.calculate(m_inputs.height, m_desiredHeight);
+        double pidVoltage = m_controller.calculate(m_inputs.height);
 
         m_io.updateInputs(m_inputs);
         Logger.processInputs("Climber", m_inputs);
 
         m_io.setVoltage(pidVoltage);
+
+        Logger.recordOutput("Climber/DesiredHeight", m_controller.getGoal().position);
+        Logger.recordOutput("Climber/Voltage", pidVoltage);
     }
 
     public void setDesiredHeight(double height) {
-        m_desiredHeight = MathUtil.clamp(height, kMinHeight, kMaxHeight);
+        double desiredHeight = MathUtil.clamp(height, kMinHeight, kMaxHeight);
+        m_controller.setGoal(desiredHeight);
     }
 
     public double getHeight() {
@@ -51,7 +55,11 @@ public class Climb extends SubsystemBase {
     }
 
     public Command moveCommand(double delta) {
-        return Commands.runOnce(() -> setDesiredHeight(m_inputs.height + delta));
+        return Commands.run(() -> setDesiredHeight(m_inputs.height + delta));
+    }
+
+    public boolean withinTolerance() {
+        return m_controller.atGoal();
     }
 
 }

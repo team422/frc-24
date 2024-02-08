@@ -52,9 +52,9 @@ public class ShooterMath {
         Logger.recordOutput("Shooter Math", new Pose2d(shooterPose.toPose2d().getTranslation(), yaw));
 
         Transform3d shootingTranslation = targetPose.minus(shooterPose);
-        System.out.println(shootingTranslation);
-        System.out.println(yaw.getDegrees());
-        System.out.println(elevation.getDegrees());
+        // System.out.println(shootingTranslation);
+        // System.out.println(yaw.getDegrees());
+        // System.out.println(elevation.getDegrees());
         angles.add(yaw);
         angles.add(elevation);
         return angles;

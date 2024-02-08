@@ -102,7 +102,7 @@ public class AprilTagVision extends VirtualSubsystem {
   public void periodic() {
     for (int i = 0; i < io.length; i++) {
       io[i].updateInputs(inputs[i]);
-      Logger.getInstance().processInputs("AprilTagVision/Inst" + Integer.toString(i), inputs[i]);
+      Logger.processInputs("AprilTagVision/Inst" + Integer.toString(i), inputs[i]);
     }
 
     // Loop over instances
@@ -131,8 +131,8 @@ public class AprilTagVision extends VirtualSubsystem {
             robotPose = cameraPose
                 .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
                 .toPose2d();
-            Logger.getInstance().recordOutput("AprilTagROBOTPose", robotPose);
-            Logger.getInstance().recordOutput("AprilTagCAMERAPose", cameraPose);
+            Logger.recordOutput("AprilTagROBOTPose", robotPose);
+            Logger.recordOutput("AprilTagCAMERAPose", cameraPose);
             break;
 
           case 2:
@@ -166,8 +166,8 @@ public class AprilTagVision extends VirtualSubsystem {
             }
             // System.out.println()
             if (cameraPose != null && robotPose != null) {
-              Logger.getInstance().recordOutput("AprilTagROBOTPose", robotPose);
-              Logger.getInstance().recordOutput("AprilTagCAMERAPose", cameraPose);
+              Logger.recordOutput("AprilTagROBOTPose", robotPose);
+              Logger.recordOutput("AprilTagCAMERAPose", cameraPose);
             }
 
             break;
@@ -213,22 +213,19 @@ public class AprilTagVision extends VirtualSubsystem {
         allRobotPoses.add(robotPose);
 
         // Log data from instance
-        Logger.getInstance()
-            .recordOutput(
+        Logger.recordOutput(
                 "AprilTagVision/Inst" + Integer.toString(instanceIndex) + "/LatencySecs",
                 Timer.getFPGATimestamp() - timestamp);
-        Logger.getInstance()
-            .recordOutput(
+        Logger.recordOutput(
                 "AprilTagVision/Inst" + Integer.toString(instanceIndex) + "/RobotPose", robotPose);
-        Logger.getInstance()
-            .recordOutput(
+        Logger.recordOutput(
                 "AprilTagVision/Inst" + Integer.toString(instanceIndex) + "/TagPoses",
                 tagPoses.toArray(new Pose3d[tagPoses.size()]));
       }
 
       // If no frames from instances, clear robot pose
       if (inputs[instanceIndex].timestamps.length == 0) {
-        Logger.getInstance()
+        Logger
             .recordOutput(
                 "AprilTagVision/Inst" + Integer.toString(instanceIndex) + "/RobotPose",
                 new double[] {});
@@ -236,7 +233,7 @@ public class AprilTagVision extends VirtualSubsystem {
 
       // If no recent frames from instance, clear tag poses
       if (Timer.getFPGATimestamp() - lastFrameTimes.get(instanceIndex) > targetLogTimeSecs) {
-        Logger.getInstance()
+        Logger
             .recordOutput(
                 "AprilTagVision/Inst" + Integer.toString(instanceIndex) + "/TagPoses",
                 new double[] {});
@@ -244,7 +241,7 @@ public class AprilTagVision extends VirtualSubsystem {
     }
 
     // Log robot poses
-    Logger.getInstance()
+    Logger
         .recordOutput(
             "AprilTagVision/RobotPoses", allRobotPoses.toArray(new Pose2d[allRobotPoses.size()]));
 
@@ -255,7 +252,7 @@ public class AprilTagVision extends VirtualSubsystem {
         allTagPoses.add(FieldConstants.getAprilTags().getTagPose(detectionEntry.getKey()).get());
       }
     }
-    Logger.getInstance()
+    Logger
         .recordOutput(
             "AprilTagVision/TagPoses", allTagPoses.toArray(new Pose3d[allTagPoses.size()]));
 

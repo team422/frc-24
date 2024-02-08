@@ -161,16 +161,17 @@ public final class Constants {
       public static final double kClimbGearRatio = 10.5;
       public static final double kClimbBarrierDiameter = Units.inchesToMeters(1.5);
 
-      public static final double kMaxVelocity = 3.0;
-      public static final double kMaxAcceleration = 1.0;
+      public static final double kMaxVelocity = 15;
+      public static final double kMaxAcceleration = 20;
       public static final double kMinHeight = 0.0;
       public static final double kMaxHeight = 3.0;
 
-      public static final TunableNumber kClimbP = new TunableNumber("Climb P", 10.0, "Climb");
-      public static final TunableNumber kClimbI = new TunableNumber("Climb I", 0.005, "Climb");
-      public static final TunableNumber kClimbD = new TunableNumber("Climb D", 0.01, "Climb");
+      public static final TunableNumber kClimbP = new TunableNumber("Climb P", 10, "Climb");
+      public static final TunableNumber kClimbI = new TunableNumber("Climb I", 0.05, "Climb");
+      public static final TunableNumber kClimbD = new TunableNumber("Climb D", 1, "Climb");
 
-      public static final TunableNumber kClimbMoveSpeed = new TunableNumber("Climber Speed", 0.1, "Climb");
+      public static final TunableNumber kClimbUpSpeed = new TunableNumber("Climber Up Speed", 0.1, "Climb");
+      public static final TunableNumber kClimbDownSpeed = new TunableNumber("Climber Down Speed", 0.3, "Climb");
     }
 
     public static final class OIConstants {
