@@ -49,15 +49,9 @@ public class RobotContainer {
 
   public RobotContainer() {
     configureSubsystems();
-    configureControllers();
     configureBindings();
     configureCommands();
 
-  }
-
-  public void configureControllers() {
-    m_driverControls = new DriverControlsXboxController(4);
-    m_operatorControls = new OperatorControlsXbox(5);
   }
 
   public void configureCommands() {
@@ -68,6 +62,11 @@ public class RobotContainer {
       System.out.println("Setting shooter to 45");
       m_shooter.setPivotAngle(Rotation2d.fromDegrees(45));
     }));
+
+    m_operatorControls.setClimbTop().onTrue(m_climber.setDesiredHeightCommand(Setpoints.kClimberTop));
+    m_operatorControls.setClimbBottom().onTrue(m_climber.setDesiredHeightCommand(Setpoints.kClimberBottom));
+    m_operatorControls.climbUp().whileTrue(m_climber.moveCommand(ClimbConstants.kClimbUpSpeed.get()));
+    m_operatorControls.climbDown().whileTrue(m_climber.moveCommand(-ClimbConstants.kClimbDownSpeed.get()));
 
   }
 
@@ -124,18 +123,8 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-
-    // Climber commands (i dont know where to put this, either here or
-    // configureCommands)
-    Command climbTop = m_climber.setDesiredHeightCommand(Setpoints.kClimberTop);
-    Command climbBottom = m_climber.setDesiredHeightCommand(Setpoints.kClimberBottom);
-    Command climbUp = m_climber.moveCommand(ClimbConstants.kClimbUpSpeed.get());
-    Command climbDown = m_climber.moveCommand(-ClimbConstants.kClimbDownSpeed.get());
-
-    m_operatorControls.setClimbTop().onTrue(climbTop);
-    m_operatorControls.setClimbBottom().onTrue(climbBottom);
-    m_operatorControls.climbUp().whileTrue(climbUp);
-    m_operatorControls.climbDown().whileTrue(climbDown);
+    m_driverControls = new DriverControlsXboxController(4);
+    m_operatorControls = new OperatorControlsXbox(5);
   }
 
   public Command getAutonomousCommand() {
