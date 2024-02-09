@@ -37,8 +37,8 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.pivot.PivotIOSim;
 import frc.robot.utils.ShooterMath;
 import frc.robot.Constants.FlywheelConstants;
-import frc.robot.subsystems.shooter.flywheel.FlywhelIO;
-import frc.robot.subsystems.shooter.flywheel.FlywhelIOSim;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
 
 public class RobotContainer {
 
@@ -104,7 +104,7 @@ public class RobotContainer {
     
     
     if (Robot.isSimulation()) {
-      m_shooter = new Shooter(new PivotIOSim(), FlywheelConstants.flywheelController, new FlywhelIOSim(), FlywheelConstants.tolerance);
+      m_shooter = new Shooter(new PivotIOSim(), FlywheelConstants.flywheelController, new FlywheelIOSim(), FlywheelConstants.tolerance);
     }
 
     if (Robot.isSimulation()) {

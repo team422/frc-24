@@ -1,7 +1,7 @@
 package frc.robot.subsystems.shooter.flywheel;
 import org.littletonrobotics.junction.AutoLog;
 
-public interface FlywhelIO {
+public interface FlywheelIO {
 
   @AutoLog
   public class FlywheelInputs {

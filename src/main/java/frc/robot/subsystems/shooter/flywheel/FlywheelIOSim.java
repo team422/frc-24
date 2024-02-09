@@ -4,12 +4,12 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 
 
-public class FlywhelIOSim implements FlywhelIO {
+public class FlywheelIOSim implements FlywheelIO {
     
     private FlywheelSim m_flywheel;
     public final double m_wheelLength;
     //again i just in random numbers, i dunno what to put
-    public FlywhelIOSim() {
+    public FlywheelIOSim() {
         DCMotor gearbox = DCMotor.getFalcon500(1);
         double gearing = 1;
         double jKgMetersSquared = 1;
