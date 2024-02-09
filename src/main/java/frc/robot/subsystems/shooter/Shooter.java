@@ -14,7 +14,7 @@ import frc.lib.hardwareprofiler.ProfiledSubsystem;
 import frc.robot.Robot;
 import frc.robot.Constants.ShooterConstants.PivotConstants;
 import frc.robot.subsystems.shooter.pivot.PivotIOInputsAutoLogged;
-import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
+import frc.robot.subsystems.shooter.flywheel.FlywhelIO;
 import frc.robot.subsystems.shooter.flywheel.FlywheelInputsAutoLogged;
 import frc.robot.subsystems.shooter.pivot.PivotIO;
 import frc.robot.subsystems.shooter.pivot.PivotIO.PivotIOInputs;
@@ -22,13 +22,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends ProfiledSubsystem {
     PivotIO m_pivotIO;
-    FlywheelIO m_flywheelIO;
+    FlywhelIO m_flywheelIO;
     PivotIOInputsAutoLogged m_pivotInputs;
     FlywheelInputsAutoLogged m_flywheelInputs;
     ProfiledPIDController m_controller;
 
 
-    public Shooter(PivotIO pivotIO, ProfiledPIDController controller, FlywheelIO flywheelIO, double tolerance) {
+    public Shooter(PivotIO pivotIO, ProfiledPIDController controller, FlywhelIO flywheelIO, double tolerance) {
         super();
         m_pivotIO = pivotIO;
         m_pivotInputs = new PivotIOInputsAutoLogged();
