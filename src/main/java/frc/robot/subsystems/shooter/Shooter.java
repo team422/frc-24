@@ -47,11 +47,12 @@ public class Shooter extends ProfiledSubsystem {
     public void periodic() {
         m_pivotIO.updateInputs(m_pivotInputs);
         m_flywheelIO.updateInputs(m_flywheelInputs);
-        double flywheelVelocity = m_controller.calculate(m_flywheelInputs.velocityMetersPerSec);
-        m_flywheelIO.setVoltage(flywheelVelocity);
-        Logger.processInputs("shooter/flywheel", m_flywheelInputs); 
-        Logger.processInputs("shooter/pivot", m_pivotInputs);
-        Logger.recordOutput("shooter/flywheel/voltage", flywheelVelocity);
+        double pidVoltage = m_controller.calculate(m_flywheelInputs.velocityMetersPerSec);
+        m_flywheelIO.setVoltage(pidVoltage);
+        Logger.processInputs("Shooter/Flywheel", m_flywheelInputs); 
+        Logger.processInputs("Shooter/Pivot", m_pivotInputs);
+        Logger.recordOutput("Shooter/Flywheel/voltage", pidVoltage);
+        Logger.recordOutput("Shooter/Flywheel/currentSetpoint", m_controller.getGoal().position);
 
 
     }

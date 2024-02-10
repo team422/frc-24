@@ -73,7 +73,7 @@ public class RobotContainer {
     m_operatorControls.climbDown().whileTrue(m_climber.moveCommand(-ClimbConstants.kClimbDownSpeed.get()));
 
     m_driverControls.manualShoot().onTrue(
-      m_shooter.setVelocityCommand(FlywheelConstants.kVelo.get())
+      m_shooter.setVelocityCommand(FlywheelConstants.kFlywheelVelocitySetpoint)
     );
     m_driverControls.manualShoot().onFalse(
       m_shooter.setVelocityCommand(0)

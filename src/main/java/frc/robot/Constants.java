@@ -55,12 +55,12 @@ public final class Constants {
   public static final class FlywheelConstants {
     public static final double gearRatio = 1;
     public static final double tolerance = 1;
-    public static final TunableNumber kP = new TunableNumber("Flywheel P", 1);
-    public static final TunableNumber kI = new TunableNumber("Flywheel I", 1);
-    public static final TunableNumber kD = new TunableNumber("Flywheel D", 1);
+    public static final TunableNumber kP = new TunableNumber("Flywheel P", 40);
+    public static final TunableNumber kI = new TunableNumber("Flywheel I", 0.1);
+    public static final TunableNumber kD = new TunableNumber("Flywheel D", 0.1);
     public static final TunableNumber kVelo = new TunableNumber("Flywheel Max Velocity", 20);
     public static final TunableNumber kAccel = new TunableNumber("Flywheel Max Acceleration", 20);
-    public static final TunableNumber kVelocityCommand = new TunableNumber("Set velocity command", 4.22);
+    public static final double kFlywheelVelocitySetpoint = 8;
     public static final ProfiledPIDController flywheelController = new ProfiledPIDController(
       kP.get(), kI.get(), kD.get(),
       new Constraints(kVelo.get(), kAccel.get()));
