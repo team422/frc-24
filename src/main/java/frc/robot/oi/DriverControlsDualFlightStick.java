@@ -40,4 +40,9 @@ public class DriverControlsDualFlightStick implements DriverControls {
     return m_rightJoystick.button(1);
   }
 
-}
+  @Override
+  public Trigger manualShoot(){
+    return m_leftJoystick.button(10);
+  }
+  }
+

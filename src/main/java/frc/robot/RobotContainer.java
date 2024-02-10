@@ -7,6 +7,7 @@ package frc.robot;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -35,6 +36,9 @@ import frc.robot.subsystems.intake.rollers.RollerIOSim;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.pivot.PivotIOSim;
 import frc.robot.utils.ShooterMath;
+import frc.robot.Constants.FlywheelConstants;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
 
 public class RobotContainer {
 
@@ -68,6 +72,14 @@ public class RobotContainer {
     m_operatorControls.climbUp().whileTrue(m_climber.moveCommand(ClimbConstants.kClimbUpSpeed.get()));
     m_operatorControls.climbDown().whileTrue(m_climber.moveCommand(-ClimbConstants.kClimbDownSpeed.get()));
 
+    m_driverControls.manualShoot().onTrue(
+      m_shooter.setVelocityCommand(FlywheelConstants.kFlywheelVelocitySetpoint)
+    );
+    m_driverControls.manualShoot().onFalse(
+      m_shooter.setVelocityCommand(0)
+    );
+
+    //think u the poop? 
   }
 
   public void configureSubsystems() {
@@ -85,13 +97,14 @@ public class RobotContainer {
     // Instantiate our RobotContainer. This will perform all our button bindings,
 
     m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()), new Pose2d(),
-        new SwerveModuleIOSim(),
-        new SwerveModuleIOSim(),
-        new SwerveModuleIOSim(),
-        new SwerveModuleIOSim());
-
+          new SwerveModuleIOSim(),
+          new SwerveModuleIOSim(),
+          new SwerveModuleIOSim(),
+          new SwerveModuleIOSim());
+    
+    
     if (Robot.isSimulation()) {
-      m_shooter = new Shooter(new PivotIOSim());
+      m_shooter = new Shooter(new PivotIOSim(), FlywheelConstants.flywheelController, new FlywheelIOSim(), FlywheelConstants.tolerance);
     }
 
     if (Robot.isSimulation()) {
@@ -126,8 +139,9 @@ public class RobotContainer {
     m_driverControls = new DriverControlsXboxController(4);
     m_operatorControls = new OperatorControlsXbox(5);
   }
-
+  
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
   }
 }
+

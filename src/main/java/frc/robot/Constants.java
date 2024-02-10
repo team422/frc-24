@@ -2,6 +2,7 @@ package frc.robot;
 import org.apache.commons.math3.geometry.euclidean.threed.Plane;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -11,6 +12,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import frc.lib.utils.CustomHolmonomicDrive;
 import frc.lib.utils.TunableNumber;
@@ -48,6 +50,20 @@ public final class Constants {
       public static final Rotation2d simOffset = Rotation2d.fromDegrees(35);
 
     }
+  }
+//tommy a lil rotund boy
+  public static final class FlywheelConstants {
+    public static final double gearRatio = 1;
+    public static final double tolerance = 1;
+    public static final TunableNumber kP = new TunableNumber("Flywheel P", 40);
+    public static final TunableNumber kI = new TunableNumber("Flywheel I", 0.1);
+    public static final TunableNumber kD = new TunableNumber("Flywheel D", 0.1);
+    public static final TunableNumber kVelo = new TunableNumber("Flywheel Max Velocity", 20);
+    public static final TunableNumber kAccel = new TunableNumber("Flywheel Max Acceleration", 20);
+    public static final double kFlywheelVelocitySetpoint = 8;
+    public static final ProfiledPIDController flywheelController = new ProfiledPIDController(
+      kP.get(), kI.get(), kD.get(),
+      new Constraints(kVelo.get(), kAccel.get()));
   }
 
   public static final class DriveConstants {

@@ -37,4 +37,9 @@ public class DriverControlsXboxController implements DriverControls {
     return m_controller.button(1);
   }
 
+  @Override
+  public Trigger manualShoot() {
+    return m_controller.rightBumper();
+  }
+
 }
