@@ -11,10 +11,10 @@ public class FlywheelIOSim implements FlywheelIO {
     //again i just in random numbers, i dunno what to put
     public FlywheelIOSim() {
         DCMotor gearbox = DCMotor.getFalcon500(1);
-        double gearing = 3;
+        double gearing = 1/1.5;
         double jKgMetersSquared = 0.1;
         m_flywheel = new FlywheelSim(gearbox, gearing, jKgMetersSquared);
-        m_wheelLength = Units.inchesToMeters(1);
+        m_wheelLength = Units.inchesToMeters(4);
       }
 
       public void updateInputs(FlywheelInputsAutoLogged inputs) {

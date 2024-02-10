@@ -23,8 +23,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Shooter extends ProfiledSubsystem {
     PivotIO m_pivotIO;
     FlywheelIO m_flywheelIO;
-    PivotIOInputsAutoLogged m_pivotInputs;
-    FlywheelInputsAutoLogged m_flywheelInputs;
+    public PivotIOInputsAutoLogged m_pivotInputs;
+    public FlywheelInputsAutoLogged m_flywheelInputs;
     ProfiledPIDController m_controller;
 
 
