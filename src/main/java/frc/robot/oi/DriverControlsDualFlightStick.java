@@ -1,12 +1,8 @@
 package frc.robot.oi;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
-
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.utils.EricNubControls;
-
 
 public class DriverControlsDualFlightStick implements DriverControls {
   public CommandJoystick m_leftJoystick;

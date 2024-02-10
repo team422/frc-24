@@ -260,7 +260,7 @@ public class Drive extends ProfiledSubsystem {
     for (int i = 0; i < moduleStates.length; i++) {
       moduleStates[i] = SwerveModuleState.optimize(moduleStates[i], m_modules[i].getAngle());
     }
-    Logger.getInstance().recordOutput("Drive/DesiredSpeeds",
+    Logger.recordOutput("Drive/DesiredSpeeds",
         moduleStates);
 
     // Logger.getInstance().recordOutput("Drive/DesiredModuleStates", moduleStates);
@@ -537,7 +537,7 @@ public class Drive extends ProfiledSubsystem {
 
   public double logMovemnets() {
     double max = 0;
-    Logger.getInstance().recordOutput("Gyro", m_gyro.getAccelX());
+    Logger.recordOutput("Gyro", m_gyro.getAccelX());
     return max;
   }
 
@@ -644,16 +644,16 @@ public class Drive extends ProfiledSubsystem {
     
     for (int i = 0; i < m_modules.length; i++) {
       m_modules[i].updateInputs(m_inputs[i]);
-      Logger.getInstance().processInputs("Module" + i, m_inputs[i]);
+      Logger.processInputs("Module" + i, m_inputs[i]);
     }
 
     m_poseEstimator.update(m_gyro.getAngle(), getSwerveModulePositions());
 
-    Logger.getInstance().recordOutput("Drive/Pose", getPose());
-    Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
-    Logger.getInstance().recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
-    Logger.getInstance().recordOutput("Drive/DesiredStates", getDesiredStates());
-    Logger.getInstance().recordOutput("NorthstarPosition", poseEstimator.getLatestPose());
+    Logger.recordOutput("Drive/Pose", getPose());
+    Logger.recordOutput("Drive/ModuleStates", getModuleStates());
+    Logger.recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
+    Logger.recordOutput("Drive/DesiredStates", getDesiredStates());
+    Logger.recordOutput("NorthstarPosition", poseEstimator.getLatestPose());
     SwerveModulePosition[] wheelDeltas = new SwerveModulePosition[4];
     for (int i = 0; i < 4; i++) {
       wheelDeltas[i] = new SwerveModulePosition(
@@ -687,7 +687,7 @@ public class Drive extends ProfiledSubsystem {
                 m_gyroInputs.rollPositionRad,
                 0.0,
                 0.0));
-    Logger.getInstance().recordOutput("Odometry/Robot3d", robotPose3d);
+    Logger.recordOutput("Odometry/Robot3d", robotPose3d);
     if (RobotConstants.AScopeLogging) {
       FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
           DriveConstants.kModuleTranslations);
@@ -710,9 +710,9 @@ public class Drive extends ProfiledSubsystem {
   public void simulationPeriodic() {
     double gyroDelta = getChassisSpeeds().omegaRadiansPerSecond;
     double ts = Timer.getFPGATimestamp();
-    Logger.getInstance().recordOutput("Drive/Pose", getPose());
-    Logger.getInstance().recordOutput("Drive/ModuleStates", getModuleStates());
-    Logger.getInstance().recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
+    Logger.recordOutput("Drive/Pose", getPose());
+    Logger.recordOutput("Drive/ModuleStates", getModuleStates());
+    Logger.recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
     if (RobotConstants.AScopeLogging) {
       FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
           DriveConstants.kModuleTranslations);
@@ -811,7 +811,7 @@ public class Drive extends ProfiledSubsystem {
 
   public void drive(ChassisSpeeds speeds) {
     SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
-    Logger.getInstance().recordOutput("Drive/DesiredSpeedsInput", moduleStates);
+    Logger.recordOutput("Drive/DesiredSpeedsInput", moduleStates);
 
     m_desChassisSpeeds = speeds;
   }

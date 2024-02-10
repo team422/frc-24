@@ -12,4 +12,24 @@ public class OperatorControlsXbox implements OperatorControls {
     m_controller = new CommandXboxController(xboxControllerPort);
     m_controls = new EricNubControls();
   }
+
+  @Override
+  public Trigger setClimbTop() {
+    return m_controller.rightTrigger();
+  }
+
+  @Override
+  public Trigger setClimbBottom() {
+    return m_controller.leftTrigger();
+  }
+
+  @Override
+  public Trigger climbUp() {
+    return m_controller.rightBumper();
+  }
+
+  @Override
+  public Trigger climbDown() {
+    return m_controller.leftBumper();
+  }
 }

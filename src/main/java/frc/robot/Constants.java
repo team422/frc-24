@@ -15,18 +15,21 @@ import edu.wpi.first.math.util.Units;
 import frc.lib.utils.CustomHolmonomicDrive;
 import frc.lib.utils.TunableNumber;
 
-
 public final class Constants {
-    public static final boolean tuningMode = true;
+  public static final boolean tuningMode = true;
 
   public static final class MetaConstants {
     public static final boolean pathTuningMode = true;
   }
 
-
   public static final class RobotConstants {
     public static final double trackWidth = Units.inchesToMeters(23.5);
     public static final boolean AScopeLogging = true;
+  }
+
+  public static final class Setpoints {
+    public static final double kClimberTop = 2.8;
+    public static final double kClimberBottom = 0.2;
   }
 
   public static final class IntakeConstants {
@@ -37,7 +40,7 @@ public final class Constants {
     public static final class PivotConstants {
       // Real constants
       public static final double gearboxRatio = 46.722;
-      public static final Rotation2d maxAngle = Rotation2d.fromDegrees(86); 
+      public static final Rotation2d maxAngle = Rotation2d.fromDegrees(86);
       public static final Rotation2d minAngle = Rotation2d.fromDegrees(15);
       public static final Rotation2d homeAngle = Rotation2d.fromDegrees(35);
 
@@ -64,7 +67,7 @@ public final class Constants {
     public static final double kMaxAccelerationMetersPerSecondSquared = 3.0;
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = 3.0 * Math.PI;
     public static final double kMaxAccelMetersPerSecondSq = 3.0;
-    public static final double kMaxAngularAccelRadiansPerSecondSq = 3.0 * Math.PI; 
+    public static final double kMaxAngularAccelRadiansPerSecondSq = 3.0 * Math.PI;
 
     public static final CustomHolmonomicDrive holonomicDrive = new CustomHolmonomicDrive(new PIDController(1.0, 0, 0),
         new PIDController(.08, 0, 0), new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
@@ -104,7 +107,8 @@ public final class Constants {
     public static final double kWheelDiameterMeters = Units.inchesToMeters(3.85); // 0.09398; // 3.7 in
 
     public static final double kDriveGearRatio = 6.75;
-    // public static final double kDriveConversionFactor = ((kWheelDiameterMeters * Math.PI) / kDriveGearRatio);
+    // public static final double kDriveConversionFactor = ((kWheelDiameterMeters *
+    // Math.PI) / kDriveGearRatio);
     public static final double kDriveConversionFactor = 1 / 22.0409;
 
     public static final double kTurnPositionConversionFactor = 21.428;
@@ -115,7 +119,7 @@ public final class Constants {
 
   }
 
-    public static final class FieldConstants {
+  public static final class FieldConstants {
     public static final double kFieldLengthMeters = Units.feetToMeters(54.27083);
     public static final double kFieldWidthMeters = Units.feetToMeters(26.2916);
     public static final Pose2d kOppositeField = new Pose2d(kFieldLengthMeters, kFieldWidthMeters,
@@ -140,16 +144,41 @@ public final class Constants {
 
   public static final class Vision {
     public static final class AprilTagVision {
-    public static final Pose3d kRightCameraTransform = new Pose3d(new Translation3d(
-        Units.inchesToMeters(6.366), Units.inchesToMeters(-8.055), Units.inchesToMeters(27.269)),
-        new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(-15)));
+      public static final Pose3d kRightCameraTransform = new Pose3d(new Translation3d(
+          Units.inchesToMeters(6.366), Units.inchesToMeters(-8.055), Units.inchesToMeters(27.269)),
+          new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(-15)));
       public static final Transform3d kleftCameraTransform = new Pose3d(new Translation3d(
-        Units.inchesToMeters(6.366), Units.inchesToMeters(8.055), Units.inchesToMeters(26.269)),
-        new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(15))).minus(new Pose3d());
+          Units.inchesToMeters(6.366), Units.inchesToMeters(8.055), Units.inchesToMeters(26.269)),
+          new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(15))).minus(new Pose3d());
 
     }
+
     public static final class ObjectDetection {
-      
+
+    }
+
+    public static final class ClimbConstants {
+      public static final double kClimbGearRatio = 10.5;
+      public static final double kClimbBarrierDiameter = Units.inchesToMeters(1.5);
+
+      public static final double kMaxVelocity = 15;
+      public static final double kMaxAcceleration = 20;
+      public static final double kMinHeight = 0.0;
+      public static final double kMaxHeight = 3.0;
+
+      public static final TunableNumber kClimbP = new TunableNumber("Climb P", 10, "Climb");
+      public static final TunableNumber kClimbI = new TunableNumber("Climb I", 0.05, "Climb");
+      public static final TunableNumber kClimbD = new TunableNumber("Climb D", 1, "Climb");
+
+      public static final TunableNumber kClimbUpSpeed = new TunableNumber("Climber Up Speed", 0.1, "Climb");
+      public static final TunableNumber kClimbDownSpeed = new TunableNumber("Climber Down Speed", 0.3, "Climb");
+    }
+
+    public static final class OIConstants {
+      public static final int kDriverLeftDriveStickPort = 0;
+      public static final int kDriverRightDriveStickPort = 1;
+
+      public static final double kDualFlightStickDeadzone = 0.3;
     }
   }
 }

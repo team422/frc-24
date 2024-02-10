@@ -31,6 +31,7 @@ public class DriverControlsXboxController implements DriverControls {
     double val = m_controls.addDeadzoneScaled(m_controller.getRightX(), 0.03);
     return -Math.signum(val) * Math.pow(val, 2);
   }
+
   @Override
   public Trigger setShooter45() {
     return m_controller.button(1);

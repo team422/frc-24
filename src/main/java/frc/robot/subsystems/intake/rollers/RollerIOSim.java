@@ -10,7 +10,7 @@ public class RollerIOSim implements RollerIO {
     public RollerIOSim() {
         DCMotor gearbox = DCMotor.getVex775Pro(2);
         double gearing = 3;
-        double jKgMetersSquared = 1;
+        double jKgMetersSquared = 0.02;
         m_sim = new DCMotorSim(gearbox, gearing, jKgMetersSquared);
         m_voltage = 0;
     }
