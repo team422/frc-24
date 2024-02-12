@@ -185,9 +185,9 @@ public final class Constants {
       public static final double kMaxAcceleration = 20;
       public static final double kIndexerTolerance = 0.2;
 
-      public static final TunableNumber kIndexerP = new TunableNumber("Indexer P", 10, "Indexer");
-      public static final TunableNumber kIndexerI = new TunableNumber("Indexer I", 0.05, "Indexer");
-      public static final TunableNumber kIndexerD = new TunableNumber("Indexer D", 1, "Indexer");
+      public static final TunableNumber kIndexerP = new TunableNumber("Indexer P", 2, "Indexer");
+      public static final TunableNumber kIndexerI = new TunableNumber("Indexer I", 0, "Indexer");
+      public static final TunableNumber kIndexerD = new TunableNumber("Indexer D", 0, "Indexer");
       
       public static final ProfiledPIDController kIndexerController = new ProfiledPIDController(
         kIndexerP.get(), kIndexerI.get(), kIndexerD.get(), new Constraints(kMaxVelocity, kMaxAcceleration));

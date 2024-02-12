@@ -35,7 +35,7 @@ public class IndexerTest {
         WheelIO wheelIO = new WheelIOSim();
         SensorIO sensorIOUp = new SensorIOSim();
         SensorIO sensorIODown = new SensorIOSim();
-        ProfiledPIDController controller = new ProfiledPIDController(10, 0.05, 1,
+        ProfiledPIDController controller = new ProfiledPIDController(2, 0, 0,
             new Constraints(15, 20));
         controller.setTolerance(DELTA);
         m_indexer = new Indexer(wheelIO, sensorIOUp, sensorIODown, controller, DELTA);
@@ -50,9 +50,9 @@ public class IndexerTest {
         }
         for (double setpoint : setpoints) {
             m_indexer.setSetpoint(setpoint);
-            sleep(1);
+            sleep(2);
             System.out.println("Setpoint: " + setpoint + " Position: " + m_indexer.m_wheelInputs.position);
-            // assertEquals(m_indexer.m_wheelInputs.position, setpoint, DELTA);
+            assertEquals(m_indexer.m_wheelInputs.position, setpoint, DELTA);
         }
     }
 }
