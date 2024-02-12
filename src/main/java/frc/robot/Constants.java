@@ -2,6 +2,8 @@ package frc.robot;
 import org.apache.commons.math3.geometry.euclidean.threed.Plane;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -12,6 +14,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import frc.lib.utils.CustomHolmonomicDrive;
 import frc.lib.utils.TunableNumber;
 
@@ -172,6 +175,22 @@ public final class Constants {
 
       public static final TunableNumber kClimbUpSpeed = new TunableNumber("Climber Up Speed", 0.1, "Climb");
       public static final TunableNumber kClimbDownSpeed = new TunableNumber("Climber Down Speed", 0.3, "Climb");
+    }
+
+    public static final class IndexerConstants {
+      public static final double kIndexerGearRatio = 1.0;
+      public static final double kIndexerWheelDiameter = Units.inchesToMeters(2.0);
+
+      public static final double kMaxVelocity = 15;
+      public static final double kMaxAcceleration = 20;
+      public static final double kIndexerTolerance = 0.2;
+
+      public static final TunableNumber kIndexerP = new TunableNumber("Indexer P", 10, "Indexer");
+      public static final TunableNumber kIndexerI = new TunableNumber("Indexer I", 0.05, "Indexer");
+      public static final TunableNumber kIndexerD = new TunableNumber("Indexer D", 1, "Indexer");
+      
+      public static final ProfiledPIDController kIndexerController = new ProfiledPIDController(
+        kIndexerP.get(), kIndexerI.get(), kIndexerD.get(), new Constraints(kMaxVelocity, kMaxAcceleration));
     }
 
     public static final class OIConstants {

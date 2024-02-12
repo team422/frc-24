@@ -20,6 +20,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.Setpoints;
 import frc.robot.Constants.Vision.ClimbConstants;
+import frc.robot.Constants.Vision.IndexerConstants;
 import frc.robot.commands.drive.TeleopControllerNoAugmentation;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsXboxController;
@@ -30,6 +31,9 @@ import frc.robot.subsystems.climb.ClimbIOSim;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveModuleIOSim;
 import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
+import frc.robot.subsystems.indexer.Indexer;
+import frc.robot.subsystems.indexer.sensor.SensorIOSim;
+import frc.robot.subsystems.indexer.wheel.WheelIOSim;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.rollers.RollerIOSim;
 import frc.robot.subsystems.shooter.Shooter;
@@ -43,6 +47,7 @@ public class RobotContainer {
   Intake m_intake;
   Shooter m_shooter;
   Climb m_climber;
+  Indexer m_indexer;
 
   DriverControls m_driverControls;
   OperatorControls m_operatorControls;
@@ -75,31 +80,23 @@ public class RobotContainer {
       DriverStation.silenceJoystickConnectionWarning(true);
       m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim(),
                             new RollerIOSim(), IntakeConstants.kIntakeVoltage);
-    }
-    // Logger.recordOutput("kShooterBackLeft", new Pose3d(FieldConstants.kShooterBackLeft, new Rotation3d(0, 0, 0)));
-    // Logger.recordOutput("kShooterBackRight", new Pose3d(FieldConstants.kShooterBackRight, new Rotation3d(0, 0, 0)));
-    // Logger.recordOutput("kShooterFrontLeft", new Pose3d(FieldConstants.kShooterFrontLeft, new Rotation3d(0, 0, 0)));
-    // Logger.recordOutput("kShooterFrontRight", new Pose3d(FieldConstants.kShooterFrontRight, new Rotation3d(0, 0, 0)));
 
-
-    // Instantiate our RobotContainer. This will perform all our button bindings,
-
-    m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()), new Pose2d(),
+      m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()), new Pose2d(),
         new SwerveModuleIOSim(),
         new SwerveModuleIOSim(),
         new SwerveModuleIOSim(),
         new SwerveModuleIOSim());
 
-    if (Robot.isSimulation()) {
       m_shooter = new Shooter(new PivotIOSim());
-    }
 
-    if (Robot.isSimulation()) {
       m_climber = new Climb(new ClimbIOSim(),
           new ProfiledPIDController(ClimbConstants.kClimbP.get(), ClimbConstants.kClimbI.get(),
               ClimbConstants.kClimbD.get(),
               new Constraints(ClimbConstants.kMaxVelocity, ClimbConstants.kMaxAcceleration)),
           ClimbConstants.kMinHeight, ClimbConstants.kMaxHeight);
+
+      m_indexer = new Indexer(new WheelIOSim(), new SensorIOSim(), new SensorIOSim(),
+          IndexerConstants.kIndexerController, IndexerConstants.kIndexerTolerance);
     }
 
     m_robotState = RobotState.startInstance(m_drive, null, null, m_shooter, null, null, m_intake);
