@@ -15,7 +15,6 @@ public class PowerConsumptionHelper {
 
   public void update(double current, double voltage, double time) {
     if (m_lastTime == 0) {
-      System.out.println("RESETTING");
       m_lastTime = time;
       m_lastCurrent = current;
       m_lastVoltage = voltage;

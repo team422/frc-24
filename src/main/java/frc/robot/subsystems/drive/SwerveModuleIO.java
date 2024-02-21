@@ -13,12 +13,20 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
   public static class SwerveModuleInputs {
     public double turnAngleRads;
     public double turnRadsPerSecond;
+    public double[] odometryDrivePositionsMeters = new double[] {};
+    public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
     public double driveDistanceMeters;
     public double driveVelocityMetersPerSecond;
     public double voltageOutDrive;
     public double currentAmpsDrive;
     public double currentAmpsPerVelocity;
     public double driveVelocityMetersPerSecondAbs;
+    public double angleDegrees;
+    public double angleDegreesCanCoder;
+    public double angleDegreesCanCoderPosition;
+    public double currentAmpsSupplied;
+    public double voltageSupplyDrive;
+    public double voltageOutTurn;
   }
 
   public SwerveModulePosition getPosition();
@@ -46,6 +54,12 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
 
   };
 
+  
+
+  default public void setDesiredStateWithAcceleration(SwerveModuleState swerveModuleState, double acceleration){
+    setDesiredState(swerveModuleState);
+  }
+
   default public double getPowerUsage() {
     return 0.0;
   }
@@ -69,5 +83,11 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
   public void setVoltageDriveIgnoreTurn(double driveVoltage);
 
   public void setVoltageTurnIgnoreDrive(double turnVoltage);
+
+  public default void setDriveVelocitySetpoint(double velocityRadsPerSec, double ffVolts) {
+  };
+
+  public default void setTurnPositionSetpoint(double angleRads) {
+  };
 
 }

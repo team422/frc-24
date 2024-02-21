@@ -9,7 +9,24 @@ public interface DriverControls {
 
   public double getDriveRotation();
 
+  public Trigger resetFieldCentric();
+  
+
   // TESTING
   public Trigger setShooter45();
+
+  public Trigger setClimberServoClose();
+
+  public Trigger setClimberServoOpen();
+
+  public default Trigger setClimberServoMove(){
+    return new Trigger(()->false);
+
+  }
+
+  public double intakeNote();
+
+
+ 
 
 }

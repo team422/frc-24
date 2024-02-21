@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import frc.lib.utils.GeomUtil;
 import frc.lib.utils.VirtualSubsystem;
@@ -32,7 +33,8 @@ import frc.robot.Robot;
 import frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIO.AprilTagVisionIOInputs;
 
 public class AprilTagVision extends VirtualSubsystem {
-  private static final double ambiguityThreshold = 0.15;
+  private static final double ambiguityThreshold = .20;
+  private static final double ambiguityThresholdMulti = 5.20;
   private static final double targetLogTimeSecs = 0.1;
   private static final double fieldBorderMargin = 0.5;
   private static final Pose3d[] cameraPoses;
@@ -50,11 +52,15 @@ public class AprilTagVision extends VirtualSubsystem {
   static {
     if (Robot.isReal()) {
       cameraPoses = new Pose3d[] {
+        new Pose3d(
+                  Constants.Vision.AprilTagVisionConstants.kRightCameraTransform.getTranslation(),
+                  new Rotation3d(0.0, Units.degreesToRadians(-10), 0.0)
+                      .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(180+15))).rotateBy(new Rotation3d(Units.degreesToRadians(2.4), 0.0, 0.0))),
           // left
-          new Pose3d(Constants.Vision.AprilTagVision.kRightCameraTransform.getTranslation(),
-              Constants.Vision.AprilTagVision.kRightCameraTransform.getRotation()),
-          new Pose3d(Constants.Vision.AprilTagVision.kleftCameraTransform.getTranslation(),
-              Constants.Vision.AprilTagVision.kleftCameraTransform.getRotation()),
+          new Pose3d(Constants.Vision.AprilTagVisionConstants.kRightCameraTransform.getTranslation(),
+              Constants.Vision.AprilTagVisionConstants.kRightCameraTransform.getRotation()),
+          new Pose3d(Constants.Vision.AprilTagVisionConstants.kleftCameraTransform.getTranslation(),
+              Constants.Vision.AprilTagVisionConstants.kleftCameraTransform.getRotation()),
 
           // right
 
@@ -64,8 +70,12 @@ public class AprilTagVision extends VirtualSubsystem {
 
     } else {
       cameraPoses = new Pose3d[] {
-          new Pose3d(Constants.Vision.AprilTagVision.kRightCameraTransform.getTranslation(),
-              Constants.Vision.AprilTagVision.kRightCameraTransform.getRotation()),
+        new Pose3d(
+          Units.inchesToMeters(0), Units.inchesToMeters(0), Units.inchesToMeters(29),
+                  new Rotation3d(0.0, Units.degreesToRadians(-10), 0.0)
+                      .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(180+15))).rotateBy(new Rotation3d(Units.degreesToRadians(2.4), 0.0, 0.0))),
+          new Pose3d(Constants.Vision.AprilTagVisionConstants.kRightCameraTransform.getTranslation(),
+              Constants.Vision.AprilTagVisionConstants.kRightCameraTransform.getRotation()),
       };
       xyStdDevCoefficient = 0.01;
       thetaStdDevCoefficient = 0.01;
@@ -128,11 +138,13 @@ public class AprilTagVision extends VirtualSubsystem {
                 values[3],
                 values[4],
                 new Rotation3d(new Quaternion(values[5], values[6], values[7], values[8])));
-            robotPose = cameraPose
-                .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
-                .toPose2d();
-            Logger.recordOutput("AprilTagROBOTPose", robotPose);
+            robotPose = cameraPose.toPose2d();
+                // .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
+                // .toPose2d();
+            // Logger.recordOutput("AprilTagROBOTPose", cameraPose
+            // .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse()));
             Logger.recordOutput("AprilTagCAMERAPose", cameraPose);
+            Logger.recordOutput("AprilTagUsedPose", cameraPose); 
             break;
 
           case 2:
@@ -149,25 +161,27 @@ public class AprilTagVision extends VirtualSubsystem {
                 values[11],
                 values[12],
                 new Rotation3d(new Quaternion(values[13], values[14], values[15], values[16])));
-            Pose2d robotPose0 = cameraPose0
-                .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
-                .toPose2d();
-            Pose2d robotPose1 = cameraPose1
-                .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
-                .toPose2d();
+            Pose3d robotPose0 = cameraPose0
+                .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse());
+            Pose3d robotPose1 = cameraPose1
+                .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse());
 
             // Select pose using projection errors
             if (error0 < error1 * ambiguityThreshold) {
               cameraPose = cameraPose0;
-              robotPose = robotPose0;
+              robotPose = robotPose0.toPose2d();
+              Logger.recordOutput("AprilTagROBOTPose0", robotPose0);
+              
+              Logger.recordOutput("AprilTagROBOTPose1", robotPose1);
             } else if (error1 < error0 * ambiguityThreshold) {
               cameraPose = cameraPose1;
-              robotPose = robotPose1;
+              robotPose = robotPose1.toPose2d();
+              Logger.recordOutput("AprilTagROBOTPose0", robotPose0);
+              Logger.recordOutput("AprilTagROBOTPose1", robotPose1);
             }
             // System.out.println()
             if (cameraPose != null && robotPose != null) {
-              Logger.recordOutput("AprilTagROBOTPose", robotPose);
-              Logger.recordOutput("AprilTagCAMERAPose", cameraPose);
+             Logger.recordOutput("AprilTagUsedPose", cameraPose); 
             }
 
             break;
@@ -177,6 +191,8 @@ public class AprilTagVision extends VirtualSubsystem {
         if (cameraPose == null || robotPose == null) {
           continue;
         }
+        System.out.println("Robot Pose: " + robotPose);
+        Logger.recordOutput("AprilTagRobot", robotPose);
 
         // Exit if robot pose is off the field
         if (robotPose.getX() < -fieldBorderMargin
@@ -213,12 +229,15 @@ public class AprilTagVision extends VirtualSubsystem {
         allRobotPoses.add(robotPose);
 
         // Log data from instance
-        Logger.recordOutput(
+        Logger
+            .recordOutput(
                 "AprilTagVision/Inst" + Integer.toString(instanceIndex) + "/LatencySecs",
                 Timer.getFPGATimestamp() - timestamp);
-        Logger.recordOutput(
+        Logger
+            .recordOutput(
                 "AprilTagVision/Inst" + Integer.toString(instanceIndex) + "/RobotPose", robotPose);
-        Logger.recordOutput(
+        Logger
+            .recordOutput(
                 "AprilTagVision/Inst" + Integer.toString(instanceIndex) + "/TagPoses",
                 tagPoses.toArray(new Pose3d[tagPoses.size()]));
       }

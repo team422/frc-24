@@ -77,6 +77,7 @@ public class HardwareProfiler {
   }
 
   public void toJSON() {
+
     Gson gson = new Gson();
     time = LocalDateTime.now().toString();
     String json = gson.toJson(this);

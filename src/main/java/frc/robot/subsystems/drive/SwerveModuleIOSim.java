@@ -9,6 +9,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.lib.utils.CalculusSolver;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 
 public class SwerveModuleIOSim implements SwerveModuleIO {
@@ -23,6 +24,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
   private PIDController m_turnController;
 
   private double m_voltageDrive;
+  private double m_voltageTurn;
 
   public CalculusSolver m_wheelSpeedCalculusSolver;
   public CalculusSolver m_currentCalculusSolver;
@@ -31,16 +33,15 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     // m_curState = new SwerveModuleState();
     // m_desState = new SwerveModuleState();
     // m_curPos = new SwerveModulePosition();
-    m_driveMotor = new DCMotorSim(DCMotor.getNEO(1), ModuleConstants.kDriveGearRatio, ModuleConstants.kDriveJ);
-    m_driveController = new PIDController(ModuleConstants.kDriveP.get(), ModuleConstants.kDriveI.get(),
-        ModuleConstants.kDriveP.get());
-    m_driveFeedforward = new SimpleMotorFeedforward(ModuleConstants.kDriveKS.get(), ModuleConstants.kDriveKV.get(),
-        ModuleConstants.kDriveKA.get());
+    m_driveMotor = new DCMotorSim(DCMotor.getKrakenX60Foc(1), ModuleConstants.kDriveGearRatio, ModuleConstants.kDriveJ);
+    m_driveController = new PIDController(.8,0,0);
+    m_driveFeedforward = new SimpleMotorFeedforward(1.0, 41.0, 2.0);
 
-    m_turnMotor = new DCMotorSim(DCMotor.getNEO(1), ModuleConstants.kTurnPositionConversionFactor,
+    m_turnMotor = new DCMotorSim(DCMotor.getKrakenX60Foc(1), ModuleConstants.kTurnPositionConversionFactor,
         ModuleConstants.kTurningJ);
     m_turnController = new PIDController(ModuleConstants.kTurningPSim.get(), ModuleConstants.kTurningISim.get(),
         ModuleConstants.kTurningDSim.get());
+    m_turnController.enableContinuousInput(-Math.PI, Math.PI);
 
     m_wheelSpeedCalculusSolver = new CalculusSolver(50);
     m_currentCalculusSolver = new CalculusSolver(50);
@@ -54,9 +55,12 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
   }
 
   public void setVoltage(double voltageDrive, double voltageTurn) {
+    m_driveMotor.setInputVoltage(Math.signum(voltageDrive) * Math.min(Math.abs(voltageDrive), 12.0));
     m_voltageDrive = voltageDrive;
-    m_driveMotor.setInputVoltage(voltageDrive);
-    m_turnMotor.setInputVoltage(voltageTurn);
+    m_turnMotor.setInputVoltage(Math.signum(voltageTurn) * Math.min(Math.abs(voltageTurn), 12.0));
+    m_voltageTurn = voltageTurn;
+    m_driveMotor.update(0.02);
+    m_turnMotor.update(0.02);
   }
 
   public void setVoltageDriveOnly(double voltageDrive, SwerveModulePosition position) {
@@ -69,7 +73,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
   }
 
   public void resetDistance() {
-    m_driveMotor = new DCMotorSim(DCMotor.getNEO(1), ModuleConstants.kDriveGearRatio, ModuleConstants.kDriveJ);
+    m_driveMotor = new DCMotorSim(DCMotor.getKrakenX60(1), ModuleConstants.kDriveGearRatio, ModuleConstants.kDriveJ);
   }
 
   public void syncTurningEncoder() {
@@ -93,7 +97,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     double turnPID = m_turnController.calculate(currentAngle, desiredAngle);
     // System.out
     //     .println("DriveFF: " + driveFF + " DrivePID: " + drivePID + " TurnPID: " + turnPID);
-    setVoltage(driveFF, turnPID);
+    setVoltage(driveFF +drivePID, turnPID);
   }
 
   public SwerveModuleState getState() {
@@ -101,7 +105,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
   }
 
   public double getSpeed() {
-    // System.out.println("Speed: " + m_driveMotor.getAngularVelocityRadPerSec() * ModuleConstants.kDriveConversionFactor);
+    // System.out.println("Speed: " + (m_driveMotor.getAngularVelocityRPM()/60)/ModuleConstants.kDriveConversionFactorSim);
     return m_driveMotor.getAngularVelocityRadPerSec() * ModuleConstants.kDriveConversionFactor;
   }
 
@@ -126,8 +130,8 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     inputs.turnRadsPerSecond = m_turnMotor.getAngularVelocityRadPerSec();
     inputs.currentAmpsDrive = m_driveMotor.getCurrentDrawAmps();
     inputs.voltageOutDrive = m_voltageDrive;
-    m_driveMotor.update(0.02);
-    m_turnMotor.update(0.02);
+    inputs.voltageOutTurn = m_voltageTurn;
+    
 
   }
 
