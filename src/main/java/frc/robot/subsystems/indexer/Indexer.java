@@ -40,5 +40,8 @@ public class Indexer extends ProfiledSubsystem {
 
     public void setState(IndexerState state) {
         m_state = state;
+        if (m_state == IndexerState.INDEXING) {
+            io.startIndexingPositionControl();
+        }
     }
 }
