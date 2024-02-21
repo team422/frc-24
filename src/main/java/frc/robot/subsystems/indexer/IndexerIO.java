@@ -23,5 +23,10 @@ public interface IndexerIO extends LoggedIO<IndexerIO.IndexerIOInputs> {
     public boolean inContactWithGamePiece();
 
     public boolean gamePieceReady();
+
+    public void manageState(Indexer.IndexerState state);
+
+    public void startIndexingPositionControl();
+
     
 }

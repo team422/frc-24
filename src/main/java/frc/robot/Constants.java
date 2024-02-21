@@ -219,12 +219,17 @@ public final class Constants {
 
   public static final class IndexerConstants {
     public static final double kIndexerSpeed = 0.5;
+    public static final double kIndexerLength = Units.inchesToMeters(15);
     public static final double kRollerDiameter = Units.inchesToMeters(2);    
+    public static final double gearboxRatio = 1;
+    
+
 
     public static final LoggedTunableNumber kIndexerP = new LoggedTunableNumber("Indexer P", 0.0006, "Indexer");
     public static final LoggedTunableNumber kIndexerI = new LoggedTunableNumber("Indexer I", 0.0, "Indexer");
     public static final LoggedTunableNumber kIndexerD = new LoggedTunableNumber("Indexer D", 0.05, "Indexer");
-    
+  
+    public static final LoggedTunableNumber kShootingSpeed = new LoggedTunableNumber("Shooting Speed", 0.5, "Indexer");
 
   }
 
