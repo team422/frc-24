@@ -81,10 +81,14 @@ public class PivotIOFalcon implements PivotIO {
         controllerConfig = new Slot0Configs().withKP(PivotConstants.kPivotP.get()).withKI(PivotConstants.kPivotI.get()).withKD(PivotConstants.kPivotD.get());
         leaderConfig.Slot0 = controllerConfig;
 
+        leaderTalon.getConfigurator().apply(leaderConfig);
+
+
         // Follower configs
         TalonFXConfiguration followerConfig = new TalonFXConfiguration();
         followerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
+        followerTalon.getConfigurator().apply(followerConfig);
         // Status signals
         armInternalPositionRotations = leaderTalon.getPosition();
         armVelocityRps = leaderTalon.getVelocity();

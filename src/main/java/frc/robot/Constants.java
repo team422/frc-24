@@ -220,7 +220,7 @@ public final class Constants {
   public static final class IndexerConstants {
     public static final double kIndexerSpeed = 0.5;
     public static final double kIndexerLength = Units.inchesToMeters(15);
-    public static final double kRollerDiameter = Units.inchesToMeters(2);    
+    public static final double kRollerDiameter = Units.inchesToMeters(1.6);    
     public static final double gearboxRatio = 1;
     
 
