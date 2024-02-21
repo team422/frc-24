@@ -44,6 +44,17 @@ public class RobotState {
     private ShooterMath m_shooterMath;
     private SwerveTester m_swerveTester;
     private CustomTrajectoryRunner m_customTrajectoryRunner;
+
+
+    public enum GamePieceLocation {
+        INTAKE,
+        INDEXER,
+        SHOOTER,
+        NOT_IN_ROBOT
+    }
+
+    private GamePieceLocation m_gamePieceLocation = GamePieceLocation.NOT_IN_ROBOT;
+
     private RobotState(Drive drive, Climb climb, Indexer indexer, Shooter shooter, ObjectDetectionCam[] objectDetectionCams, AprilTagVision aprilTagVisions, Intake intake) {
         this.m_drive = drive;
         this.m_climb = climb;
@@ -67,10 +78,20 @@ public class RobotState {
         return instance;
     }
 
+
+
    
     public static RobotState getInstance() {
         
         return instance;
+    }
+
+
+    public void setGamePieceLocation(GamePieceLocation location) {
+        m_gamePieceLocation = location;
+        if (location == GamePieceLocation.INDEXER) {
+            m_indexer.setState(Indexer.IndexerState.INDEXING);
+        }
     }
 
     public Pose2d getRobotPose() {
