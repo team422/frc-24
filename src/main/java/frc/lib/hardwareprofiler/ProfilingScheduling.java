@@ -4,24 +4,39 @@ import java.util.ArrayList;
 
 public class ProfilingScheduling {
   private static ProfilingScheduling instance;
-  public SingleProfiling[] allTests;
+  public ArrayList<SingleProfiling> allTests;
   public ArrayList<SingleProfiling.Intensity> intensities;
-  public int currentTestIndex = -1;
   public boolean allTestsFinished = false;
   public SingleProfiling currentTest;
 
-  private ProfilingScheduling(SingleProfiling[] tests, SingleProfiling.Intensity[] intensitiesToRun) {
-    allTests = tests;
+  private ProfilingScheduling() {
+    allTests = new ArrayList<SingleProfiling>();
     intensities = new ArrayList<SingleProfiling.Intensity>();
-    for (SingleProfiling.Intensity intensity : intensitiesToRun) {
-      intensities.add(intensity);
-    }
   }
 
-  public static ProfilingScheduling startInstance(SingleProfiling[] tests,
-      SingleProfiling.Intensity[] intensitiesToRun) {
+  public void addTest(SingleProfiling test, SingleProfiling.Intensity intensity) {
+    allTests.add(test);
+    intensities.add(intensity);
+  }
+
+  public static void updateCurrent() {
+    instance.getCurrentTest().update();
+  }
+
+  public SingleProfiling getCurrentTest() {
+    if (currentTest == null) {
+      startNextTest();
+    }
+    return currentTest;
+  }
+
+  public static boolean hasTests() {
+    return instance.allTests.size() > 0;
+  }
+
+  public static ProfilingScheduling startInstance() {
     if (instance == null) {
-      instance = new ProfilingScheduling(tests, intensitiesToRun);
+      instance = new ProfilingScheduling();
     }
     return instance;
   }
@@ -31,25 +46,16 @@ public class ProfilingScheduling {
   }
 
   public void startNextTest() {
-    currentTestIndex++;
-    if (currentTestIndex < allTests.length) {
-      SingleProfiling currentTest = allTests[currentTestIndex];
-      if (intensities.contains(currentTest.intensity)) {
-        for (int i = 0; i < currentTest.subsystemsInvolved.length; i++) {
-          if (currentTest.subsystemsInvolved[i] instanceof ProfiledSubsystem) {
-            ((ProfiledSubsystem) currentTest.subsystemsInvolved[i])
-                .setTestProfile(currentTest.subsystemsTestProfiles[i]);
-          }
-        }
-        this.currentTest = currentTest;
+    SingleProfiling currentTest = allTests.get(0);
+    if (intensities.contains(currentTest.intensity)) {
+      for (int i = 0; i < currentTest.subsystemsInvolved.length; i++) {
+        currentTest.isResetting = true;
       }
+      this.currentTest = currentTest;
     }
   }
 
   public void readyNextPoint(boolean ready, Enum<?> profile) {
-    if (currentTest != null) {
-      currentTest.setSubsystemReady(ready, profile);
-    }
   }
 
   public boolean checkReadyNextPoint() {
@@ -63,9 +69,11 @@ public class ProfilingScheduling {
 
   public void setFinishTest(Enum<?> profile) {
     if (currentTest != null) {
+      allTests.remove(0);
       currentTest.setSubsystemFinished(profile);
+      currentTest = null;
       if (currentTest.allSubsystemsFinished()) {
-        currentTest.stopAllTests();
+        currentTest.resetToPose();
         startNextTest();
       }
     }

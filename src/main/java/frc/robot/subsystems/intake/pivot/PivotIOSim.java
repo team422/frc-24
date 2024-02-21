@@ -7,7 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
-public class PivotIOSim implements PivotIO {
+public class PivotIOSim implements IntakePivotIO {
     
     private PIDController m_controller;
 
@@ -33,7 +33,7 @@ public class PivotIOSim implements PivotIO {
     }
 
     @Override
-    public void updateInputs(PivotIOInputs inputs) {
+    public void updateInputs(IntakePivotIOInputs inputs) {
         m_armSim.update(0.02);
         inputs.curAngle = (m_armSim.getAngleRads());
         inputs.curSpeed = m_armSim.getVelocityRadPerSec();

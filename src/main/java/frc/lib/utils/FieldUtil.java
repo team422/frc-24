@@ -103,11 +103,11 @@ public class FieldUtil {
   }
 
   private Pose2d transformPose(Pose2d pose) {
-    if(Robot.isSimulation()){
+    // if(Robot.isSimulation()){
       if(DriverStation.getAlliance().isEmpty()){
         return pose;
       }
-    }
+    // }
     if (DriverStation.getAlliance().get() == Alliance.Blue) {
       return pose;
     }

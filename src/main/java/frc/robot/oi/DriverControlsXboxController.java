@@ -31,9 +31,35 @@ public class DriverControlsXboxController implements DriverControls {
     double val = m_controls.addDeadzoneScaled(m_controller.getRightX(), 0.03);
     return -Math.signum(val) * Math.pow(val, 2);
   }
+
+  @Override
+  public Trigger resetFieldCentric(){
+    return m_controller.povUp();
+  }
+
   @Override
   public Trigger setShooter45() {
     return m_controller.button(1);
+  }
+
+  @Override
+  public Trigger setClimberServoClose() {
+    return m_controller.x();
+  }
+
+  @Override
+  public Trigger setClimberServoOpen() {
+    return m_controller.y();
+  }
+
+  @Override
+  public Trigger setClimberServoMove() {
+    return m_controller.a();
+  }
+
+  @Override
+  public double intakeNote(){
+    return m_controller.getLeftTriggerAxis();
   }
 
 }

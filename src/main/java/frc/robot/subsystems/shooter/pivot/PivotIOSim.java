@@ -25,7 +25,7 @@ public class PivotIOSim implements PivotIO {
     }
 
     @Override
-    public void setDesiredAngle(Rotation2d angle) {
+    public void runSetpoint(Rotation2d angle, double feedforward) {
         m_desiredAngle = angle;
     }
 

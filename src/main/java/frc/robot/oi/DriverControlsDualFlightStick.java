@@ -40,8 +40,28 @@ public class DriverControlsDualFlightStick implements DriverControls {
   }
 
   @Override
+  public Trigger resetFieldCentric() {
+    return new Trigger(()->false);
+  }
+
+  @Override
   public Trigger setShooter45() {
     return m_rightJoystick.button(1);
+  }
+
+  @Override
+  public Trigger setClimberServoClose() {
+    return m_leftJoystick.button(1);
+  }
+
+  @Override
+  public Trigger setClimberServoOpen() {
+    return m_leftJoystick.button(2);
+  }
+
+  @Override
+  public double intakeNote() {
+    return m_leftJoystick.getRawAxis(3);
   }
 
 }

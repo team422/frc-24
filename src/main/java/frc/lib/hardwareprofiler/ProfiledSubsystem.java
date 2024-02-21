@@ -7,10 +7,13 @@ public class ProfiledSubsystem extends SubsystemBase {
     super();
   }
 
-  public void setTestProfile(Enum<?> profiles) {
+  public void setProfile(Enum<?> profile) {
   }
 
-  public void stopTestProfile() {
+  public void revertProfile() {
   }
 
+  public void setTestingProfile(Enum<?> profile) {
+  }
+  
 }

@@ -1,0 +1,15 @@
+indexer needs some code finished
+then do climb
+then make sure drive can follow trajectories well
+create the following commands
+shoot at fender
+shoot without auto aim
+shoot at position stopped
+shoot at position at velocity
+plan to shoot at position with velocity
+intake out with shooter aligned
+intake and wait till shooter aligned to push 
+make the pathplanner work 
+make custom game piece detection show up so we can auto detect with pathplanner
+make april tag vision work with multiple cameras
+make all programs on opi's auto start

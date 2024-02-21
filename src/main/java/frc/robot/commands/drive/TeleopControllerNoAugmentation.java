@@ -33,7 +33,7 @@ public class TeleopControllerNoAugmentation extends Command {
     m_controlsHandler = new EricNubControls();
     addRequirements(drive);
   }
-
+  @Override
   public void execute() {
     curXSpeed = xSpeed.get();
     curYSpeed = ySpeed.get();
@@ -44,6 +44,7 @@ public class TeleopControllerNoAugmentation extends Command {
 
     speeds = ChassisSpeeds.fromFieldRelativeSpeeds(curXSpeed, curYSpeed, curZRotation,
         m_drive.getPose().getRotation());
+    // System.out.println(speeds);
     m_drive.drive(speeds);
   }
 }

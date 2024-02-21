@@ -17,10 +17,24 @@ public interface PivotIO extends LoggedIO<PivotIO.PivotIOInputs>{
         public double desiredAngle;
         public double curSpeed;
         public double voltage;
+
+        public boolean firstMotorConnected = true;
+        public boolean secondMotorConnected = true;
+    
+        public double armPositionRads = 0.0;
+        public double armEncoderPositionRads = 0.0;
+        public double armAbsoluteEncoderPositionRads = 0.0;
+        public double armVelocityRadsPerSec = 0.0;
+        public double[] armAppliedVolts = new double[] {};
+        public double[] armCurrentAmps = new double[] {};
+        public double[] armTorqueCurrentAmps = new double[] {};
+        public double[] armTempCelcius = new double[] {};
+        public boolean absoluteEncoderConnected = true;
+
     }
     
 
-    public void setDesiredAngle(Rotation2d angle);
+    public void runSetpoint(Rotation2d angle, double feedforward);
 
     public void updateInputs(PivotIOInputs inputs);
 }
