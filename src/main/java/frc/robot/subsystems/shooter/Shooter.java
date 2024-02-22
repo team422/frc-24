@@ -12,7 +12,7 @@ import edu.wpi.first.math.util.Units;
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
 import frc.robot.Constants;
 import frc.robot.Robot;
-import frc.robot.Constants.ShooterConstants.PivotConstants;
+import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
 import frc.robot.subsystems.shooter.pivot.PivotIOInputsAutoLogged;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOInputsAutoLogged;
@@ -40,8 +40,8 @@ public class Shooter extends ProfiledSubsystem {
         m_flywheelIO = flywheelIO;
           motionProfile =
         new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(Constants.ShooterConstants.PivotConstants.maxSpeed, Constants.ShooterConstants.PivotConstants.maxAcceleration));
-        ff = new ArmFeedforward(PivotConstants.kPivotkS.get(),PivotConstants.kPivotkG.get(), PivotConstants.kPivotkV.get(), PivotConstants.kPivotkA.get());
+            new TrapezoidProfile.Constraints(Constants.ShooterConstants.ShooterPivotConstants.maxSpeed, Constants.ShooterConstants.ShooterPivotConstants.maxAcceleration));
+        ff = new ArmFeedforward(ShooterPivotConstants.kPivotkS.get(),ShooterPivotConstants.kPivotkG.get(), ShooterPivotConstants.kPivotkV.get(), ShooterPivotConstants.kPivotkA.get());
         
         m_inputsPivot = new PivotIOInputsAutoLogged();
         m_inputsFlywheel = new FlywheelIOInputsAutoLogged();
@@ -61,7 +61,7 @@ public class Shooter extends ProfiledSubsystem {
 
     public void setPivotAngle(Rotation2d angle) {
         if (Robot.isSimulation()) {
-            angle = angle.minus(PivotConstants.simOffset);
+            angle = angle.minus(ShooterPivotConstants.simOffset);
         }
         // System.out.println("Setting angle to: "+angle.getDegrees());
         setpointState =
@@ -71,8 +71,8 @@ public class Shooter extends ProfiledSubsystem {
               new TrapezoidProfile.State(
                   MathUtil.clamp(
                       m_desiredAngle.getRadians(),
-                      PivotConstants.minAngle.getRadians(),
-                      PivotConstants.maxAngle.getRadians()),
+                      ShooterPivotConstants.minAngle.getRadians(),
+                      ShooterPivotConstants.maxAngle.getRadians()),
                   0.0));
 
         // m_pivotIO.setDesiredAngle(angle);
@@ -83,6 +83,9 @@ public class Shooter extends ProfiledSubsystem {
         m_flywheelIO.setDesiredSpeed(speed);
     }
 
+    public Rotation2d getPivotAngle() {
+        return m_pivotIO.getDesiredAngle();
+    }
 
     public Transform3d getTransform() {
         // Rotation2d m_rotation = Rotation2d.fromDegrees(90).minus(Rotation2d.fromDegrees(m_inputs.curAngle));

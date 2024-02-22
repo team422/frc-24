@@ -20,7 +20,8 @@ import frc.lib.hardwareprofiler.HardwareProfiler;
 import frc.lib.hardwareprofiler.ProfilingScheduling;
 import frc.lib.utils.SwerveTester;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.ShooterConstants.PivotConstants;
+import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
 import frc.robot.commands.autonomous.CustomTrajectoryRunner;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.drive.Drive;
@@ -84,6 +85,16 @@ public class RobotState {
     public static RobotState getInstance() {
         
         return instance;
+    }
+
+
+    public Rotation2d getMaxIntakeAngle() {
+        // first get desired angle of the shooter
+        Rotation2d shooterAngle = m_shooter.getPivotAngle();
+        if (shooterAngle.getDegrees() < 20) {
+            return IntakeConstants.kIntakeMaxMovedAngle;
+        }
+        return IntakeConstants.kIntakeMaxAngle;
     }
 
 

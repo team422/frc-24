@@ -37,4 +37,8 @@ public interface PivotIO extends LoggedIO<PivotIO.PivotIOInputs>{
     public void runSetpoint(Rotation2d angle, double feedforward);
 
     public void updateInputs(PivotIOInputs inputs);
+
+    public Rotation2d getDesiredAngle();
+
+    public Rotation2d getCurrentAngle();
 }
