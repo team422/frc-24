@@ -18,5 +18,8 @@ public interface IntakePivotIO extends LoggedIO<IntakePivotIO.IntakePivotIOInput
     public void setDesiredAngle(Rotation2d angle);
 
     public void updateInputs(IntakePivotIOInputs inputs);
+
+    public Rotation2d getAngle();
+
     
 }

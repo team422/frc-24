@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.Constants.IndexerConstants;
-import frc.robot.Constants.ShooterConstants.PivotConstants;
+import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
 import frc.robot.RobotState.GamePieceLocation;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
 

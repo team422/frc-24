@@ -72,6 +72,13 @@ public final class Constants {
     public static final double intakeSpeed = 0.5;
     public static final double intakeSpeedToMPS = 1 * Units.inchesToMeters(1.5) * Math.PI;
     public static final double pivotGearRatio = 1;
+    public static final Rotation2d kIntakeMaxMovedAngle = Rotation2d.fromDegrees(75);
+    public static final Rotation2d kIntakeMaxAngle = Rotation2d.fromDegrees(90);
+    public static final Rotation2d kIntakeMinAngle = Rotation2d.fromDegrees(0);
+    public static final LoggedTunableNumber kIntakeP = new LoggedTunableNumber("Intake P", 0.0006, "Intake");
+    public static final LoggedTunableNumber kIntakeI = new LoggedTunableNumber("Intake I", 0.0, "Intake");
+    public static final LoggedTunableNumber kIntakeD = new LoggedTunableNumber("Intake D", 0.05, "Intake");
+    
 
   public static final class IntakeConstants {
     public static final double kIntakeVoltage = 12;
@@ -91,7 +98,7 @@ public final class Constants {
 
     }
 
-    public static final class PivotConstants {
+    public static final class ShooterPivotConstants {
       // Real constants
       public static final double gearboxRatio = 46.722;
       public static final TunableNumber kPivotP = new TunableNumber("Pivot P", 0.0006, "Shooter");
@@ -216,6 +223,15 @@ public final class Constants {
     
     // public static final Pose3d kShooterMiddle = Pose3d()
     
+  }
+
+  public static final class ClimbConstants {
+    public static final int kServoPort = 9;
+    public static final int kServoPort2 = 8;
+    public static final double kLockPosition = 0.5;
+    public static final double kUnlockPosition = 0.0;
+
+    public static final double gearboxRatio = 1;
   }
 
   public static final class IndexerConstants {

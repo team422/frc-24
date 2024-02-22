@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
+import frc.robot.RobotState;
 import frc.robot.subsystems.intake.pivot.IntakePivotIO;
 import frc.robot.subsystems.intake.pivot.IntakePivotIOInputsAutoLogged;
 import frc.robot.subsystems.intake.rollers.RollerIO;
@@ -21,12 +22,15 @@ public class Intake extends ProfiledSubsystem {
     RollerIO m_rollerIO;
     RollerIOInputsAutoLogged m_rollerInputs;
 
+    Rotation2d m_rotation;
+
     public Intake(IntakePivotIO io, RollerIO rollerIO) {
         super();
         m_PivotIO = io;
         m_rollerIO = rollerIO;
         m_pivotInputs = new IntakePivotIOInputsAutoLogged();
         m_rollerInputs = new RollerIOInputsAutoLogged();
+        m_rotation = io.getAngle();
     }
 
     @Override
@@ -39,6 +43,12 @@ public class Intake extends ProfiledSubsystem {
         Logger.processInputs("Intake Pivot", m_pivotInputs);
         m_rollerIO.updateInputs(m_rollerInputs);
         Logger.processInputs("Intake Roller", m_rollerInputs);
+
+        if (RobotState.getInstance().getMaxIntakeAngle().getDegrees() < m_PivotIO.getAngle().getDegrees()){
+            m_PivotIO.setDesiredAngle(RobotState.getInstance().getMaxIntakeAngle());
+        } else {
+            m_PivotIO.setDesiredAngle(m_rotation);
+        }
     }
 
     public void setRollerVoltage(double voltage) {

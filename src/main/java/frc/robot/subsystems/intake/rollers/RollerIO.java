@@ -15,4 +15,6 @@ public interface RollerIO extends LoggedIO<RollerIO.RollerIOInputs> {
 
     public void setVoltage(double voltage);
 
+   
+
 }

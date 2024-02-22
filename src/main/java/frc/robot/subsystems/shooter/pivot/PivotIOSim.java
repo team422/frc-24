@@ -7,7 +7,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import frc.robot.Constants.ShooterConstants.PivotConstants;
+import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
 
 public class PivotIOSim implements PivotIO {
 
@@ -19,7 +19,7 @@ public class PivotIOSim implements PivotIO {
     public PIDController  m_Controller;
 
     public PivotIOSim() {
-        m_armSim = new SingleJointedArmSim(DCMotor.getFalcon500Foc(1),PivotConstants.gearboxRatio,10, .13,Rotation2d.fromDegrees(-20).getRadians(),PivotConstants.maxAngle.getRadians(),false,PivotConstants.homeAngle.getRadians()); 
+        m_armSim = new SingleJointedArmSim(DCMotor.getFalcon500Foc(1),ShooterPivotConstants.gearboxRatio,10, .13,Rotation2d.fromDegrees(-20).getRadians(),ShooterPivotConstants.maxAngle.getRadians(),false,ShooterPivotConstants.homeAngle.getRadians()); 
         m_desiredAngle = Rotation2d.fromDegrees(30);
         m_Controller = new PIDController(10.7,0,0);
     }
@@ -38,6 +38,16 @@ public class PivotIOSim implements PivotIO {
         double output = m_Controller.calculate(m_inputs.curAngle, m_desiredAngle.getRadians());
         m_inputs.voltage = output;
         m_armSim.setInputVoltage(output);
+    }
+
+    @Override
+    public Rotation2d getDesiredAngle() {
+        return m_desiredAngle;
+    }
+
+    @Override
+    public Rotation2d getCurrentAngle() {
+        return Rotation2d.fromRadians(m_armSim.getAngleRads());
     }
     
 }

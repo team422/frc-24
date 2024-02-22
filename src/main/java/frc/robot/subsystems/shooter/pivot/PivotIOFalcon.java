@@ -2,6 +2,8 @@ package frc.robot.subsystems.shooter.pivot;
 
 import java.util.List;
 
+import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -24,7 +26,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import frc.robot.Constants.ShooterConstants.PivotConstants;
+import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
 
 public class PivotIOFalcon implements PivotIO {
     // Hardware
@@ -72,13 +74,13 @@ public class PivotIOFalcon implements PivotIO {
         leaderConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         leaderConfig.Feedback.SensorToMechanismRatio = 1.0;
-        leaderConfig.Feedback.RotorToSensorRatio = PivotConstants.gearboxRatio;
+        leaderConfig.Feedback.RotorToSensorRatio = ShooterPivotConstants.gearboxRatio;
         
         
         leaderTalon.setPosition(getCurrentAngle().getRotations(), 0.02);
         
         // Set up controller
-        controllerConfig = new Slot0Configs().withKP(PivotConstants.kPivotP.get()).withKI(PivotConstants.kPivotI.get()).withKD(PivotConstants.kPivotD.get());
+        controllerConfig = new Slot0Configs().withKP(ShooterPivotConstants.kPivotP.get()).withKI(ShooterPivotConstants.kPivotI.get()).withKD(ShooterPivotConstants.kPivotD.get());
         leaderConfig.Slot0 = controllerConfig;
 
         leaderTalon.getConfigurator().apply(leaderConfig);
@@ -158,8 +160,15 @@ public class PivotIOFalcon implements PivotIO {
     }
 
 
+  
+    
+    @Override
+    public Rotation2d getDesiredAngle() {
+        return m_desiredAngle;
+    }
+
+    @Override
     public Rotation2d getCurrentAngle() {
         return Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition());
     }
-    
 }
