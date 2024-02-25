@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.MotorFeedbackSensor;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 
@@ -24,11 +25,17 @@ public class PivotIOSparkMax implements IntakePivotIO {
     Rotation2d m_desiredAngle;
     SparkPIDController m_controller;
 
+    
+
     public PivotIOSparkMax(int motorID) {
         m_motor = new CANSparkMax(motorID, MotorType.kBrushless);
         m_encoder = m_motor.getAbsoluteEncoder(Type.kDutyCycle);
         m_encoder.setPositionConversionFactor(Constants.IntakeConstants.pivotGearRatio);
-        m_desiredAngle = Rotation2d.fromRotations(m_encoder.getPosition());
+        m_encoder.setZeroOffset(Rotation2d.fromDegrees(70).getRadians());
+        m_motor.setIdleMode(IdleMode.kBrake);
+
+        m_desiredAngle = Rotation2d.fromRadians(m_encoder.getPosition());
+
         m_motor.setSmartCurrentLimit(45);
         m_controller = m_motor.getPIDController();
         m_controller.setFeedbackDevice(m_encoder);
@@ -44,12 +51,13 @@ public class PivotIOSparkMax implements IntakePivotIO {
 
     @Override
     public void updateInputs(IntakePivotIOInputs inputs) {
-        inputs.curAngle = m_encoder.getPosition();
+
+        inputs.curAngle = Rotation2d.fromRadians(m_encoder.getPosition()).getDegrees();
 
         inputs.curSpeed = m_motor.getEncoder().getVelocity();
         inputs.desiredAngle = m_encoder.getPosition();
         inputs.voltage = m_motor.getAppliedOutput();
-        
+        inputs.desiredAngle = m_desiredAngle.getDegrees();
         inputs.desiredVoltage = m_motor.get();
 
     }
@@ -57,13 +65,20 @@ public class PivotIOSparkMax implements IntakePivotIO {
     @Override
     public void setDesiredAngle(Rotation2d angle) {
         m_desiredAngle = angle;
-        m_controller.setReference(angle.getRotations(), ControlType.kPosition, 0);
+        m_controller.setReference(angle.getRadians(), ControlType.kPosition, 0);
     }
 
 
     @Override
     public Rotation2d getAngle() {
         return Rotation2d.fromRotations(m_encoder.getPosition());
+    }
+
+    @Override
+    public void setPID(double kP,double kI, double kD){
+        m_controller.setP(kP, 0);
+        m_controller.setI(kI, 0);
+        m_controller.setD(kD, 0);
     }
    
     

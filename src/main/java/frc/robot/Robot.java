@@ -89,6 +89,7 @@ public class Robot extends LoggedRobot {
     robotContainer.onEnabled();
     // RobotState.getInstance().setDriveType(DriveProfiles.kFFdrive);
     autonomousCommand = robotContainer.getAutonomousCommand();
+    // autonomousCommand = Commands.none();
 
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {

@@ -7,6 +7,8 @@ public class GyroIOSim implements GyroIO {
   // simulated FRC gyro
   AnalogGyroSim m_sim;
 
+  
+
   public GyroIOSim() {
 
     m_sim = new AnalogGyroSim(1);

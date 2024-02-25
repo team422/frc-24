@@ -60,4 +60,9 @@ public class DriverControlsDualFlightStick implements DriverControls {
     return m_leftJoystick.getRawAxis(3);
   }
 
+  @Override
+  public Trigger goToIntakePosition(){
+    return m_leftJoystick.button(1);
+  }
+
 }

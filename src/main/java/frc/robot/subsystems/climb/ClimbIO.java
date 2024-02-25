@@ -13,12 +13,18 @@ public interface ClimbIO extends LoggedIO<ClimbIO.ClimbIOInputs> {
         public double outputCurrent;
         public double desiredSpeeds;
         public double height;
+        public double servoOnePosition;
+        public double servoTwoPosition;
 
     }
+
+    public void setSpeed(double speed);
 
     public void lockServos();
 
     public void unlockServos();
+
+    public void setServoPosition(double position);
 
     public void updateInputs(ClimbIOInputs inputs);
     

@@ -12,12 +12,14 @@ public interface GyroIO extends LoggedIO<GyroInputs> {
     public double angle;
     public double pitch;
     public int connected;
+    public Rotation2d[] odometryYawPositions = new Rotation2d[] {};
     public double rollPositionRad = 0.0;
     public double pitchPositionRad = 0.0;
     public double yawPositionRad = 0.0;
     public double rollVelocityRadPerSec = 0.0;
     public double pitchVelocityRadPerSec = 0.0;
     public double yawVelocityRadPerSec = 0.0;
+    public Rotation2d yawPosition;
   }
 
   public Rotation2d getAngle();

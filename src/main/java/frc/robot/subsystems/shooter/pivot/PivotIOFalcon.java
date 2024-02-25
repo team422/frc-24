@@ -10,7 +10,9 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -20,12 +22,16 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.revrobotics.AbsoluteEncoder;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.robot.Robot;
 import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
 
 public class PivotIOFalcon implements PivotIO {
@@ -43,54 +49,72 @@ public class PivotIOFalcon implements PivotIO {
     private final List<StatusSignal<Double>> armTempCelsius;
 
     // Control
-    private final Slot0Configs controllerConfig;
+    private Slot0Configs controllerConfig;
     private final VoltageOut voltageControl =
         new VoltageOut(0.0).withEnableFOC(true).withUpdateFreqHz(0.0);
     private final TorqueCurrentFOC currentControl = new TorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
     private final PositionTorqueCurrentFOC positionControl =
         new PositionTorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
-
+    private final PositionDutyCycle positionDutyCycle = 
+        new PositionDutyCycle(0.0).withUpdateFreqHz(0.0);
+        private final PositionVoltage positionVoltageCycle = 
+        new PositionVoltage(0.0).withUpdateFreqHz(0.0).withEnableFOC(true);
     
 
     private Rotation2d m_desiredAngle;
 
+    private DCMotorSim m_pivotSim = new DCMotorSim(DCMotor.getFalcon500Foc(2),ShooterPivotConstants.gearboxRatio, 0.05);
+    // FOR SIM ONLY
+    private CANcoder m_canCoder;
 
 
     public PivotIOFalcon(int primaryMotor, int secondaryMotor, int absoluteEncoderPort) {
         absoluteEncoder = new DutyCycleEncoder(absoluteEncoderPort);
         leaderTalon = new TalonFX(primaryMotor, "rio");
         followerTalon = new TalonFX(secondaryMotor, "rio");
-        followerTalon.setControl(new Follower(primaryMotor, true));
         
         // Absolute encoder configs
-        absoluteEncoder.setPositionOffset(absoluteEncoderPort);
-        m_desiredAngle = getCurrentAngle();
+        absoluteEncoder.setPositionOffset(ShooterPivotConstants.kOffset);
+        absoluteEncoder.setDistancePerRotation(-1);
+        
         
         
         // Leader motor configs
         TalonFXConfiguration leaderConfig = new TalonFXConfiguration();
         leaderConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
         leaderConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        leaderConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        leaderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        leaderConfig.Feedback.SensorToMechanismRatio = 1.0;
-        leaderConfig.Feedback.RotorToSensorRatio = ShooterPivotConstants.gearboxRatio;
+        leaderConfig.Feedback.SensorToMechanismRatio = ShooterPivotConstants.gearboxRatio;
+        leaderConfig.Feedback.RotorToSensorRatio = 1.0;
+        // enable foc
         
         
-        leaderTalon.setPosition(getCurrentAngle().getRotations(), 0.02);
+        
         
         // Set up controller
-        controllerConfig = new Slot0Configs().withKP(ShooterPivotConstants.kPivotP.get()).withKI(ShooterPivotConstants.kPivotI.get()).withKD(ShooterPivotConstants.kPivotD.get());
+        controllerConfig = new Slot0Configs();
+        controllerConfig.kP = ShooterPivotConstants.kPivotP.get();
+        controllerConfig.kI = ShooterPivotConstants.kPivotI.get();
+        controllerConfig.kD = ShooterPivotConstants.kPivotD.get();
         leaderConfig.Slot0 = controllerConfig;
-
+        
+        leaderTalon.setPosition(Rotation2d.fromRotations(absoluteEncoder.get()).getRotations(), 0.0);
         leaderTalon.getConfigurator().apply(leaderConfig);
-
-
+        if(Robot.isSimulation()){
+            m_canCoder = new CANcoder(60);
+            m_canCoder.setPosition(0);
+        }
+        m_desiredAngle = getCurrentAngle();
+        
         // Follower configs
-        TalonFXConfiguration followerConfig = new TalonFXConfiguration();
-        followerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-
-        followerTalon.getConfigurator().apply(followerConfig);
+        
+        // leaderConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        
+        
+        followerTalon.getConfigurator().apply(leaderConfig);
+        followerTalon.setControl(new Follower(primaryMotor, false));
+        // leaderTalon.setPosition(absoluteEncoder.get());
         // Status signals
         armInternalPositionRotations = leaderTalon.getPosition();
         armVelocityRps = leaderTalon.getVelocity();
@@ -123,11 +147,15 @@ public class PivotIOFalcon implements PivotIO {
     @Override
     public void runSetpoint(Rotation2d angle, double feedforward) {
         m_desiredAngle = angle;
-        leaderTalon.setControl(positionControl.withPosition(m_desiredAngle.getRotations()).withFeedForward(feedforward));
+
+        System.out.println(angle);
+        leaderTalon.setControl(positionVoltageCycle.withPosition(m_desiredAngle.getRotations()).withUpdateFreqHz(0));
     }
 
     @Override
     public void updateInputs(PivotIOInputs inputs) {
+        leaderTalon.setPosition(getCurrentAngle().getRotations(), 0.0);
+        
         inputs.firstMotorConnected =
             BaseStatusSignal.refreshAll(
                     armInternalPositionRotations,
@@ -145,7 +173,8 @@ public class PivotIOFalcon implements PivotIO {
                     armTempCelsius.get(1))
                 .isOK();
 
-        inputs.armPositionRads = Units.rotationsToRadians(armInternalPositionRotations.getValue());
+        inputs.armPositionRads = Units.rotationsToDegrees(armInternalPositionRotations.getValue());
+        inputs.absolutePositionDegrees = getCurrentAngle().getDegrees();
         inputs.armVelocityRadsPerSec = Units.rotationsToRadians(armVelocityRps.getValue());
         inputs.armAppliedVolts =
             armAppliedVoltage.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
@@ -156,7 +185,27 @@ public class PivotIOFalcon implements PivotIO {
         inputs.armTempCelcius =
             armTempCelsius.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
         inputs.curAngle = getCurrentAngle().getDegrees();
+        inputs.desiredAngle = m_desiredAngle.getDegrees();
+        if(Robot.isSimulation()){
+            simulationPeriodic();
+        }
         
+    }
+
+
+    public void simulationPeriodic(){
+        TalonFXSimState lSimState = leaderTalon.getSimState();
+        System.out.println(lSimState.getMotorVoltage());
+        m_pivotSim.setInputVoltage(lSimState.getMotorVoltage());
+
+        m_pivotSim.update(0.02);
+
+        leaderTalon.getSimState().addRotorPosition(m_pivotSim.getAngularVelocityRPM()*0.02/60.0);
+        followerTalon.getSimState().addRotorPosition(m_pivotSim.getAngularVelocityRPM()*0.02/60.0);
+
+        m_canCoder.getSimState().setRawPosition(m_pivotSim.getAngularPositionRotations()/ShooterPivotConstants.gearboxRatio);
+
+
     }
 
 
@@ -169,6 +218,15 @@ public class PivotIOFalcon implements PivotIO {
 
     @Override
     public Rotation2d getCurrentAngle() {
-        return Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition());
+        if(Robot.isSimulation()){
+            return Rotation2d.fromRotations(m_canCoder.getAbsolutePosition().getValueAsDouble());
+        }
+
+        return Rotation2d.fromDegrees(Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition()-absoluteEncoder.getPositionOffset()+0.5).getDegrees() % 180);
+    }
+
+    @Override
+    public double getCurrentVelocity() {
+        return Rotation2d.fromRotations(armVelocityRps.getValueAsDouble()).getRadians();
     }
 }

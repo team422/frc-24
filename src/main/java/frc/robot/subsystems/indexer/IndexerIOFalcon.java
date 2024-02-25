@@ -34,6 +34,8 @@ private final PositionTorqueCurrentFOC positionControl =
 
     DigitalInput m_initialBeamBreak;
     DigitalInput m_finalBeamBreak;
+
+    private final VelocityTorqueCurrentFOC velocityControl = new VelocityTorqueCurrentFOC(0.0);
         
 
 
@@ -48,20 +50,21 @@ private final PositionTorqueCurrentFOC positionControl =
         TalonFXConfiguration leaderConfig = new TalonFXConfiguration();
         leaderConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
         leaderConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        leaderConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        leaderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         leaderConfig.Feedback.SensorToMechanismRatio = 1.0;
         leaderConfig.Feedback.RotorToSensorRatio = IndexerConstants.gearboxRatio;
         leaderConfig.Slot0 = m_slot0;
 
-        m_falconFirst.getConfigurator().apply(leaderConfig);
+        m_config.apply(leaderConfig);
 
         m_falconSecond = new TalonFX(motorID2);
-        m_falconSecond.setControl(new Follower(motorID, false));
+        // m_falconSecond.setControl(new Follower(motorID, false));
         
         TalonFXConfiguration followerConfig = new TalonFXConfiguration();
-        followerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        followerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         followerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        followerConfig.Slot0 = m_slot0;
 
         m_falconSecond.getConfigurator().apply(followerConfig);
 
@@ -95,23 +98,32 @@ private final PositionTorqueCurrentFOC positionControl =
         if (state == IndexerState.IDLE) {
             m_falconFirst.set(0);
         } else if (state == IndexerState.INTAKING) {
-            m_falconFirst.setControl(new VelocityTorqueCurrentFOC(IndexerConstants.kIndexerSpeed));
+            m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
+            m_falconSecond.setControl(velocityControl.withVelocity(0));
+            m_falconSecond.setControl(velocityControl.withVelocity(0));
             if (m_initialBeamBreak.get()) {
                 RobotState.getInstance().setGamePieceLocation(GamePieceLocation.INDEXER);
             }
         } else if (state == IndexerState.INDEXING) {
-            m_falconFirst.setControl(positionControl.withPosition(IndexerConstants.kIndexerLength/IndexerConstants.kRollerDiameter));
+            m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
+            m_falconSecond.setControl(velocityControl.withVelocity(0));
             if (m_finalBeamBreak.get()) {
                 m_falconFirst.setPosition(0);
             }
 
         } else if (state == IndexerState.SHOOTING) {
-            m_falconFirst.set(Constants.IndexerConstants.kShootingSpeed.get());
+            m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
+            m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
         }
     }
 
     @Override
     public void startIndexingPositionControl() {
         m_falconFirst.setPosition(0,0.02);
+    }
+
+    @Override
+    public void setSpeed(double speed) {
+        m_falconFirst.setControl(velocityControl.withVelocity(speed));
     }
 }

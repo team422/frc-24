@@ -8,7 +8,10 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
+import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.RobotState;
+import frc.robot.Constants.IntakeConstants;
+import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.subsystems.intake.pivot.IntakePivotIO;
 import frc.robot.subsystems.intake.pivot.IntakePivotIOInputsAutoLogged;
 import frc.robot.subsystems.intake.rollers.RollerIO;
@@ -39,12 +42,17 @@ public class Intake extends ProfiledSubsystem {
 
     @Override
     public void periodic() {
+
+        LoggedTunableNumber.ifChanged(
+      hashCode(), () -> {
+        m_PivotIO.setPID(IntakeConstants.kIntakeP.get(),IntakeConstants.kIntakeI.get(),IntakeConstants.kIntakeD.get());
+        }, IntakeConstants.kIntakeP,IntakeConstants.kIntakeI,IntakeConstants.kIntakeD);
         m_PivotIO.updateInputs(m_pivotInputs);
         Logger.processInputs("Intake Pivot", m_pivotInputs);
         m_rollerIO.updateInputs(m_rollerInputs);
         Logger.processInputs("Intake Roller", m_rollerInputs);
 
-        if (RobotState.getInstance().getMaxIntakeAngle().getDegrees() < m_PivotIO.getAngle().getDegrees()){
+        if (RobotState.getInstance().getMaxIntakeAngle().getDegrees() < m_rotation.getDegrees()){
             m_PivotIO.setDesiredAngle(RobotState.getInstance().getMaxIntakeAngle());
         } else {
             m_PivotIO.setDesiredAngle(m_rotation);
@@ -56,12 +64,18 @@ public class Intake extends ProfiledSubsystem {
     }
 
     public void setPivotAngle(Rotation2d angle) {
-        m_PivotIO.setDesiredAngle(angle);
+        m_rotation = angle;
+        // m_PivotIO.setDesiredAngle(angle);
     }
 
-    // public void setIntakeSpeed(double speed) {
-    //     m_rollerIO.setVoltage(speed);
-    // }
+    public void addDegreesToPivotAngle(double degrees) {
+        m_rotation = m_rotation.plus(Rotation2d.fromDegrees(degrees));
+        // m_PivotIO.setDesiredAngle(m_PivotIO.getAngle().plus(Rotation2d.fromDegrees(degrees)));
+    }
+
+    public void setIntakeSpeed(double speed) {
+        m_rollerIO.setVoltage(speed);
+    }
 
 
     public Transform3d getTransform() {

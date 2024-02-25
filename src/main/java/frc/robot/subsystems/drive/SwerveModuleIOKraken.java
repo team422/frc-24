@@ -1,6 +1,9 @@
 package frc.robot.subsystems.drive;
 
+import java.util.Queue;
 import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
@@ -8,25 +11,33 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 public class SwerveModuleIOKraken implements SwerveModuleIO {
@@ -35,29 +46,58 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
 
     private CANcoder m_turnEncoder;
 
-    private StatusSignal<Double> drivePosition;
-    private StatusSignal<Double> driveVelocity;
-    private StatusSignal<Double> driveAppliedVolts;
-    private StatusSignal<Double> driveSupplyCurrent;
-    private StatusSignal<Double> driveTorqueCurrent;
+    // Status Signals
+  private final StatusSignal<Double> drivePosition;
+  private final StatusSignal<Double> driveVelocity;
+  private final StatusSignal<Double> driveAppliedVolts;
+  private final StatusSignal<Double> driveSupplyCurrent;
+  private final StatusSignal<Double> driveTorqueCurrent;
 
-    private StatusSignal<Double> turnPosition;
-    private Supplier<Rotation2d> turnAbsolutePosition;
-    private StatusSignal<Double> turnVelocity;
-    private StatusSignal<Double> turnAppliedVolts;
-    private StatusSignal<Double> turnSupplyCurrent;
-    private StatusSignal<Double> turnTorqueCurrent;
+  private final StatusSignal<Double> turnPosition;
+  private final Supplier<Rotation2d> turnAbsolutePosition;
+  private final StatusSignal<Double> turnVelocity;
+  private final StatusSignal<Double> turnAppliedVolts;
+  private final StatusSignal<Double> turnSupplyCurrent;
+  private final StatusSignal<Double> turnTorqueCurrent;
 
+    
     TalonFXConfiguration driveConfig;
     TalonFXConfiguration turnConfig;
 
-    Slot0Configs driveFeedbackConfigs;
-    Slot0Configs turnFeedbackConfigs;
+    private final Slot0Configs driveFeedbackConfig = new Slot0Configs();
+  private final Slot0Configs turnFeedbackConfig = new Slot0Configs();
     PIDController mController;
 
+    private final Queue<Double> drivePositionQueue;
+    private final Queue<Double> turnPositionQueue;
+
+      // Control
+  private final VoltageOut driveVoltage = new VoltageOut(0).withUpdateFreqHz(0);
+  private final VoltageOut turnVoltage = new VoltageOut(0).withUpdateFreqHz(0);
+  private final TorqueCurrentFOC driveCurrent = new TorqueCurrentFOC(0).withUpdateFreqHz(0);
+  private final TorqueCurrentFOC turnCurrent = new TorqueCurrentFOC(0).withUpdateFreqHz(0);
+  private final VelocityTorqueCurrentFOC driveVelocityControl =
+      new VelocityTorqueCurrentFOC(0).withUpdateFreqHz(0);
+  private final PositionTorqueCurrentFOC turnPositionControl =
+      new PositionTorqueCurrentFOC(0);
+
+    private final PIDController mDriveController;
+
+    private PIDController mTurnController;
+
+    private final VelocityVoltage driveVelocityVoltage = new VelocityVoltage(0.0);
+
+    private final PositionVoltage turnPositionControlVoltage = new PositionVoltage(0);
+  private final NeutralOut driveNeutral = new NeutralOut().withUpdateFreqHz(0);
+  private final NeutralOut turnNeutral = new NeutralOut().withUpdateFreqHz(0);
+
+    private final DCMotorSim mDriveSim = new DCMotorSim(DCMotor.getKrakenX60Foc(1), ModuleConstants.kDriveGearRatio, 0.4);
+    private final DCMotorSim mTurnSim = new DCMotorSim(DCMotor.getFalcon500Foc(1), ModuleConstants.kTurnPositionConversionFactor, 0.004);
+
+
     public SwerveModuleIOKraken(int drivePort, int turnPort, int cancoderId, boolean turnMotorInverted) {
-        m_driveMotor = new TalonFX(drivePort);
-        m_turnMotor = new TalonFX(turnPort);
+        m_driveMotor = new TalonFX(drivePort, "rio");
+        m_turnMotor = new TalonFX(turnPort, "rio");
         m_turnEncoder = new CANcoder(cancoderId);
 
         driveConfig = new TalonFXConfiguration();
@@ -65,27 +105,39 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         driveConfig.Voltage.PeakForwardVoltage = 12.0;
         driveConfig.Voltage.PeakReverseVoltage = 12.0;
-        driveFeedbackConfigs = new Slot0Configs();
-        turnFeedbackConfigs = new Slot0Configs();
+        
         turnConfig = new TalonFXConfiguration();
         turnConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
         turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         turnConfig.Voltage.PeakForwardVoltage = 12.0;
         turnConfig.Voltage.PeakReverseVoltage = -12.0;
         turnConfig.MotorOutput.Inverted = turnMotorInverted
-            ? InvertedValue.Clockwise_Positive
-            : InvertedValue.CounterClockwise_Positive;
+        ? InvertedValue.Clockwise_Positive
+        : InvertedValue.CounterClockwise_Positive;
         
         driveConfig.Feedback.SensorToMechanismRatio = ModuleConstants.kDriveConversionFactor;
         driveConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         // driveConfig.Feedback.RotorToSensorRatio = ModuleConstants.kDriveConversionFactor;
-        setDrivePID(.2, 0,0);
+        // setDrivePID(.2, 0,0);
+
         mController = new PIDController(2/(2*Math.PI),0,0);
+
+        CANcoderConfiguration canCfg = new CANcoderConfiguration();
+        m_turnEncoder.getConfigurator().refresh(canCfg);
+        Logger.recordOutput("Swerve Module 1",canCfg.MagnetSensor.MagnetOffset);
+        canCfg.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
+        canCfg.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        // canCfg.MagnetSensor.MagnetOffset = 0.0;
+        m_turnEncoder.getConfigurator().apply(canCfg);
+        // setTurnPID(.3, 0, 0);
         turnConfig.Feedback.SensorToMechanismRatio = 1;
-        turnConfig.Feedback.RotorToSensorRatio = 7/150;
+        turnConfig.Feedback.RotorToSensorRatio = 150/7;
+        turnConfig.Feedback.FeedbackRemoteSensorID = m_turnEncoder.getDeviceID();
+        turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
-
-
+        
+        // mDriveController = new PIDController(m, turnPort, cancoderId)
+        
         for (int i = 0; i < 4; i++) {
             boolean error = m_driveMotor.getConfigurator().apply(driveConfig, 0.1) == StatusCode.OK;
             setDriveBrakeMode(true);
@@ -94,18 +146,26 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
             
             if (!error) break;
         }
+        // setDrivePID(ModuleConstants.kDriveP.get(), ModuleConstants.kDriveI.get(), ModuleConstants.kDriveD.get());
+        mDriveController = new PIDController(0.3,0,0);
+        mTurnController = new PIDController(0.3, 0.0, 0.0);
+        mTurnController.enableContinuousInput(-Math.PI, Math.PI);
+
+        drivePosition = m_driveMotor.getPosition();
+        turnPosition = m_turnMotor.getPosition();
+        BaseStatusSignal.setUpdateFrequencyForAll(50.0, drivePosition, turnPosition);
 
         driveVelocity = m_driveMotor.getVelocity();
         driveAppliedVolts = m_driveMotor.getMotorVoltage();
         driveSupplyCurrent = m_driveMotor.getSupplyCurrent();
         driveTorqueCurrent = m_driveMotor.getTorqueCurrent();
-        turnAbsolutePosition = ()->{return Rotation2d.fromRotations(m_turnEncoder.getAbsolutePosition().getValueAsDouble());};
+        turnAbsolutePosition = ()->{return Rotation2d.fromRotations(m_turnEncoder.getPosition().getValueAsDouble());};
         turnVelocity = m_turnMotor.getVelocity();
         turnAppliedVolts = m_turnMotor.getMotorVoltage();
         turnSupplyCurrent = m_turnMotor.getSupplyCurrent();
         turnTorqueCurrent = m_turnMotor.getTorqueCurrent();
         BaseStatusSignal.setUpdateFrequencyForAll(
-            100.0,
+            50.0,
             driveVelocity,
             driveAppliedVolts,
             driveSupplyCurrent,
@@ -116,26 +176,74 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
             turnTorqueCurrent
         );
 
-        drivePosition = m_driveMotor.getPosition();
-        turnPosition = m_turnMotor.getPosition();
-        BaseStatusSignal.setUpdateFrequencyForAll(250.0, drivePosition, turnPosition);
+
+        drivePositionQueue =
+        PhoenixOdometryThread.getInstance().registerSignal(m_driveMotor, drivePosition);
+        // Reset turn position to absolute encoder position
+        // m_turnMotor.setPosition(turnAbsolutePosition.get().getRotations(), 1.0);
+    turnPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(m_turnMotor, turnPosition);
+        // BaseStatusSignal.setUpdateFrequencyForAll(250.0, drivePosition, turnPosition);
+
+        m_driveMotor.optimizeBusUtilization(1.0);
+    m_turnMotor.optimizeBusUtilization(1.0);
+    if(Robot.isSimulation()){
+        m_turnEncoder.setPosition(0.0);
+    }
         
+    }
+
+    
+    public void simulationPeriodic(){
+
+        TalonFXSimState simDrive =  m_driveMotor.getSimState();
+        TalonFXSimState simTurn = m_turnMotor.getSimState();
+        System.out.println(simTurn.getMotorVoltage());
+
+        mDriveSim.setInputVoltage(Math.min(12,Math.max(simDrive.getMotorVoltage(),-12)));
+        mTurnSim.setInputVoltage(Math.min(12,Math.max(simTurn.getMotorVoltage(),-12)));
+
+
+        mDriveSim.update(0.02);
+        mTurnSim.update(0.02);
+
+        m_driveMotor.getSimState().setRawRotorPosition(mDriveSim.getAngularPositionRotations());
+        m_turnMotor.getSimState().setRawRotorPosition(mTurnSim.getAngularPositionRotations());
+        m_turnEncoder.getSimState().setRawPosition(mTurnSim.getAngularPositionRotations());
+        m_driveMotor.getSimState().setRotorVelocity(mDriveSim.getAngularVelocityRPM()/60.0);
+        m_turnMotor.getSimState().setRotorVelocity(mTurnSim.getAngularVelocityRPM()/60.0);
+
+
+
+
     }
 
 
     @Override
     public void updateInputs(SwerveModuleInputs inputs) {
+        // BaseStatusSignal.refreshAll(
+        //         drivePosition,
+        //         driveVelocity,
+        //         driveAppliedVolts,
+        //         driveSupplyCurrent,
+        //         driveTorqueCurrent,
+        //         turnPosition,
+        //         turnVelocity,
+        //         turnAppliedVolts,
+        //         turnSupplyCurrent,
+        //         turnTorqueCurrent);
+
+                inputs.driveMotorConnected =
         BaseStatusSignal.refreshAll(
                 drivePosition,
                 driveVelocity,
                 driveAppliedVolts,
                 driveSupplyCurrent,
-                driveTorqueCurrent,
-                turnPosition,
-                turnVelocity,
-                turnAppliedVolts,
-                turnSupplyCurrent,
-                turnTorqueCurrent);
+                driveTorqueCurrent)
+            .isOK();
+    inputs.turnMotorConnected =
+        BaseStatusSignal.refreshAll(
+                turnPosition, turnVelocity, turnAppliedVolts, turnSupplyCurrent, turnTorqueCurrent)
+            .isOK();
 
         inputs.driveDistanceMeters = getDriveDistanceMeters();
         inputs.driveVelocityMetersPerSecond = getDriveVelocityMetersPerSecond();
@@ -150,17 +258,32 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         inputs.voltageOutTurn = turnAppliedVolts.getValue();
 
 
+
+    inputs.odometryDrivePositionsMeters =
+    drivePositionQueue.stream()
+        .mapToDouble(
+            signalValue -> Units.rotationsToRadians(signalValue) * ModuleConstants.kWheelDiameterMeters)
+        .toArray();
+inputs.odometryTurnPositions =
+    turnPositionQueue.stream().map(Rotation2d::fromRotations).toArray(Rotation2d[]::new);
+    drivePositionQueue.clear();
+    turnPositionQueue.clear();
+
+    if(RobotBase.isSimulation()){
+        simulationPeriodic();
+    }
+
     }
     
     public double getDriveVelocityMetersPerSecond() {
-        return driveVelocity.getValue() * ModuleConstants.kDriveConversionFactor;
+        return driveVelocity.getValueAsDouble();
     }
     public double getDriveDistanceMeters() {
         return drivePosition.getValue()   ;
     }
 
     public double convertDriveMetersToRadians(double meters) {
-        return (meters);
+        return (meters / ModuleConstants.kWheelDiameterMeters) * (2 * Math.PI);
     }
 
     public double getTurnVelocityRadsPerSecond() {
@@ -191,7 +314,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         // set the offset to the current position
         CANcoderConfiguration config = new CANcoderConfiguration();
         config.MagnetSensor.MagnetOffset = m_turnEncoder.getAbsolutePosition().getValue();
-        m_turnEncoder.getConfigurator().apply(config,0.01);
+        m_turnEncoder.getConfigurator().apply(config,0.1);
     }
 
 
@@ -300,16 +423,17 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         double velocityRotationsPerSec = Units.radiansToRotations(velocityRadsPerSec);
         if (DriveConstants.useTorqueCurrentFOC) {
 
-            m_driveMotor.setControl(new VelocityTorqueCurrentFOC(velocityRotationsPerSec).withSlot(0));
+            // m_driveMotor.setControl(new VelocityTorqueCurrentFOC(velocityRotationsPerSec).withSlot(0));
+            System.out.println("drive rads" + getDriveVelocityMetersPerSecond() + "wanted rads" + velocityRadsPerSec);
+            m_driveMotor.setControl(driveVelocityControl.withVelocity(velocityRotationsPerSec));
         } else {
             // m_driveMotor.setControl(new VoltageOut(5));
 
             // double m_val = mController.calculate(getDriveVelocityMetersPerSecond(),velocityRadsPerSec);
-            System.out.println("drive rads" + getDriveVelocityMetersPerSecond() + "wanted rads" + velocityRadsPerSec);
-            m_driveMotor.setControl(new VoltageOut(velocityRadsPerSec*4));
-            // m_driveMotor.setControl(
-            //         new VelocityVoltage(velocityRotationsPerSec)
-            //         .withEnableFOC(true));
+            // m_driveMotor.setControl(new VoltageOut(velocityRadsPerSec*4));
+            m_driveMotor.setControl(
+                    new VelocityVoltage(velocityRotationsPerSec)
+                    .withEnableFOC(true).withUpdateFreqHz(0).withSlot(0));
                             // .withFeedForward(ffVolts)
         }
     }
@@ -332,23 +456,47 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         }
     }
 
+    @Override
+  public void runDriveVelocitySetpoint(double velocityRadsPerSec, double feedForward) {
+    System.out.println(velocityRadsPerSec);
+    System.out.println(driveVelocity.getValueAsDouble());
+    m_driveMotor.setControl(
+        driveVelocityVoltage
+            .withVelocity(velocityRadsPerSec)
+            .withFeedForward(feedForward).withSlot(0));
+    // m_driveMotor.setControl(new VoltageOut(mDriveController.calculate(driveVelocity.getValueAsDouble(), velocityRadsPerSec)));
+
+  }
+    @Override
     public void setDrivePID(double kP, double kI, double kD) {
-        driveFeedbackConfigs.kP = kP;
-        driveFeedbackConfigs.kI = kI;
-        driveFeedbackConfigs.kD = kD;
-        driveFeedbackConfigs.kS = 2;
-        driveFeedbackConfigs.kV = 0;
-        driveFeedbackConfigs.kA = 0;
+        driveFeedbackConfig.kP = kP;
+        driveFeedbackConfig.kI = kI;
+        driveFeedbackConfig.kD = kD;
      
-        m_driveMotor.getConfigurator().apply(driveFeedbackConfigs,0.01);
+        m_driveMotor.getConfigurator().apply(driveFeedbackConfig,0.1);
+
+        mDriveController.setPID(kP, kI, kD);
     }
 
+    @Override
+  public void runTurnPositionSetpoint(double angleRads) {
+    // System.out.println("running turn position setpoint" + angleRads);
+    
+    m_turnMotor.setControl(new VelocityVoltage(-mTurnController.calculate(turnAbsolutePosition.get().getRadians(), angleRads)).withEnableFOC(true));
+  }
+    @Override
     public void setTurnPID(double kP, double kI, double kD) {
-        turnConfig.Slot0.kP = kP;
-        turnConfig.Slot0.kI = kI;
-        turnConfig.Slot0.kD = kD;
+        // turnConfig.Slot0.kP = kP;
+        // turnConfig.Slot0.kI = kI;
+        // turnConfig.Slot0.kD = kD;
         
-        m_turnMotor.getConfigurator().apply(turnConfig,0.01);
+        // m_turnMotor.getConfigurator().apply(turnConfig,0.01);
+        turnFeedbackConfig.kP = kP;
+    turnFeedbackConfig.kI = kI;
+    turnFeedbackConfig.kD = kD;
+    m_turnMotor.getConfigurator().apply(turnFeedbackConfig, 0.1);
+
+    mTurnController.setPID(kP, kI, kD);
     }
 
     public void setDriveBrakeMode(boolean mode) {

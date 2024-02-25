@@ -3,7 +3,9 @@ package frc.robot.subsystems.climb;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -17,7 +19,7 @@ public class ClimbIOTalon implements ClimbIO {
     TalonFX leaderTalon;
     TalonFX followerTalon;
     Servo m_servo;
-    Servo m_servo2;
+    // Servo m_servo2;
     
     VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withUpdateFreqHz(0.0);
 
@@ -25,7 +27,7 @@ public class ClimbIOTalon implements ClimbIO {
 
     StatusSignal<Double> curHeight;
 
-    public ClimbIOTalon(int motorID1, int motorID2, int servoID1, int servoID2) {
+    public ClimbIOTalon(int motorID1, int motorID2, int servoID1) {
         leaderTalon = new TalonFX(motorID1);
         followerTalon = new TalonFX(motorID2);
         TalonFXConfiguration config = new TalonFXConfiguration();
@@ -39,29 +41,41 @@ public class ClimbIOTalon implements ClimbIO {
 
         leaderTalon.getConfigurator().apply(config);
 
-        followerTalon.setControl(new Follower(motorID1, true));
+        followerTalon.setControl(new Follower(motorID1, false));
 
         curHeight = leaderTalon.getPosition();
         
         m_servo = new Servo(servoID1);
-        m_servo2 = new Servo(servoID2);
+        // m_servo2 = new Servo(servoID2);
     }
 
     @Override
     public void lockServos() {
         m_servo.set(ClimbConstants.kLockPosition);
-        m_servo2.set(ClimbConstants.kLockPosition);
+        // m_servo2.set(ClimbConstants.kLockPosition);
+        leaderTalon.setControl(new NeutralOut().withUpdateFreqHz(0.0));
     }
 
     @Override
     public void unlockServos() {
         m_servo.set(ClimbConstants.kUnlockPosition);
-        m_servo2.set(ClimbConstants.kUnlockPosition);
+        // m_servo2.set(ClimbConstants.kUnlockPosition);
     }
 
     @Override
     public void updateInputs(ClimbIOInputs inputs) {
         inputs.height = curHeight.getValueAsDouble();
+    }
+
+    @Override
+    public void setSpeed(double speed) {
+        leaderTalon.setControl(new VoltageOut(speed*12).withUpdateFreqHz(0.0));
+    }
+
+    @Override
+    public void setServoPosition(double position) {
+        m_servo.set(position);
+        // m_servo2.set(position);
     }
     
 }

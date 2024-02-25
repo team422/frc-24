@@ -1,22 +1,30 @@
 package frc.robot.subsystems.drive.gyro;
 
-import com.ctre.phoenix6.configs.Pigeon2Configuration;
+import java.util.Queue;
+
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configurator;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.util.Units;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.subsystems.drive.PhoenixOdometryThread;
+import frc.robot.subsystems.drive.SparkMaxOdometryThread;
 
 public class GyroIOPigeon implements GyroIO {
   Pigeon2 m_gyro;
   Pigeon2Configurator m_gyroConfig;
   private final double[] yprDegrees = new double[3];
   private final double[] xyzDps = new double[3];
+  private final Queue<Double> yawPositionQueue;
+  private final StatusSignal<Double> yaw;
 
-  public GyroIOPigeon(int gyroPort, Rotation2d pitchAngle) {
+  public GyroIOPigeon(int gyroPort, Rotation2d pitchAngle, boolean phoenixDrive) {
     m_gyro = new Pigeon2(gyroPort);
     m_gyroConfig = m_gyro.getConfigurator();
+    yaw = m_gyro.getYaw();
+    yaw.setUpdateFrequency(DriveConstants.kOdometryFrequency);
     // Pigeon2Configurator m_gyroConfig = m_gyro.getConfigurator();
 
     // Pigeon2Configuration gyroConfig = new Pigeon2Configuration();
@@ -24,6 +32,14 @@ public class GyroIOPigeon implements GyroIO {
     // m_gyro.configMountPosePitch(pitchAngle.getDegrees());
     // m_gyro.configMountPose(0, 30, 0);
 
+if (phoenixDrive) {
+      yawPositionQueue =
+          PhoenixOdometryThread.getInstance().registerSignal(m_gyro, m_gyro.getYaw());
+    } else {
+      yawPositionQueue =
+          SparkMaxOdometryThread.getInstance()
+              .registerSignal(() -> m_gyro.getYaw().getValueAsDouble());
+    }
   }
 
   @Override
@@ -53,7 +69,11 @@ public class GyroIOPigeon implements GyroIO {
     inputs.pitchVelocityRadPerSec = m_gyro.getAngularVelocityYDevice().getValue();
     inputs.yawVelocityRadPerSec = m_gyro.getAngularVelocityZDevice().getValue();
 
+    inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
 
+    inputs.odometryYawPositions =
+        yawPositionQueue.stream().map(Rotation2d::fromDegrees).toArray(Rotation2d[]::new);
+    yawPositionQueue.clear();
 
   }
 

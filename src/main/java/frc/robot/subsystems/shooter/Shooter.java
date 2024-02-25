@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
+import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -8,10 +9,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
 import frc.robot.subsystems.shooter.pivot.PivotIOInputsAutoLogged;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
@@ -33,11 +36,20 @@ public class Shooter extends ProfiledSubsystem {
     double m_desiredSpeed; // m/s
     Rotation2d m_desiredAngle;
 
+    public enum ShooterIsIntaking {
+        intaking,notIntaking
+
+    }
+    public ShooterIsIntaking isIntaking;
+
+
 
     public Shooter(PivotIO pivotIO, FlywheelIO flywheelIO) {
         super();
         m_pivotIO = pivotIO;
         m_flywheelIO = flywheelIO;
+        m_desiredAngle = ShooterPivotConstants.homeAngle;
+        setpointState = new TrapezoidProfile.State(m_desiredAngle.getRadians(), 0);
           motionProfile =
         new TrapezoidProfile(
             new TrapezoidProfile.Constraints(Constants.ShooterConstants.ShooterPivotConstants.maxSpeed, Constants.ShooterConstants.ShooterPivotConstants.maxAcceleration));
@@ -56,18 +68,14 @@ public class Shooter extends ProfiledSubsystem {
     @Override
     public void periodic() {
         m_pivotIO.updateInputs(m_inputsPivot);
-
-    }
-
-    public void setPivotAngle(Rotation2d angle) {
-        if (Robot.isSimulation()) {
-            angle = angle.minus(ShooterPivotConstants.simOffset);
-        }
-        // System.out.println("Setting angle to: "+angle.getDegrees());
+        m_flywheelIO.updateInputs(m_inputsFlywheel);
+        Logger.processInputs("Shooter Pivot", m_inputsPivot);
+        Logger.processInputs("Shooter Flywheel", m_inputsFlywheel); 
+        State curState = new TrapezoidProfile.State(m_pivotIO.getCurrentAngle().getRadians(), m_pivotIO.getCurrentVelocity());
         setpointState =
           motionProfile.calculate(
               Constants.loopPeriodSecs,
-              setpointState,
+              curState,
               new TrapezoidProfile.State(
                   MathUtil.clamp(
                       m_desiredAngle.getRadians(),
@@ -76,12 +84,29 @@ public class Shooter extends ProfiledSubsystem {
                   0.0));
 
         // m_pivotIO.setDesiredAngle(angle);
-        m_pivotIO.runSetpoint(angle, ff.calculate(setpointState.position, setpointState.velocity));
+        Logger.recordOutput("ShooterFF",ff.calculate(setpointState.position, setpointState.velocity));
+        Logger.recordOutput("ShooterPosition",setpointState.position);
+        if(isIntaking == ShooterIsIntaking.intaking) {
+            m_pivotIO.runSetpoint(ShooterPivotConstants.homeAngle, 0);
+        }else{
+            m_pivotIO.runSetpoint(m_desiredAngle, ff.calculate(setpointState.position, setpointState.velocity));
+        }
+    }
+
+    public void setPivotAngle(Rotation2d angle) {
+        if (Robot.isSimulation()) {
+            angle = angle.minus(ShooterPivotConstants.simOffset);
+        }
+        // System.out.println("Setting angle to: "+angle.getDegrees());
+        m_desiredAngle = angle;
+        
     }
 
     public void setFlywheelSpeed(double speed) {
         m_flywheelIO.setDesiredSpeed(speed);
     }
+
+    
 
     public Rotation2d getPivotAngle() {
         return m_pivotIO.getDesiredAngle();

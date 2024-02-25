@@ -38,7 +38,6 @@ public class RollerIOKraken implements RollerIO {
         inputs.voltage = m_motor.getMotorVoltage().getValueAsDouble();
         inputs.outputCurrent = m_motor.getSupplyCurrent().getValueAsDouble();
         inputs.desiredSpeeds = m_speed;
-        System.out.println(getSpeed.get()*12);
         m_motor.setVoltage(-getSpeed.get()*12);
     }
 
@@ -51,6 +50,8 @@ public class RollerIOKraken implements RollerIO {
     public void setVoltage(double voltage) {
         m_motor.setVoltage(voltage);
     }
+
+    
     
     
 }

@@ -15,6 +15,7 @@ import com.ctre.phoenix6.hardware.ParentDevice;
 import frc.robot.Constants.DriveConstants;
 
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.Logger;
@@ -52,7 +53,7 @@ public class PhoenixOdometryThread extends Thread {
   }
 
   public Queue<Double> registerSignal(ParentDevice device, StatusSignal<Double> signal) {
-    Queue<Double> queue = new ArrayDeque<>(100);
+    Queue<Double> queue = new ArrayBlockingQueue<>(100);
     signalsLock.lock();
     Drive.odometryLock.lock();
     try {

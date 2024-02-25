@@ -27,6 +27,7 @@ public class LoggedTunableNumber {
      */
     public LoggedTunableNumber(String dashboardKey, String tableKey) {
         this.key = tableKey + "/" + dashboardKey;
+        // this.key = tableKey + "/" + dashboardKey;
     }
 
     /**
@@ -41,7 +42,8 @@ public class LoggedTunableNumber {
     }
 
     public LoggedTunableNumber(String dashboardKey, double defaultValue, String tableKey) {
-        this(tableKey, dashboardKey);
+        // this(tableKey, dashboardKey);
+        this(dashboardKey, tableKey);
         initDefault(defaultValue);
     }
 

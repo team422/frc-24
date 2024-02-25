@@ -28,5 +28,9 @@ public interface IndexerIO extends LoggedIO<IndexerIO.IndexerIOInputs> {
 
     public void startIndexingPositionControl();
 
+
+    public void setSpeed(double speed);
+    
+
     
 }

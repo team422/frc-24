@@ -27,6 +27,8 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
     public double currentAmpsSupplied;
     public double voltageSupplyDrive;
     public double voltageOutTurn;
+    public boolean driveMotorConnected;
+    public boolean turnMotorConnected;
   }
 
   public SwerveModulePosition getPosition();
@@ -46,13 +48,16 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
 
   public SwerveModuleState getState();
 
+  public void runDriveVelocitySetpoint(double velocityMetersPerSecond, double feedforwardVolts);
+
   public SwerveModuleState getAbsoluteState();
 
   public void setVoltage(double voltageDrive, double voltageTurn);
 
-  default public void setVoltageDriveOnly(double voltageDrive, SwerveModulePosition voltageTurn) {
+  default public void setVoltageDriveOnly(double voltageDrive, SwerveModulePosition voltageTurn) {};
 
-  };
+    
+  default void runTurnPositionSetpoint(double angleRads) {};
 
   
 
@@ -89,5 +94,9 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
 
   public default void setTurnPositionSetpoint(double angleRads) {
   };
+
+  public void setDrivePID(double p, double i, double d);
+
+  public void setTurnPID(double p, double i, double d);
 
 }
