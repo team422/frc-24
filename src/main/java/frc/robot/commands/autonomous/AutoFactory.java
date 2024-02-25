@@ -1,23 +1,22 @@
 package frc.robot.commands.autonomous;
 
 import java.util.List;
-import java.util.Map;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.lib.utils.FieldGeomUtil;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.RobotState;
+import frc.robot.commands.shooting.ShootAtPositionWithVelocity;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intake.Intake;
 
@@ -27,35 +26,21 @@ public class AutoFactory extends Command {
 
   private final Drive m_drive;
   private final Intake m_intake;
+  PathPlannerPath auto;
 
   public AutoFactory(Drive drive, Intake intake) {
     m_drive = drive;
     m_intake = intake;
-  }
+    NamedCommands.registerCommand("AutoShoot",  new ShootAtPositionWithVelocity());
+    // NamedCommands.registerCommand("AutoShoot",Commands.runOnce(()->{
+    //   System.out.println("AutoShoot");
+    
+    // }));
 
-  public PathPlannerPath loadPathGroupByName(String name) {
-    return PathPlannerPath.fromPathFile(name);
-  }
-
-  public List<PathPlannerPath> getAutoTrajectory(String name) {
-    return PathPlannerAuto.getPathGroupFromAutoFile(name);
-
-  }
-
-  public Command getAutoCommand(String nameString) {
-    // Create Auto builder
-    // AutoBuilder.configureHolonomic(
-    //     m_drive::getPose,
-    //     m_drive::resetPose,
-    //     m_drive::getChassisSpeeds,
-    //     m_drive::drive,
-    //     new HolonomicPathFollowerConfig(linearPIDConstants, angularPIDConstants,
-    //         DriveConstants.kMaxModuleSpeedMetersPerSecond, DriveConstants.kTrackWidth, new ReplanningConfig()),
-    //     m_drive);
     AutoBuilder.configureHolonomic(
         m_drive::getPose, // Robot pose supplier
         m_drive::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-        m_drive::getChassisSpeedsRobotRelative, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+        m_drive::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         m_drive::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
                     new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
@@ -77,11 +62,50 @@ public class AutoFactory extends Command {
             },
             m_drive // The subsystem that will be used to follow the path
     );
+            PPHolonomicDriveController.setRotationTargetOverride(() -> RobotState.getInstance().getOptionalTargetOverride());
+            PathPlannerLogging.setLogActivePathCallback((path) -> RobotState.getInstance().saveActivePath(path));
+            PathPlannerLogging.setLogCurrentPoseCallback((pose) -> RobotState.getInstance().saveCurrentPose(pose));
+            PathPlannerLogging.setLogTargetPoseCallback((pose) -> RobotState.getInstance().saveCurrentTarget(pose));
+            
+  }
 
-    PathPlannerPath auto = PathPlannerPath.fromChoreoTrajectory(nameString);
-    Command autoCommand = AutoBuilder.followPath(auto);
+  public PathPlannerPath loadPathGroupByName(String name) {
+    return PathPlannerPath.fromPathFile(name);
+  }
+
+  public List<PathPlannerPath> getAutoTrajectory(String name) {
+    return PathPlannerAuto.getPathGroupFromAutoFile(name);
+  }
+
+  
+
+  public Command getAutoCommand(String nameString) {
+    // Create Auto builder
+    // AutoBuilder.configureHolonomic(
+    //     m_drive::getPose,
+    //     m_drive::resetPose,
+    //     m_drive::getChassisSpeeds,
+    //     m_drive::drive,
+    //     new HolonomicPathFollowerConfig(linearPIDConstants, angularPIDConstants,
+    //         DriveConstants.kMaxModuleSpeedMetersPerSecond, DriveConstants.kTrackWidth, new ReplanningConfig()),
+    //     m_drive);
+    // if (PathPlannerUtil.getExistingPaths().contains(nameString) == false) {
+    //   return Commands.runOnce(() -> {
+    //     System.out.println("Path not found");
+    //   });
+    // }
+    // try {
+    //   auto = PathPlannerPath.fromPathFile(nameString);
+    // } catch (Exception e) {
+    //   return Commands.runOnce(() -> {
+    //     System.out.println("Path not found");
+    //   });
+    // }
+    
+    // Command autoCommand = AutoBuilder.followPath(auto);
+    Command autoCommand = AutoBuilder.buildAuto(nameString);
 
     // return autoCommand.andThen(m_drive.brakeCommand());
-    return Commands.sequence(m_drive.resetCommand(auto.getPreviewStartingHolonomicPose()),m_drive.brakeCommand(), autoCommand.andThen(m_drive.brakeCommand()));
+    return Commands.sequence(m_drive.brakeCommand(), autoCommand.andThen(m_drive.brakeCommand()));
   }
 }

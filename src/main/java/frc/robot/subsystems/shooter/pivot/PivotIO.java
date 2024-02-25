@@ -18,6 +18,8 @@ public interface PivotIO extends LoggedIO<PivotIO.PivotIOInputs>{
         public double curSpeed;
         public double voltage;
 
+        public double absolutePositionDegrees;
+
         public boolean firstMotorConnected = true;
         public boolean secondMotorConnected = true;
     
@@ -41,4 +43,6 @@ public interface PivotIO extends LoggedIO<PivotIO.PivotIOInputs>{
     public Rotation2d getDesiredAngle();
 
     public Rotation2d getCurrentAngle();
+
+    public double getCurrentVelocity();
 }

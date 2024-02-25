@@ -29,7 +29,7 @@ public class DriverControlsXboxController implements DriverControls {
   @Override
   public double getDriveRotation() {
     double val = m_controls.addDeadzoneScaled(m_controller.getRightX(), 0.03);
-    return -Math.signum(val) * Math.pow(val, 2);
+    return Math.signum(val) * Math.pow(val, 2);
   }
 
   @Override
@@ -39,7 +39,7 @@ public class DriverControlsXboxController implements DriverControls {
 
   @Override
   public Trigger setShooter45() {
-    return m_controller.button(1);
+    return m_controller.b();
   }
 
   @Override
@@ -60,6 +60,11 @@ public class DriverControlsXboxController implements DriverControls {
   @Override
   public double intakeNote(){
     return m_controller.getLeftTriggerAxis();
+  }
+
+  @Override
+  public Trigger goToIntakePosition(){
+    return m_controller.leftBumper();
   }
 
 }

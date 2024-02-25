@@ -49,5 +49,10 @@ public class PivotIOSim implements PivotIO {
     public Rotation2d getCurrentAngle() {
         return Rotation2d.fromRadians(m_armSim.getAngleRads());
     }
+
+    @Override
+    public double getCurrentVelocity() {
+        return m_armSim.getVelocityRadPerSec();
+    }
     
 }

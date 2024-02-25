@@ -1,15 +1,19 @@
 package frc.robot.subsystems.drive;
 
+import java.util.Queue;
+
+import com.ctre.phoenix6.StatusSignal;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.lib.utils.CalculusSolver;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 
 public class SwerveModuleIOSim implements SwerveModuleIO {
@@ -29,6 +33,11 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
   public CalculusSolver m_wheelSpeedCalculusSolver;
   public CalculusSolver m_currentCalculusSolver;
 
+  private Queue<Double> drivePositionQueue;
+  private Queue<Double> turnPositionQueue;
+
+  
+
   public SwerveModuleIOSim() {
     // m_curState = new SwerveModuleState();
     // m_desState = new SwerveModuleState();
@@ -45,6 +54,13 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
 
     m_wheelSpeedCalculusSolver = new CalculusSolver(50);
     m_currentCalculusSolver = new CalculusSolver(50);
+
+    drivePositionQueue =
+        SparkMaxOdometryThread.getInstance().registerSignal(this::getDrivePosition);
+    turnPositionQueue =
+        SparkMaxOdometryThread.getInstance().registerSignal(() -> m_turnMotor.getAngularPositionRad() % (2 * Math.PI));
+
+    
 
   }
 
@@ -131,6 +147,14 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     inputs.currentAmpsDrive = m_driveMotor.getCurrentDrawAmps();
     inputs.voltageOutDrive = m_voltageDrive;
     inputs.voltageOutTurn = m_voltageTurn;
+
+    inputs.odometryDrivePositionsMeters =
+        new double[] {getPosition().distanceMeters};
+    inputs.odometryTurnPositions =
+      new Rotation2d[] {getAngle()};
+    
+    drivePositionQueue.clear();
+    turnPositionQueue.clear();
     
 
   }
@@ -138,6 +162,10 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
   @Override
   public SwerveModuleState getAbsoluteState() {
     return getState();
+  }
+
+  public double getDrivePosition() {
+    return m_driveMotor.getAngularPositionRad() * ModuleConstants.kDriveConversionFactor;
   }
 
   @Override
@@ -156,6 +184,27 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
   @Override
   public double getVoltage() {
     return m_voltageDrive;
+  }
+
+  @Override
+  public void runDriveVelocitySetpoint(double velocityRadsPerSec, double feedForward) {
+    runDriveVolts(
+        m_driveController.calculate(m_driveMotor.getAngularVelocityRadPerSec(), velocityRadsPerSec)
+            + feedForward);
+  }
+
+
+  @Override
+  public void runTurnPositionSetpoint(double angleRads) {
+    runTurnVolts(m_turnController.calculate(m_turnMotor.getAngularPositionRad(), angleRads));
+  }
+
+  public void runTurnVolts(double volts) {
+    m_turnMotor.setInputVoltage(volts);
+  }
+
+  public void runDriveVolts(double volts) {
+    m_driveMotor.setInputVoltage(volts);
   }
 
   @Override
@@ -199,5 +248,23 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     m_turnMotor.setInputVoltage(turnVoltage);
 
   }
+
+  @Override
+  public void setDrivePID(double p, double i, double d) {
+    m_driveController.setP(p);
+    m_driveController.setI(i);
+    m_driveController.setD(d);
+  }
+
+  @Override
+  public void setTurnPID(double p, double i, double d) {
+    m_turnController.setP(p);
+    m_turnController.setI(i);
+    m_turnController.setD(d);
+  }
+
+
+
+
 
 }

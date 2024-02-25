@@ -26,6 +26,8 @@ public interface DriverControls {
 
   public double intakeNote();
 
+  public Trigger goToIntakePosition();
+
 
  
 

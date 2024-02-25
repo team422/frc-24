@@ -33,6 +33,11 @@ public class PivotIOSim implements IntakePivotIO {
     }
 
     @Override
+    public Rotation2d getAngle() {
+        return Rotation2d.fromRadians(m_armSim.getAngleRads());
+    }
+
+    @Override
     public void updateInputs(IntakePivotIOInputs inputs) {
         m_armSim.update(0.02);
         inputs.curAngle = (m_armSim.getAngleRads());

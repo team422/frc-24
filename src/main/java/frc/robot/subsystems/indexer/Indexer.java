@@ -1,5 +1,7 @@
 package frc.robot.subsystems.indexer;
 
+import org.littletonrobotics.junction.Logger;
+
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
 
 public class Indexer extends ProfiledSubsystem {
@@ -28,6 +30,7 @@ public class Indexer extends ProfiledSubsystem {
     public void periodic() {
         io.updateInputs(m_inputs);
         io.manageState(m_state);
+        Logger.processInputs("Indexer",m_inputs);
     }
 
     public boolean inContactWithGamePiece() {
@@ -36,6 +39,11 @@ public class Indexer extends ProfiledSubsystem {
 
     public boolean gamePieceReady() {
         return io.gamePieceReady();
+    }
+
+
+    public void setManualSpeed(double speed) {
+        io.setSpeed(speed);
     }
 
     public void setState(IndexerState state) {

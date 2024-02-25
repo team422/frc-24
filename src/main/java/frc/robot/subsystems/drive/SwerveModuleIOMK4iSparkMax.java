@@ -15,6 +15,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -26,7 +27,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import frc.lib.utils.CalculusSolver;
 import frc.lib.utils.CanSparkMaxSetup;
-import frc.lib.utils.TunableNumber;
+import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.Constants;
 
 
@@ -43,8 +44,8 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
   // robot is turned on
   //    private final Rotation2d m_CANCoderOffset;
 
-  private final SparkMaxPIDController m_turningController;
-  private final SparkMaxPIDController m_driveController;
+  private final SparkPIDController m_turningController;
+  private final SparkPIDController m_driveController;
 
   private double adjustedSpeed;
   private String name;
@@ -54,13 +55,13 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
   public static class ModuleConstants {
     public static final double kDriveConversionFactor = 1 / 22.0409;
     public static final double kTurnPositionConversionFactor = 21.428;
-    public static final TunableNumber kDriveP = Constants.ModuleConstants.kDriveP;
-    public static final TunableNumber kDriveI = Constants.ModuleConstants.kDriveI;
-    public static final TunableNumber kDriveD = Constants.ModuleConstants.kDriveD;
-    public static final TunableNumber kTurningP = Constants.ModuleConstants.kTurningP;
-    public static final TunableNumber kTurningI = Constants.ModuleConstants.kTurningI;
-    public static final TunableNumber kTurningD = Constants.ModuleConstants.kTurningD;
-    // public static final TunableNumber kDriveFF = RobotContainer.robotConstants.kDriveFF;
+    public static final LoggedTunableNumber kDriveP = Constants.ModuleConstants.kDriveP;
+    public static final LoggedTunableNumber kDriveI = Constants.ModuleConstants.kDriveI;
+    public static final LoggedTunableNumber kDriveD = Constants.ModuleConstants.kDriveD;
+    public static final LoggedTunableNumber kTurningP = Constants.ModuleConstants.kTurningP;
+    public static final LoggedTunableNumber kTurningI = Constants.ModuleConstants.kTurningI;
+    public static final LoggedTunableNumber kTurningD = Constants.ModuleConstants.kTurningD;
+    // public static final LoggedTunableNumber kDriveFF = RobotContainer.robotConstants.kDriveFF;
 
   }
 
@@ -278,6 +279,11 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     
   }
 
+  @Override
+  public void runDriveVelocitySetpoint(double velocityRadsPerSec, double feedForward) {
+    m_driveController.setReference(velocityRadsPerSec, ControlType.kVelocity, 0, feedForward);
+  }
+
   public double getDriveVelocityMetersPerSecond() {
     return m_driveEncoder.getVelocity();
   }
@@ -364,6 +370,20 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
   public void setVoltageTurnIgnoreDrive(double turnVoltage) {
     m_turningMotor.setVoltage(turnVoltage);
 
+  }
+
+  @Override
+  public void setDrivePID(double p, double i, double d) {
+    m_driveController.setP(p);
+    m_driveController.setI(i);
+    m_driveController.setD(d);
+  }
+
+  @Override
+  public void setTurnPID(double p, double i, double d) {
+    m_turningController.setP(p);
+    m_turningController.setI(i);
+    m_turningController.setD(d);
   }
 
 }

@@ -13,6 +13,7 @@ public interface IntakePivotIO extends LoggedIO<IntakePivotIO.IntakePivotIOInput
         public double curSpeed;
         public double voltage;
         public double desiredVoltage;
+        
     }
 
     public void setDesiredAngle(Rotation2d angle);
@@ -21,5 +22,5 @@ public interface IntakePivotIO extends LoggedIO<IntakePivotIO.IntakePivotIOInput
 
     public Rotation2d getAngle();
 
-    
+    public default void setPID(double kP,double kI, double kD) {};
 }
