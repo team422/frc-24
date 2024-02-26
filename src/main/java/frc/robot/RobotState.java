@@ -28,6 +28,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.hardwareprofiler.ProfilingScheduling;
@@ -64,6 +65,8 @@ public class RobotState {
 
     public Rotation2d shooterOverrideAngle = null;
     public long angleOverrideTime = 0;
+
+    public double intakeStowTime = -1;
 
   public record OdometryObservation(
       SwerveDriveWheelPositions wheelPositions, Rotation2d gyroAngle, double timestamp) {}
@@ -252,7 +255,12 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         m_gamePieceLocation = location;
         if (location == GamePieceLocation.INDEXER) {
             m_indexer.setState(Indexer.IndexerState.INDEXING);
+            intakeStowTime = Timer.getFPGATimestamp() + IntakeConstants.kIntakeStowTime;
         }
+    }
+
+    public GamePieceLocation getGamePieceLocation() {
+      return m_gamePieceLocation;
     }
 
     public Pose2d getRobotPose() {
@@ -283,7 +291,11 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     }
 
     public void updateRobotState() {
-        
+        if (intakeStowTime != -1 && intakeStowTime < Timer.getFPGATimestamp()) {
+          m_intake.setPivotAngle(IntakeConstants.kIntakeMaxAngle);
+          m_intake.setIntakeSpeed(0.0);
+          intakeStowTime = -1;
+        }
 
         // update all subsystems
         // Pose2d curPose = m_drive.getPose();

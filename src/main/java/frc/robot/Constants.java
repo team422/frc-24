@@ -93,6 +93,8 @@ public final class Constants {
     public static final Rotation2d kIntakeMinAngle = Rotation2d.fromDegrees(15);
     public static final Rotation2d kIntakeHomeAngle = Rotation2d.fromDegrees(34);
 
+    public static final double kIntakeStowTime = 0.75; // Seconds from indexer receiving game piece to stowing the intake
+
     public static final LoggedTunableNumber kIntakeP = new LoggedTunableNumber("Intake P", .4, "Intake");
     public static final LoggedTunableNumber kIntakeI = new LoggedTunableNumber("Intake I", 0.0, "Intake");
     public static final LoggedTunableNumber kIntakeD = new LoggedTunableNumber("Intake D", 0.05, "Intake");
