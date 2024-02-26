@@ -241,7 +241,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     public Rotation2d getMaxIntakeAngle() {
         // first get desired angle of the shooter
         Rotation2d shooterAngle = m_shooter.getPivotAngle();
-        if (shooterAngle.getDegrees() < 20) {
+        if (shooterAngle.getDegrees() < 25) {
             return IntakeConstants.kIntakeMaxMovedAngle;
         }
         return IntakeConstants.kIntakeMaxAngle;

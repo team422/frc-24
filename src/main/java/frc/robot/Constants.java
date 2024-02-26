@@ -88,8 +88,8 @@ public final class Constants {
     public static final double intakeSpeed = 0.5;
     public static final double intakeSpeedToMPS = 1 * Units.inchesToMeters(1.5) * Math.PI;
     public static final double pivotGearRatio = 36.0/16;
-    public static final Rotation2d kIntakeMaxMovedAngle = Rotation2d.fromDegrees(75);
-    public static final Rotation2d kIntakeMaxAngle = Rotation2d.fromDegrees(90);
+    public static final Rotation2d kIntakeMaxMovedAngle = Rotation2d.fromDegrees(84);
+    public static final Rotation2d kIntakeMaxAngle = Rotation2d.fromDegrees(120);
     public static final Rotation2d kIntakeMinAngle = Rotation2d.fromDegrees(15);
     public static final Rotation2d kIntakeHomeAngle = Rotation2d.fromDegrees(34);
 
@@ -117,7 +117,8 @@ public final class Constants {
     public static final class ShooterPivotConstants {
       // Real constants
       public static final double gearboxRatio = 46.722222;
-      public static final LoggedTunableNumber kPivotP = new LoggedTunableNumber("Pivot P", 100.0, "Shooter");
+      public static final LoggedTunableNumber kPivotP = new LoggedTunableNumber("Pivot P", 30.0, "Shooter");
+
       public static final LoggedTunableNumber kPivotI = new LoggedTunableNumber("Pivot I", 0.0, "Shooter");
       public static final LoggedTunableNumber kPivotD = new LoggedTunableNumber("Pivot D", 0.05, "Shooter");
       public static final LoggedTunableNumber kPivotkS = new LoggedTunableNumber("Pivot KS", .3, "Shooter");
@@ -188,7 +189,7 @@ public final class Constants {
     public static final LoggedTunableNumber kFFDriveI = new LoggedTunableNumber("FFDrive I", 0.0, "Drive");
     public static final LoggedTunableNumber kFFDriveD = new LoggedTunableNumber("FFDrive D", 0.00, "Drive");
 
-    public static final LoggedTunableNumber kTurningP = new LoggedTunableNumber("TurnP", 4.0, "Drive");
+    public static final LoggedTunableNumber kTurningP = new LoggedTunableNumber("TurnP", 1.5, "Drive");
     public static final LoggedTunableNumber kTurningI = new LoggedTunableNumber("Turning I", 0.00, "Drive");
     public static final LoggedTunableNumber kTurningD = new LoggedTunableNumber("Turning D", 0.00 , "Drive");
 

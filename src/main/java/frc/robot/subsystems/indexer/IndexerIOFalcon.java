@@ -78,7 +78,9 @@ private final PositionTorqueCurrentFOC positionControl =
     public void updateInputs(IndexerIOInputs inputs) {
         inputs.curVelocity = m_falconFirst.getVelocity().getValueAsDouble();
         inputs.voltage = m_falconFirst.getMotorVoltage().getValueAsDouble();
+        inputs.beamBreakOneBroken = m_initialBeamBreak.get();
         inputs.outputCurrent = m_falconFirst.getSupplyCurrent().getValueAsDouble();
+        inputs.beamBreakTwoBroken = m_finalBeamBreak.get();
     }
 
     @Override
@@ -107,19 +109,20 @@ private final PositionTorqueCurrentFOC positionControl =
         } else if (state == IndexerState.INDEXING) {
             m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
             m_falconSecond.setControl(velocityControl.withVelocity(0));
-            if (m_finalBeamBreak.get()) {
-                m_falconFirst.setPosition(0);
+            if (!m_finalBeamBreak.get()) {
+                m_falconFirst.setControl(velocityControl.withVelocity(0));
             }
 
         } else if (state == IndexerState.SHOOTING) {
             m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
             m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
+
         }
     }
 
     @Override
     public void startIndexingPositionControl() {
-        m_falconFirst.setPosition(0,0.02);
+        // m_falconFirst.setPosition(0,0.02);
     }
 
     @Override
