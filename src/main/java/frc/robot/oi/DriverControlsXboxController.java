@@ -16,20 +16,20 @@ public class DriverControlsXboxController implements DriverControls {
 
   @Override
   public double getDriveForward() {
-    double val = m_controls.addDeadzoneScaled(m_controller.getLeftY(), 0.03);
+    double val = m_controls.addDeadzoneScaled(m_controller.getLeftY(), 0.1);
     return -Math.signum(val) * Math.pow(val, 2);
   }
 
   @Override
   public double getDriveLeft() {
-    double val = m_controls.addDeadzoneScaled(m_controller.getLeftX(), 0.03);
+    double val = m_controls.addDeadzoneScaled(m_controller.getLeftX(), 0.1);
     return -Math.signum(val) * Math.pow(val, 2);
   }
 
   @Override
   public double getDriveRotation() {
     double val = m_controls.addDeadzoneScaled(m_controller.getRightX(), 0.03);
-    return Math.signum(val) * Math.pow(val, 2);
+    return Math.signum(val) * Math.pow(val, 4);
   }
 
   @Override

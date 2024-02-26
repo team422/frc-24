@@ -103,6 +103,7 @@ public class RobotContainer {
 
       new Trigger(()->{if(Math.abs(m_testingController.getFeederStick()) > 0.2){return true;}else{return false;}} ).onTrue(Commands.runOnce(()->{
         // m_indexer.setManualSpeed(m_testingController.getFeederStick());
+        System.out.println("STARTING INDEXING");
         m_indexer.setState(IndexerState.INDEXING);
       }));
 
@@ -124,9 +125,11 @@ public class RobotContainer {
 
       m_driverControls.goToIntakePosition().onTrue(Commands.runOnce(()->{
         m_intake.setPivotAngle(IntakeConstants.kIntakeMinAngle);
+        m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
         m_shooter.isIntaking = ShooterIsIntaking.intaking;
       })).onFalse(Commands.runOnce(()->{
           m_intake.setPivotAngle(IntakeConstants.kIntakeMaxAngle);
+          m_intake.setIntakeSpeed(0);
           m_shooter.isIntaking = ShooterIsIntaking.notIntaking;
       }));
 
