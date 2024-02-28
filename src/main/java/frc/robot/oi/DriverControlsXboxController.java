@@ -1,16 +1,20 @@
 package frc.robot.oi;
 
+import edu.wpi.first.wpilibj.PS5Controller;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.utils.EricNubControls;
 
 public class DriverControlsXboxController implements DriverControls {
 
-  CommandXboxController m_controller;
+  // CommandXboxController m_controller;
+  CommandPS5Controller m_controller;
   EricNubControls m_controls;
 
   public DriverControlsXboxController(int xboxControllerPort) {
-    m_controller = new CommandXboxController(xboxControllerPort);
+    m_controller = new CommandPS5Controller(xboxControllerPort);
     m_controls = new EricNubControls();
   }
 
@@ -29,7 +33,7 @@ public class DriverControlsXboxController implements DriverControls {
   @Override
   public double getDriveRotation() {
     double val = m_controls.addDeadzoneScaled(m_controller.getRightX(), 0.03);
-    return Math.signum(val) * Math.pow(val, 4);
+    return -Math.signum(val) * Math.pow(val, 4);
   }
 
   @Override
@@ -37,34 +41,51 @@ public class DriverControlsXboxController implements DriverControls {
     return m_controller.povUp();
   }
 
-  @Override
-  public Trigger setShooter45() {
-    return m_controller.b();
-  }
+
 
   @Override
   public Trigger setClimberServoClose() {
-    return m_controller.x();
+    return m_controller.povRight();
   }
 
   @Override
   public Trigger setClimberServoOpen() {
-    return m_controller.y();
+    return m_controller.povLeft();
   }
 
-  @Override
-  public Trigger setClimberServoMove() {
-    return m_controller.a();
-  }
+  
 
-  @Override
-  public double intakeNote(){
-    return m_controller.getLeftTriggerAxis();
-  }
+  
 
   @Override
   public Trigger goToIntakePosition(){
-    return m_controller.leftBumper();
+    return m_controller.R2();
   }
+
+  @Override
+  public Trigger goToShootPositionAndRev(){
+    return m_controller.L2();
+  }
+
+
+  @Override
+  public Trigger finalShoot() {
+    return m_controller.R1();
+  }
+
+  @Override
+  public Trigger ampAutoLineup(){
+    return m_controller.L1();
+  }
+
+  @Override
+  public void setDriverRumble(double rumble, RumbleType side){
+    m_controller.getHID().setRumble(side, rumble);
+  }
+
+
+
+
+
 
 }

@@ -38,13 +38,13 @@ public class AprilTagVisionConstants {
             Units.inchesToMeters(10.22704742),
             Units.inchesToMeters(-5.4947935),
             Units.inchesToMeters(7.33088314),
-            new Rotation3d(0.0, Units.degreesToRadians(-55), 0.0)
+            new Rotation3d(0.0, Units.degreesToRadians(-35), 0.0)
                 .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(0.0)))),
         new Pose3d(
             Units.inchesToMeters(10.22704742),
             Units.inchesToMeters(5.4947935),
             Units.inchesToMeters(7.33088314),
-            new Rotation3d(0.0, Units.degreesToRadians(-55), 0.0)
+            new Rotation3d(0.0, Units.degreesToRadians(-35), 0.0)
                 .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(0.0))))
                 
             };

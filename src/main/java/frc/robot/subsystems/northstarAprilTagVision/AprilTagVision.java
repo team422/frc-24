@@ -63,8 +63,11 @@ public class AprilTagVision extends VirtualSubsystem {
   }
 
   public void periodic() {
+    
     for (int i = 0; i < io.length; i++) {
+      
       io[i].updateInputs(inputs[i]);
+      
       Logger.processInputs("AprilTagVision/Inst" + i, inputs[i]);
     }
 
@@ -72,6 +75,7 @@ public class AprilTagVision extends VirtualSubsystem {
     List<Pose2d> allRobotPoses = new ArrayList<>();
     List<Pose3d> allRobotPoses3d = new ArrayList<>();
     List<VisionObservation> allVisionObservations = new ArrayList<>();
+    
     for (int instanceIndex = 0; instanceIndex < io.length; instanceIndex++) {
       // Loop over frames
       for (int frameIndex = 0; frameIndex < inputs[instanceIndex].timestamps.length; frameIndex++) {
@@ -83,7 +87,7 @@ public class AprilTagVision extends VirtualSubsystem {
         if (values.length == 0 || values[0] == 0) {
           continue;
         }
-
+        // System.out.println(System.currentTimeMillis());
         // Switch based on number of poses
         Pose3d cameraPose = null;
         Pose3d robotPose3d = null;
@@ -155,7 +159,7 @@ public class AprilTagVision extends VirtualSubsystem {
             || robotPose3d.getZ() > zMargin) {
           continue;
         }
-
+        
         // Get 2D robot pose
         Pose2d robotPose = robotPose3d.toPose2d();
 
@@ -174,7 +178,7 @@ public class AprilTagVision extends VirtualSubsystem {
           totalDistance += tagPose.getTranslation().getDistance(cameraPose.getTranslation());
         }
         double avgDistance = totalDistance / tagPoses.size();
-
+        // System.out.println(System.currentTimeMillis());
         // Add observation to list
         double xyStdDev = xyStdDevCoefficient * Math.pow(avgDistance, 2.0) / tagPoses.size();
         double thetaStdDev =
@@ -199,14 +203,14 @@ public class AprilTagVision extends VirtualSubsystem {
 
       // If no frames from instances, clear robot pose
       if (inputs[instanceIndex].timestamps.length == 0) {
-        Logger.recordOutput("AprilTagVision/Inst" + instanceIndex + "/RobotPose", new Pose2d());
-        Logger.recordOutput("AprilTagVision/Inst" + instanceIndex + "/RobotPose3d", new Pose3d());
+        // Logger.recordOutput("AprilTagVision/Inst" + instanceIndex + "/RobotPose", new Pose2d());
+        // Logger.recordOutput("AprilTagVision/Inst" + instanceIndex + "/RobotPose3d", new Pose3d());
       }
 
       // If no recent frames from instance, clear tag poses
       if (Timer.getFPGATimestamp() - lastFrameTimes.get(instanceIndex) > targetLogTimeSecs) {
         //noinspection RedundantArrayCreation
-        Logger.recordOutput("AprilTagVision/Inst" + instanceIndex + "/TagPoses", new Pose3d[] {});
+        // Logger.recordOutput("AprilTagVision/Inst" + instanceIndex + "/TagPoses", new Pose3d[] {});
       }
     }
 
@@ -221,11 +225,20 @@ public class AprilTagVision extends VirtualSubsystem {
         allTagPoses.add(FieldConstants.getAprilTags().getTagPose(detectionEntry.getKey()).get());
       }
     }
-    Logger.recordOutput("AprilTagVision/TagPoses", allTagPoses.toArray(Pose3d[]::new));
+
+
+
 
     // Send results to robot state
+    
+    Logger.recordOutput("Number of updates",allVisionObservations.size());
+    // if(allVisionObservations.size()>1){
+    //   allVisionObservations = allVisionObservations.subList(0, 1);
+    // }
     allVisionObservations.stream()
         .sorted(Comparator.comparingDouble(VisionObservation::timestamp))
         .forEach(RobotState.getInstance()::addVisionObservation);
+         // Logger.recordOutput("AprilTagVision/TagPoses", allTagPoses.toArray(Pose3d[]::new));
+         
   }
 }

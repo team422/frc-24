@@ -11,7 +11,7 @@ public interface GyroIO extends LoggedIO<GyroInputs> {
   public static class GyroInputs {
     public double angle;
     public double pitch;
-    public int connected;
+    public boolean connected;
     public Rotation2d[] odometryYawPositions = new Rotation2d[] {};
     public double rollPositionRad = 0.0;
     public double pitchPositionRad = 0.0;

@@ -69,7 +69,7 @@ public class ClimbIOTalon implements ClimbIO {
 
     @Override
     public void setSpeed(double speed) {
-        leaderTalon.setControl(new VoltageOut(speed*12).withUpdateFreqHz(0.0));
+        leaderTalon.setControl(new VoltageOut(speed*12));
     }
 
     @Override

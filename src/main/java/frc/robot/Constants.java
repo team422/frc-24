@@ -1,4 +1,6 @@
 package frc.robot;
+import com.pathplanner.lib.path.PathConstraints;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
@@ -19,6 +21,7 @@ import frc.lib.utils.LoggedTunableNumber;
 
 public final class Constants {
     public static final boolean tuningMode = true;
+    public static final boolean fullManualShooterAndPivotSpeedControls = false;
     public static final double loopPeriodSecs = 0.02;
 
   public static final class MetaConstants {
@@ -92,6 +95,8 @@ public final class Constants {
     public static final Rotation2d kIntakeMinAngle = Rotation2d.fromDegrees(15);
     public static final Rotation2d kIntakeHomeAngle = Rotation2d.fromDegrees(34);
 
+    public static final double kFlywheelTolerance = 15;
+
     public static final double kIntakeStowTime = 0.75; // Seconds from indexer receiving game piece to stowing the intake
 
     public static final LoggedTunableNumber kIntakeP = new LoggedTunableNumber("Intake P", .4, "Intake");
@@ -115,6 +120,8 @@ public final class Constants {
       public static final LoggedTunableNumber kFlywheelKV = new LoggedTunableNumber("Flywheel KV", 0.00083, "Shooter");
       public static final LoggedTunableNumber kFlywheelKA = new LoggedTunableNumber("Flywheel KA", 0.0, "Shooter");
       public static final double kMaxSpeed = 100;
+      public static final double kIdleSpeed = 0;
+      public static final LoggedTunableNumber kFlywheelSpeed = new LoggedTunableNumber("Flywheel Speed", 0.0, "Shooter");
     }
 
     public static final class ShooterPivotConstants {
@@ -130,10 +137,12 @@ public final class Constants {
       public static final LoggedTunableNumber kPivotkG = new LoggedTunableNumber("Pivot KG", 0.0, "Shooter"); 
 
       public static final double kOffset = Rotation2d.fromDegrees(181.7-13).getRotations();
+
+      public static final LoggedTunableNumber kShooterAngle = new LoggedTunableNumber("Shooter Angle", 0.0, "Shooter");
       // public static final double kOffset = Rotation2d.fromDegrees(0).getRotations();
 
       
-      public static final Rotation2d maxAngle = Rotation2d.fromDegrees(86); 
+      public static final Rotation2d maxAngle = Rotation2d.fromDegrees(77); 
       public static final Rotation2d minAngle = Rotation2d.fromDegrees(15);
       public static final Rotation2d homeAngle = Rotation2d.fromDegrees(34);
 
@@ -149,9 +158,10 @@ public final class Constants {
   public static final class DriveConstants {
     public static final Integer kId = 1;
     public static final Integer kOdometryFrequency = 100;
-    public static final double kMaxSpeedMetersPerSecond = 13.0;
+    public static final double kMaxSpeedMetersPerSecond = 5.9;
     public static final double kMaxAngularSpeedRadiansPerSecond = 3.0 * Math.PI;
     public static final double controllerDeadzone = 0.04;
+    public static final double kShootToleranceDeg = 1;
     public static final double kWheelBase = Units.inchesToMeters(23);
     public static final double kTrackWidth = Units.inchesToMeters(23);
     public static Translation2d[] kModuleTranslations = {
@@ -177,6 +187,8 @@ public final class Constants {
     public static final boolean useTorqueCurrentFOC = true;
     public static final boolean useMotionMagic = false;
     public static final Matrix<N3, N1> odometryStateStdDevs = new Matrix<>(VecBuilder.fill(0.003, 0.003, 0.0002));
+    public static final PathConstraints kAutoAlignToAmpSpeed = new PathConstraints(5.9,6,2,2);
+    public static final PathConstraints kDriveToPieceSpeed = new PathConstraints(5.9,6,2,2);
   }
 
   public static final class ModuleConstants {
@@ -216,6 +228,10 @@ public final class Constants {
     public static final double kDriveConversionFactor = ((kDriveGearRatio/ ((Units.inchesToMeters(4) * Math.PI) )));
     public static final double kDriveConversionFactorSim = 1/(Units.inchesToMeters(4)*Math.PI);
     // public static final double kDriveConversionFactor = 1 / 22.0409;
+
+
+
+    
 
     public static final double kTurnPositionConversionFactor = 21.428;
 

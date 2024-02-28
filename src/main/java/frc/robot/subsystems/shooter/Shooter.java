@@ -12,9 +12,11 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
+import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.ShooterConstants.FlywheelConstants;
 import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
 import frc.robot.subsystems.shooter.pivot.PivotIOInputsAutoLogged;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
@@ -69,6 +71,7 @@ public class Shooter extends ProfiledSubsystem {
     public void periodic() {
         m_pivotIO.updateInputs(m_inputsPivot);
         m_flywheelIO.updateInputs(m_inputsFlywheel);
+        
         Logger.processInputs("Shooter Pivot", m_inputsPivot);
         Logger.processInputs("Shooter Flywheel", m_inputsFlywheel); 
         State curState = new TrapezoidProfile.State(m_pivotIO.getCurrentAngle().getRadians(), m_pivotIO.getCurrentVelocity());
@@ -86,10 +89,20 @@ public class Shooter extends ProfiledSubsystem {
         // m_pivotIO.setDesiredAngle(angle);
         Logger.recordOutput("ShooterFF",ff.calculate(setpointState.position, setpointState.velocity));
         Logger.recordOutput("ShooterPosition",setpointState.position);
-        if(isIntaking == ShooterIsIntaking.intaking) {
-            m_pivotIO.runSetpoint(ShooterPivotConstants.homeAngle, 0);
-        }else{
-            m_pivotIO.runSetpoint(m_desiredAngle, ff.calculate(setpointState.position, setpointState.velocity));
+        if (Constants.fullManualShooterAndPivotSpeedControls){
+            Rotation2d m_ang = Rotation2d.fromRadians(MathUtil.clamp(
+                Rotation2d.fromDegrees(ShooterPivotConstants.kShooterAngle.get()).getRadians(),
+                      ShooterPivotConstants.minAngle.getRadians(),
+                      ShooterPivotConstants.maxAngle.getRadians()));
+            m_pivotIO.runSetpoint(m_ang, 0);
+            m_flywheelIO.setDesiredSpeed(FlywheelConstants.kFlywheelSpeed.get());
+
+        } else {
+            if(isIntaking == ShooterIsIntaking.intaking) {
+                m_pivotIO.runSetpoint(ShooterPivotConstants.homeAngle, 0);
+            }else{
+                m_pivotIO.runSetpoint(m_desiredAngle, ff.calculate(setpointState.position, setpointState.velocity));
+            }
         }
     }
 
@@ -119,5 +132,10 @@ public class Shooter extends ProfiledSubsystem {
         }
         return new Transform3d(-0.23+.287, 0, 0.4, new Rotation3d(0, m_inputsPivot.curAngle, 0));
         // return new Transform3d(-0, 0, 0, new Rotation3d(0, m_rotation.getRadians(), 0));
+    }
+
+    public boolean isWithinTolerance(double speed) {
+        return Math.abs(m_inputsFlywheel.curSpeed - speed) < IntakeConstants.kFlywheelTolerance;
+
     }
 }

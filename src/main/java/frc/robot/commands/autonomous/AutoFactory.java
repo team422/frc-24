@@ -6,12 +6,14 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -107,5 +109,14 @@ public class AutoFactory extends Command {
 
     // return autoCommand.andThen(m_drive.brakeCommand());
     return Commands.sequence(m_drive.brakeCommand(), autoCommand.andThen(m_drive.brakeCommand()));
+  }
+
+  public Command trajectoryGenerateToPosition(Pose2d finalPose, PathConstraints constraints, boolean flipped) {
+    if (flipped) {
+      return AutoBuilder.pathfindToPoseFlipped(finalPose, constraints);
+    } else{
+
+      return AutoBuilder.pathfindToPose(finalPose, constraints );
+    }
   }
 }

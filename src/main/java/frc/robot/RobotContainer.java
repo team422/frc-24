@@ -21,6 +21,8 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Ports;
 import frc.robot.Constants.ShooterConstants.FlywheelConstants;
+import frc.robot.Constants.Vision.ObjectDetection;
+import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.drive.TeleopControllerNoAugmentation;
 import frc.robot.oi.DriverControls;
@@ -31,11 +33,14 @@ import frc.robot.subsystems.climb.ClimbIOTalon;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.subsystems.drive.SwerveModuleIOKraken;
+import frc.robot.subsystems.drive.Drive.DriveProfiles;
 import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar;
+import frc.robot.subsystems.objectVision.ObjectDetectionCam;
+import frc.robot.subsystems.objectVision.ObjectDetectionIODepth;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterIsIntaking;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOKraken;
@@ -56,6 +61,8 @@ public class RobotContainer {
   DriverControls m_driverControls;
   ManualController m_testingController;
 
+  ObjectDetectionCam m_objectDetectionCams;
+
 
   private LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
 
@@ -75,9 +82,6 @@ public class RobotContainer {
   public void configureCommands(){
     m_drive.setDefaultCommand(new TeleopControllerNoAugmentation(m_drive,()->m_driverControls.getDriveForward(),()->m_driverControls.getDriveLeft() , ()-> m_driverControls.getDriveRotation(), DriveConstants.controllerDeadzone));
     m_driverControls.resetFieldCentric().onTrue(Commands.runOnce(()->m_drive.resetPose(new Pose2d())));
-    m_driverControls.setShooter45().onTrue(Commands.runOnce(()->{
-      System.out.println("Setting shooter to 45");
-      m_shooter.setPivotAngle(Rotation2d.fromDegrees(45));}));
       m_driverControls.setClimberServoClose().onTrue(Commands.runOnce(()->{
         System.out.println("Setting climber servo to close");
         m_climb.setServoPosition(0);}));
@@ -87,35 +91,35 @@ public class RobotContainer {
         m_climb.setServoPosition(0.25);
       }));
 
-      m_testingController.finalShoot().onTrue(Commands.runOnce(()->{
-        System.out.println("NOW SHOOT");
-        m_indexer.setState(IndexerState.SHOOTING);
-      }));
+      // m_testingController.finalShoot().onTrue(Commands.runOnce(()->{
+      //   System.out.println("NOW SHOOT");
+      //   m_indexer.setState(IndexerState.SHOOTING);
+      // }));
 
 
 
       m_testingController.cimberLockToggle().onTrue(Commands.runOnce(()->{
         m_climb.toggleServo();
       }));
-      new Trigger(()->{if(Math.abs(m_testingController.climberStick()) > 0.2){return true;}else{return false;}} ) .whileTrue(Commands.runOnce(()->{
-        m_climb.setSpeed(m_testingController.climberStick());
-      })).whileFalse(Commands.runOnce(()->m_climb.setSpeed(0)));
+      // new Trigger(()->{if(Math.abs(m_testingController.climberStick()) > 0.2){return true;}else{return false;}} ) .whileTrue(Commands.runOnce(()->{
+      //   m_climb.setSpeed(m_testingController.climberStick());
+      // })).whileFalse(Commands.runOnce(()->m_climb.setSpeed(0)));
 
-      new Trigger(()->{if(Math.abs(m_testingController.getFeederStick()) > 0.2){return true;}else{return false;}} ).onTrue(Commands.runOnce(()->{
-        // m_indexer.setManualSpeed(m_testingController.getFeederStick());
-        System.out.println("STARTING INDEXING");
-        m_indexer.setState(IndexerState.INDEXING);
-      }));
+      // new Trigger(()->{if(Math.abs(m_testingController.getFeederStick()) > 0.2){return true;}else{return false;}} ).onTrue(Commands.runOnce(()->{
+      //   // m_indexer.setManualSpeed(m_testingController.getFeederStick());
+      //   System.out.println("STARTING INDEXING");
+      //   m_indexer.setState(IndexerState.INDEXING);
+      // }));
 
-      new Trigger(()->{if(Math.abs(m_testingController.getShooterStick()) > 0.2){return true;}else{return false;}} ).onTrue(Commands.run(()->{
-        m_shooter.setFlywheelSpeed(m_testingController.getShooterStick()*FlywheelConstants.kMaxSpeed);
-      })).whileFalse(Commands.runOnce(()->m_shooter.setFlywheelSpeed(0)));
+      // new Trigger(()->{if(Math.abs(m_testingController.getShooterStick()) > 0.2){return true;}else{return false;}} ).onTrue(Commands.run(()->{
+      //   m_shooter.setFlywheelSpeed(m_testingController.getShooterStick()*FlywheelConstants.kMaxSpeed);
+      // })).whileFalse(Commands.runOnce(()->m_shooter.setFlywheelSpeed(0)));
 
-      m_testingController.maxSpeedShooter().onTrue(Commands.runOnce(()->{
-        m_shooter.setFlywheelSpeed(FlywheelConstants.kMaxSpeed);
-      })).onFalse(Commands.runOnce(()->{
-        m_shooter.setFlywheelSpeed(0);
-      }));
+      // m_testingController.maxSpeedShooter().onTrue(Commands.runOnce(()->{
+      //   m_shooter.setFlywheelSpeed(FlywheelConstants.kMaxSpeed);
+      // })).onFalse(Commands.runOnce(()->{
+      //   m_shooter.setFlywheelSpeed(0);
+      // }));
       // Commands.run(()->{
       //   m_shooter.setFlywheelSpeed(m_testingController.getShooterStick()*FlywheelConstants.kMaxSpeed);
       // }).schedule();
@@ -123,15 +127,38 @@ public class RobotContainer {
       m_testingController.intakeUpDegrees().onTrue(Commands.runOnce(()->m_intake.addDegreesToPivotAngle(2)));
       m_testingController.intakeDownDegrees().onTrue(Commands.runOnce(()->m_intake.addDegreesToPivotAngle(-2)));
 
-      m_driverControls.goToIntakePosition().onTrue(Commands.runOnce(()->{
-        m_intake.setPivotAngle(IntakeConstants.kIntakeMinAngle);
-        m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
+      m_driverControls.goToIntakePosition().whileTrue(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kIntake);
+        
+
         m_shooter.isIntaking = ShooterIsIntaking.intaking;
       })).onFalse(Commands.runOnce(()->{
-          m_intake.setPivotAngle(IntakeConstants.kIntakeMaxAngle);
-          m_intake.setIntakeSpeed(0);
+          m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
           m_shooter.isIntaking = ShooterIsIntaking.notIntaking;
       }));
+
+      m_driverControls.goToShootPositionAndRev().onTrue(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kRevAndAlign);
+      })).onFalse(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+      }));
+
+      m_driverControls.finalShoot().onTrue(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kShootFender);
+      }));
+
+      m_driverControls.ampAutoLineup().onTrue(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpLineup);
+        Command goToPosition = m_autoFactory.trajectoryGenerateToPosition(FieldConstants.kAmpBlue, DriveConstants.kAutoAlignToAmpSpeed,false);
+        m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
+        goToPosition.andThen(Commands.runOnce(()->{
+          m_drive.setProfile(DriveProfiles.kDefault);
+        })).schedule();
+
+
+      }));
+
+
 
 
   }
@@ -162,7 +189,7 @@ public class RobotContainer {
     }
 
     m_climb = new Climb(new ClimbIOTalon(Ports.climbLeader, Ports.climbFollower, Ports.servoPort));
-    m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) , new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort,m_driverControls::intakeNote));
+    m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) , new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort));
     // m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim(), new frc.robot.subsystems.intake.rollers.RollerIOSim() );
     m_indexer = new Indexer(new frc.robot.subsystems.indexer.IndexerIOFalcon(Ports.indexerFirst,Ports.indexerSecond,Ports.beamBreakPort,Ports.beamBreakPort2));
     m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,3 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
@@ -184,11 +211,11 @@ public class RobotContainer {
     if (Robot.isSimulation()) {
       SwerveModuleIO[] m_SwerveModuleIOs = {
         // new SwerveModuleIOMK4Talon(1,2,3),
+        new SwerveModuleIOKraken(1,2,3,false),
+        new SwerveModuleIOKraken(4,5, 6, false),
         new SwerveModuleIOKraken(7, 8, 9, false),
         new SwerveModuleIOKraken(10, 11, 12, false),
         // new SwerveModuleIOSim(),
-        new SwerveModuleIOKraken(1,2,3,false),
-        new SwerveModuleIOKraken(4,5, 6, false),
         // new SwerveModuleIOMK4Talon(4,5,6),
         // new SwerveModuleIOSim(),
         // new SwerveModuleIOMK4Talon(7,8,9),
@@ -235,9 +262,9 @@ public class RobotContainer {
           // new SwerveModuleIOMK4Talon(1,2,3),
           new SwerveModuleIOKraken(10, 11, 12, false),
           new SwerveModuleIOKraken(7, 8, 9, false),
-          // new SwerveModuleIOSim(),
           new SwerveModuleIOKraken(4,5, 6, false),
           new SwerveModuleIOKraken(1,2,3,false),
+          // new SwerveModuleIOSim(),
           // new SwerveModuleIOMK4Talon(4,5,6),
           // new SwerveModuleIOSim(),
           // new SwerveModuleIOMK4Talon(7,8,9),
@@ -247,17 +274,19 @@ public class RobotContainer {
         m_drive = new Drive(new GyroIOPigeon(22,new Rotation2d(),true),new Pose2d(),m_SwerveModuleIOs);
       // m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new AprilTagVisionIONorthstar("northstar_0",frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionConstants.cameraIds[0]));
     }
+
+    m_objectDetectionCams = new ObjectDetectionCam(new ObjectDetectionIODepth(""));
     
-    m_robotState = RobotState.startInstance(m_drive, m_climb, m_indexer,m_shooter, null, m_aprilTagVision, m_intake);
-    m_TebInterfacer = new NetworkTablesTEBInterfacer("teb");
+    m_robotState = RobotState.startInstance(m_drive, m_climb, m_indexer,m_shooter, m_objectDetectionCams, m_aprilTagVision, m_intake);
+    // m_TebInterfacer = new NetworkTablesTEBInterfacer("teb");
   }
 
   public void updateRobotState(){
-    VirtualSubsystem.periodicAll(); 
+    // VirtualSubsystem.periodicAll(); 
     m_robotState.updateRobotState();
-    m_robotState.calculateShooterAngle();
+    // m_robotState.calculateShooterAngle();
     
-    m_TebInterfacer.update();
+    // m_TebInterfacer.update();
     m_robotState.getEstimatedPose();
     // System.out.println("Drive chassis speeds: "+m_drive.getChassisSpeeds());
   }

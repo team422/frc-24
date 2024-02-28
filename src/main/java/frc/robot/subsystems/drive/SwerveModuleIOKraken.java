@@ -68,8 +68,8 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
   private final Slot0Configs turnFeedbackConfig = new Slot0Configs();
     PIDController mController;
 
-    private final Queue<Double> drivePositionQueue;
-    private final Queue<Double> turnPositionQueue;
+    // private final Queue<Double> drivePositionQueue;
+    // private final Queue<Double> turnPositionQueue;
 
       // Control
   private final VoltageOut driveVoltage = new VoltageOut(0).withUpdateFreqHz(0);
@@ -92,13 +92,13 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
   private final NeutralOut turnNeutral = new NeutralOut().withUpdateFreqHz(0);
 
     private final DCMotorSim mDriveSim = new DCMotorSim(DCMotor.getKrakenX60Foc(1), ModuleConstants.kDriveGearRatio, 0.4);
-    private final DCMotorSim mTurnSim = new DCMotorSim(DCMotor.getFalcon500Foc(1), ModuleConstants.kTurnPositionConversionFactor, 0.004);
+    private final DCMotorSim mTurnSim = new DCMotorSim(DCMotor.getFalcon500Foc(1), ModuleConstants.kTurnPositionConversionFactor, 0.4);
 
 
     public SwerveModuleIOKraken(int drivePort, int turnPort, int cancoderId, boolean turnMotorInverted) {
-        m_driveMotor = new TalonFX(drivePort, "rio");
-        m_turnMotor = new TalonFX(turnPort, "rio");
-        m_turnEncoder = new CANcoder(cancoderId);
+        m_driveMotor = new TalonFX(drivePort, "Drivetrain");
+        m_turnMotor = new TalonFX(turnPort, "Drivetrain");
+        m_turnEncoder = new CANcoder(cancoderId,"Drivetrain");
 
         driveConfig = new TalonFXConfiguration();
         driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
@@ -165,7 +165,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         turnSupplyCurrent = m_turnMotor.getSupplyCurrent();
         turnTorqueCurrent = m_turnMotor.getTorqueCurrent();
         BaseStatusSignal.setUpdateFrequencyForAll(
-            50.0,
+            100.0,
             driveVelocity,
             driveAppliedVolts,
             driveSupplyCurrent,
@@ -177,12 +177,14 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         );
 
 
-        drivePositionQueue =
-        PhoenixOdometryThread.getInstance().registerSignal(m_driveMotor, drivePosition);
+        // drivePositionQueue =
+        // PhoenixOdometryThread.getInstance().registerSignal(m_driveMotor, drivePosition);
         // Reset turn position to absolute encoder position
         // m_turnMotor.setPosition(turnAbsolutePosition.get().getRotations(), 1.0);
-    turnPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(m_turnMotor, turnPosition);
-        // BaseStatusSignal.setUpdateFrequencyForAll(250.0, drivePosition, turnPosition);
+        // drivePositionQueue = null;
+        // turnPositionQueue = null;
+    // turnPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(m_turnMotor, turnPosition);
+    //     BaseStatusSignal.setUpdateFrequencyForAll(50.0, drivePosition, turnPosition);
 
         m_driveMotor.optimizeBusUtilization(1.0);
     m_turnMotor.optimizeBusUtilization(1.0);
@@ -197,7 +199,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
 
         TalonFXSimState simDrive =  m_driveMotor.getSimState();
         TalonFXSimState simTurn = m_turnMotor.getSimState();
-        System.out.println(simTurn.getMotorVoltage());
+        // System.out.println(simTurn.getMotorVoltage());
 
         mDriveSim.setInputVoltage(Math.min(12,Math.max(simDrive.getMotorVoltage(),-12)));
         mTurnSim.setInputVoltage(Math.min(12,Math.max(simTurn.getMotorVoltage(),-12)));
@@ -206,10 +208,10 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         mDriveSim.update(0.02);
         mTurnSim.update(0.02);
 
-        m_driveMotor.getSimState().setRawRotorPosition(mDriveSim.getAngularPositionRotations());
+        m_driveMotor.getSimState().setRawRotorPosition(mDriveSim.getAngularPositionRotations() * ModuleConstants.kDriveConversionFactor);
         m_turnMotor.getSimState().setRawRotorPosition(mTurnSim.getAngularPositionRotations());
         m_turnEncoder.getSimState().setRawPosition(mTurnSim.getAngularPositionRotations());
-        m_driveMotor.getSimState().setRotorVelocity(mDriveSim.getAngularVelocityRPM()/60.0);
+        m_driveMotor.getSimState().setRotorVelocity(mDriveSim.getAngularVelocityRPM() * ModuleConstants.kDriveConversionFactor/60.0);
         m_turnMotor.getSimState().setRotorVelocity(mTurnSim.getAngularVelocityRPM()/60.0);
 
 
@@ -259,15 +261,15 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
 
 
 
-    inputs.odometryDrivePositionsMeters =
-    drivePositionQueue.stream()
-        .mapToDouble(
-            signalValue -> Units.rotationsToRadians(signalValue) * ModuleConstants.kWheelDiameterMeters)
-        .toArray();
-inputs.odometryTurnPositions =
-    turnPositionQueue.stream().map(Rotation2d::fromRotations).toArray(Rotation2d[]::new);
-    drivePositionQueue.clear();
-    turnPositionQueue.clear();
+//     inputs.odometryDrivePositionsMeters =
+//     drivePositionQueue.stream()
+//         .mapToDouble(
+//             signalValue -> Units.rotationsToRadians(signalValue) * ModuleConstants.kWheelDiameterMeters)
+//         .toArray();
+// inputs.odometryTurnPositions =
+//     turnPositionQueue.stream().map(Rotation2d::fromRotations).toArray(Rotation2d[]::new);
+//     drivePositionQueue.clear();
+//     turnPositionQueue.clear();
 
     if(RobotBase.isSimulation()){
         simulationPeriodic();
@@ -481,8 +483,13 @@ inputs.odometryTurnPositions =
     @Override
   public void runTurnPositionSetpoint(double angleRads) {
     // System.out.println("running turn position setpoint" + angleRads);
-    
-    m_turnMotor.setControl(new VelocityVoltage(-mTurnController.calculate(turnAbsolutePosition.get().getRadians(), angleRads)).withEnableFOC(true));
+    if (Robot.isReal()){
+
+        m_turnMotor.setControl(new VelocityVoltage(-mTurnController.calculate(turnAbsolutePosition.get().getRadians(), angleRads)).withEnableFOC(true));
+    } else {
+        m_turnMotor.setControl(new VoltageOut(mTurnController.calculate(turnAbsolutePosition.get().getRadians(), angleRads)).withEnableFOC(true));
+    }
+
   }
     @Override
     public void setTurnPID(double kP, double kI, double kD) {

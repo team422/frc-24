@@ -85,6 +85,12 @@ public class ShooterMath {
     }
 
 
+    public double getDistanceFromTarget(Pose2d pose,Translation3d target){
+        return new Pose2d(target.getX(),target.getY(),new Rotation2d()).minus(pose).getTranslation().getNorm();
+
+    }
+
+
 
     // // for right now, we are going to assume the note moves linearly
     // // we will need to change this later
