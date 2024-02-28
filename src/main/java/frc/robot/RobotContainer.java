@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import com.ctre.phoenix6.unmanaged.Unmanaged;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -33,6 +35,7 @@ import frc.robot.subsystems.climb.ClimbIOTalon;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.subsystems.drive.SwerveModuleIOKraken;
+import frc.robot.subsystems.drive.SwerveModuleIOSim;
 import frc.robot.subsystems.drive.Drive.DriveProfiles;
 import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
 import frc.robot.subsystems.indexer.Indexer;
@@ -81,7 +84,7 @@ public class RobotContainer {
 
   public void configureCommands(){
     m_drive.setDefaultCommand(new TeleopControllerNoAugmentation(m_drive,()->m_driverControls.getDriveForward(),()->m_driverControls.getDriveLeft() , ()-> m_driverControls.getDriveRotation(), DriveConstants.controllerDeadzone));
-    m_driverControls.resetFieldCentric().onTrue(Commands.runOnce(()->m_drive.resetPose(new Pose2d())));
+    m_driverControls.resetFieldCentric().onTrue(Commands.runOnce(()->m_drive.resetPose(new Pose2d(m_robotState.getEstimatedPose().getTranslation(),Rotation2d.fromDegrees(180)))));
       m_driverControls.setClimberServoClose().onTrue(Commands.runOnce(()->{
         System.out.println("Setting climber servo to close");
         m_climb.setServoPosition(0);}));
@@ -192,7 +195,7 @@ public class RobotContainer {
     m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) , new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort));
     // m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim(), new frc.robot.subsystems.intake.rollers.RollerIOSim() );
     m_indexer = new Indexer(new frc.robot.subsystems.indexer.IndexerIOFalcon(Ports.indexerFirst,Ports.indexerSecond,Ports.beamBreakPort,Ports.beamBreakPort2));
-    m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,3 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
+    m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
     // m_shooter = new Shooter(new frc.robot.subsystems.shooter.pivot.PivotIOSim(), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
     // Logger.recordOutput("kShooterBackLeft", new Pose3d(FieldConstants.kShooterBackLeft, new Rotation3d(0, 0, 0)));
     // Logger.recordOutput("kShooterBackRight", new Pose3d(FieldConstants.kShooterBackRight, new Rotation3d(0, 0, 0)));
@@ -207,6 +210,7 @@ public class RobotContainer {
     
     
     // m_shooter = new Shooter(new PivotIOSim(), new FlywheelIOSim());
+    Unmanaged.setPhoenixDiagnosticsStartTime(-1);
     m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new AprilTagVisionIONorthstar("northstar_0",""),new AprilTagVisionIONorthstar("northstar_1",""),new AprilTagVisionIONorthstar("northstar_2",""),new AprilTagVisionIONorthstar("northstar_3",""));
     if (Robot.isSimulation()) {
       SwerveModuleIO[] m_SwerveModuleIOs = {
@@ -261,14 +265,14 @@ public class RobotContainer {
         SwerveModuleIO[] m_SwerveModuleIOs = {
           // new SwerveModuleIOMK4Talon(1,2,3),
           new SwerveModuleIOKraken(10, 11, 12, false),
+          // new SwerveModuleIOSim(),
           new SwerveModuleIOKraken(7, 8, 9, false),
+          // new SwerveModuleIOSim(),
           new SwerveModuleIOKraken(4,5, 6, false),
+          // new SwerveModuleIOSim(),
           new SwerveModuleIOKraken(1,2,3,false),
-          // new SwerveModuleIOSim(),
           // new SwerveModuleIOMK4Talon(4,5,6),
-          // new SwerveModuleIOSim(),
           // new SwerveModuleIOMK4Talon(7,8,9),
-          // new SwerveModuleIOSim(),
           // new SwerveModuleIOMK4Talon(10,11,12),
         };
         m_drive = new Drive(new GyroIOPigeon(22,new Rotation2d(),true),new Pose2d(),m_SwerveModuleIOs);
@@ -282,7 +286,7 @@ public class RobotContainer {
   }
 
   public void updateRobotState(){
-    // VirtualSubsystem.periodicAll(); 
+    VirtualSubsystem.periodicAll(); 
     m_robotState.updateRobotState();
     // m_robotState.calculateShooterAngle();
     

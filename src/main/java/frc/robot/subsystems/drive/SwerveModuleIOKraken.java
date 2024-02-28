@@ -68,8 +68,8 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
   private final Slot0Configs turnFeedbackConfig = new Slot0Configs();
     PIDController mController;
 
-    // private final Queue<Double> drivePositionQueue;
-    // private final Queue<Double> turnPositionQueue;
+    private final Queue<Double> drivePositionQueue;
+    private final Queue<Double> turnPositionQueue;
 
       // Control
   private final VoltageOut driveVoltage = new VoltageOut(0).withUpdateFreqHz(0);
@@ -177,14 +177,14 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         );
 
 
-        // drivePositionQueue =
-        // PhoenixOdometryThread.getInstance().registerSignal(m_driveMotor, drivePosition);
+        drivePositionQueue =
+        PhoenixOdometryThread.getInstance().registerSignal(m_driveMotor, drivePosition);
         // Reset turn position to absolute encoder position
         // m_turnMotor.setPosition(turnAbsolutePosition.get().getRotations(), 1.0);
         // drivePositionQueue = null;
         // turnPositionQueue = null;
-    // turnPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(m_turnMotor, turnPosition);
-    //     BaseStatusSignal.setUpdateFrequencyForAll(50.0, drivePosition, turnPosition);
+    turnPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(m_turnMotor, turnPosition);
+        BaseStatusSignal.setUpdateFrequencyForAll(50.0, drivePosition, turnPosition);
 
         m_driveMotor.optimizeBusUtilization(1.0);
     m_turnMotor.optimizeBusUtilization(1.0);
@@ -261,15 +261,15 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
 
 
 
-//     inputs.odometryDrivePositionsMeters =
-//     drivePositionQueue.stream()
-//         .mapToDouble(
-//             signalValue -> Units.rotationsToRadians(signalValue) * ModuleConstants.kWheelDiameterMeters)
-//         .toArray();
-// inputs.odometryTurnPositions =
-//     turnPositionQueue.stream().map(Rotation2d::fromRotations).toArray(Rotation2d[]::new);
-//     drivePositionQueue.clear();
-//     turnPositionQueue.clear();
+    inputs.odometryDrivePositionsMeters =
+    drivePositionQueue.stream()
+        .mapToDouble(
+            signalValue -> Units.rotationsToRadians(signalValue) * ModuleConstants.kWheelDiameterMeters)
+        .toArray();
+inputs.odometryTurnPositions =
+    turnPositionQueue.stream().map(Rotation2d::fromRotations).toArray(Rotation2d[]::new);
+    drivePositionQueue.clear();
+    turnPositionQueue.clear();
 
     if(RobotBase.isSimulation()){
         simulationPeriodic();
@@ -485,7 +485,8 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
     // System.out.println("running turn position setpoint" + angleRads);
     if (Robot.isReal()){
 
-        m_turnMotor.setControl(new VelocityVoltage(-mTurnController.calculate(turnAbsolutePosition.get().getRadians(), angleRads)).withEnableFOC(true));
+        m_turnMotor.setControl(new VoltageOut(-mTurnController.calculate(turnAbsolutePosition.get().getRadians(), angleRads)).withEnableFOC(true));
+        // m_turnMotor.setControl(new VoltageOut(3).withEnableFOC(true));
     } else {
         m_turnMotor.setControl(new VoltageOut(mTurnController.calculate(turnAbsolutePosition.get().getRadians(), angleRads)).withEnableFOC(true));
     }
