@@ -1,9 +1,12 @@
 package frc.robot.subsystems.indexer;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -48,7 +51,7 @@ private final PositionTorqueCurrentFOC positionControl =
         m_slot0.kD = Constants.IndexerConstants.kIndexerD.get();
         // Leader motor configs
         TalonFXConfiguration leaderConfig = new TalonFXConfiguration();
-        leaderConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
+        leaderConfig.CurrentLimits.SupplyCurrentLimit = 15.0;
         leaderConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         leaderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -98,24 +101,32 @@ private final PositionTorqueCurrentFOC positionControl =
     @Override
     public void manageState(IndexerState state) {
         if (state == IndexerState.IDLE) {
-            m_falconFirst.set(0);
+            m_falconFirst.setControl(new NeutralOut());
+            m_falconSecond.setControl(new NeutralOut());
         } else if (state == IndexerState.INTAKING) {
             m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
             m_falconSecond.setControl(velocityControl.withVelocity(0));
             m_falconSecond.setControl(velocityControl.withVelocity(0));
-            if (m_initialBeamBreak.get()) {
+            if (!m_initialBeamBreak.get()) {
                 RobotState.getInstance().setGamePieceLocation(GamePieceLocation.INDEXER);
+                Logger.recordOutput("IS SETTING", true);
             }
         } else if (state == IndexerState.INDEXING) {
-            m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
+            
             m_falconSecond.setControl(velocityControl.withVelocity(0));
             if (!m_finalBeamBreak.get()) {
-                m_falconFirst.setControl(velocityControl.withVelocity(0));
+                m_falconFirst.setControl(new NeutralOut());
+            }else{
+                m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
             }
 
         } else if (state == IndexerState.SHOOTING) {
             m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
             m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
+            if (m_finalBeamBreak.get() && m_initialBeamBreak.get()) {
+                RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
+
+            }
 
         }
     }

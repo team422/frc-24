@@ -16,11 +16,9 @@ public class RollerIOKraken implements RollerIO {
     TalonFX m_motor;
     TalonFXConfigurator config;
     double m_speed;
-    Supplier<Double> getSpeed;
-    public RollerIOKraken(int motorID,Supplier<Double> m_Speed ) {
+    public RollerIOKraken(int motorID ) {
         m_motor = new TalonFX(motorID,"rio");
         config = m_motor.getConfigurator();
-        getSpeed = m_Speed;
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs();
         currentLimits.SupplyCurrentLimit = 40;
         currentLimits.SupplyTimeThreshold = 0.4;
@@ -38,7 +36,7 @@ public class RollerIOKraken implements RollerIO {
         inputs.voltage = m_motor.getMotorVoltage().getValueAsDouble();
         inputs.outputCurrent = m_motor.getSupplyCurrent().getValueAsDouble();
         inputs.desiredSpeeds = m_speed;
-        m_motor.setVoltage(-getSpeed.get()*12);
+        // m_motor.setVoltage(-getSpeed.get()*12);
     }
 
     public double getVelocity(){
@@ -48,7 +46,7 @@ public class RollerIOKraken implements RollerIO {
 
     @Override
     public void setVoltage(double voltage) {
-        m_motor.setVoltage(voltage);
+        m_motor.setVoltage(-voltage*12);
     }
 
     

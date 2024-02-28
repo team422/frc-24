@@ -16,10 +16,17 @@ public class FieldConstants {
     public static final double podiumX = Units.inchesToMeters(126.75);
     public static final double startingLineX = Units.inchesToMeters(74.111);
     public final static double kFieldWidth = 8.21;
+
     public final static double aprilTagWidth = Units.inchesToMeters(6.5);
+    public final static AprilTagFieldLayout field = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+
+    public static final Pose2d kAmpBlue = new Pose2d(Units.inchesToMeters(0), Units.inchesToMeters(0), new Rotation2d());
+
     public static final AprilTagFieldLayout getAprilTags(){
-        return  AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+        return field;
     }
+
+
 
     public static final HashMap<String,Pose2d> getGamePieces(){
         HashMap<String, Pose2d> gamePieces = new HashMap<String, Pose2d>();
