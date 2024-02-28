@@ -70,8 +70,8 @@ public final class Constants {
     public static final int servoPort2 = 8;
 
     // beambreak ports
-    public static final int beamBreakPort = 1;
-    public static final int beamBreakPort2 = 0;
+    public static final int beamBreakPort = 8;
+    public static final int beamBreakPort2 = 7;
 
     public static final int shooterLeft = 35;
     public static final int shooterRight = 36;
