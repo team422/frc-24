@@ -224,11 +224,11 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
 
   public void setRobotCurrentAction(RobotCurrentAction action){
     if(curAction == RobotCurrentAction.kAmpLineup){
-      ShooterPivotConstants.kUsingAmp.set(1);
-
+      ShooterPivotConstants.kUsingAmp.set(0);
+      
     }
     if(action == RobotCurrentAction.kAmpLineup){
-      ShooterPivotConstants.kUsingAmp.set(0);
+      ShooterPivotConstants.kUsingAmp.set(1);
       kAmpTopReached = false;
     }
     curAction = action;
@@ -347,7 +347,9 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         }
         if (shooterStopTime != -1 && shooterStopTime < Timer.getFPGATimestamp()) {
             m_shooter.setFlywheelSpeed(ShooterConstants.FlywheelConstants.kIdleSpeed);
-            curAction = RobotCurrentAction.kStow;
+            if(curAction != RobotCurrentAction.kAmpLineup){
+              curAction = RobotCurrentAction.kStow;
+            }
             setGamePieceLocation(GamePieceLocation.NOT_IN_ROBOT);
             m_indexer.setState(IndexerState.IDLE);
             stowShooter();
@@ -405,17 +407,25 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
 
         } else if (curAction == RobotCurrentAction.kAmpLineup){
           // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
-          m_shooter.setFlywheelSpeed(FlywheelConstants.kAmpSpeed.get());
-          m_shooter.setPivotAngle(ShooterPivotConstants.maxAngle);
-          if(m_shooter.isPivotWithinTolerance(ShooterPivotConstants.kAmpShot, Rotation2d.fromDegrees(4))){
-            m_indexer.setState(IndexerState.SHOOTING);
-
+          Logger.recordOutput("Starting amp",kAmpTopReached);
+          m_shooter.setFlywheelSpeedWithSpin(FlywheelConstants.kAmpSpeed.get(),FlywheelConstants.kAmpSpeed.get());
+          if(kAmpTopReached==false){
+            m_shooter.setPivotAngle(ShooterPivotConstants.maxAngle);
           }
+          
 
           if(kAmpTopReached == true){
-            m_shooter.setPivotAngle(ShooterPivotConstants.kAmpBottom);
+            m_indexer.setState(IndexerState.SHOOTING);
+
+            if(shooterStopTime != -1 && shooterStopTime < Timer.getFPGATimestamp()){
+
+              m_shooter.setPivotAngle(ShooterPivotConstants.kAmpBottom);
+              
+  
+            }
           }else {
-            if(m_shooter.isPivotWithinTolerance(ShooterPivotConstants.maxAngle, Rotation2d.fromDegrees(4))){
+            if(m_shooter.isPivotWithinTolerance(Rotation2d.fromDegrees(72), Rotation2d.fromDegrees(1)) && m_shooter.isWithinTolerance(1)){
+              Logger.recordOutput("Starting amp TOP",true);
               kAmpTopReached = true;
             }
 

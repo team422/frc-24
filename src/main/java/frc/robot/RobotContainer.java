@@ -166,21 +166,22 @@ public class RobotContainer {
       m_driverControls.ampAutoLineup().whileTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpLineup);
         
-        autoDriveCommand = m_autoFactory.trajectoryGenerateToPosition(FieldConstants.kAmpBlue,DriveConstants.kAutoAlignToAmpSpeed ,DriverStation.getAlliance().equals(Alliance.Red));
+        // autoDriveCommand = m_autoFactory.trajectoryGenerateToPosition(FieldConstants.kAmpBlue,DriveConstants.kAutoAlignToAmpSpeed ,DriverStation.getAlliance().equals(Alliance.Red));
         // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
         
-        autoDriveCommand.andThen(Commands.runOnce(()->{
-          m_drive.setProfile(DriveProfiles.kDefault);
-        })).schedule();
+        // autoDriveCommand.andThen(Commands.runOnce(()->{
+        //   m_drive.setProfile(DriveProfiles.kDefault);
+        // })).schedule();
 
 
-      })).onFalse(Commands.runOnce(()->{
-        autoDriveCommand.cancel();
-        m_autoFactory.cancel();
-        // m_drive.drive(new ChassisSpeeds(0.0, 0.0,Rotation2d.fromDegrees(0).getRadians()));
-        System.out.println("CANCELLING AUTO DRIVE");
-        m_drive.setProfile(DriveProfiles.kDefault);
       }));
+      // .onFalse(Commands.runOnce(()->{
+      //   autoDriveCommand.cancel();
+      //   m_autoFactory.cancel();
+      //   // m_drive.drive(new ChassisSpeeds(0.0, 0.0,Rotation2d.fromDegrees(0).getRadians()));
+      //   System.out.println("CANCELLING AUTO DRIVE");
+      //   m_drive.setProfile(DriveProfiles.kDefault);
+      // }));
 
 
 
