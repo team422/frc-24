@@ -124,7 +124,9 @@ public class Shooter extends ProfiledSubsystem {
     }
 
     public boolean isPivotWithinTolerance(Rotation2d angle,Rotation2d tolerance){
-        return Math.abs(m_desiredAngle.minus(angle).getDegrees()) < tolerance.getDegrees();
+        System.out.println(m_desiredAngle.getDegrees()-angle.getDegrees());
+        System.out.println(Math.abs(m_desiredAngle.getDegrees()-angle.getDegrees()) < tolerance.getDegrees());
+        return Math.abs(m_pivotIO.getCurrentAngle().getDegrees()-angle.getDegrees()) < tolerance.getDegrees();
     }
 
     public void setFlywheelSpeed(double speed) {

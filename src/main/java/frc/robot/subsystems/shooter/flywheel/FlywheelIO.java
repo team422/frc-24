@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter.flywheel;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.advantagekit.LoggedIO;
 
 public interface FlywheelIO extends LoggedIO<FlywheelIO.FlywheelIOInputs> {

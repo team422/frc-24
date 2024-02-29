@@ -23,7 +23,7 @@ import frc.lib.utils.LoggedTunableNumber;
 
 public final class Constants {
     public static final boolean tuningMode = true;
-    public static final boolean fullManualShooterAndPivotSpeedControls = true;
+    public static final boolean fullManualShooterAndPivotSpeedControls = false;
     public static final double loopPeriodSecs = 0.02;
 
   public static final class MetaConstants {
@@ -125,7 +125,7 @@ public final class Constants {
       public static final double kIdleSpeed = 0;
       public static final LoggedTunableNumber kFlywheelSpeedLeft = new LoggedTunableNumber("Flywheel Speed Left", 0.0, "Shooter");
       public static final LoggedTunableNumber kFlywheelSpeedRight = new LoggedTunableNumber("Flywheel Speed Right", 0.0, "Shooter");
-      public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 10.0, "Shooter");
+      public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 3.600000, "Shooter");
     }
 
     public static final class ShooterPivotConstants {
@@ -135,7 +135,7 @@ public final class Constants {
 
       public static final LoggedTunableNumber kPivotI = new LoggedTunableNumber("Pivot I", 0.0, "Shooter");
       public static final LoggedTunableNumber kPivotD = new LoggedTunableNumber("Pivot D", 0.05, "Shooter");
-      public static final LoggedTunableNumber kPivotAmpP = new LoggedTunableNumber("Pivot Amp P ", 10.0, "Shooter");
+      public static final LoggedTunableNumber kPivotAmpP = new LoggedTunableNumber("Pivot Amp P ", 1.0, "Shooter");
       public static final LoggedTunableNumber kPivotAmpI = new LoggedTunableNumber("Pivot Amp I ", 0.0, "Shooter");
       public static final LoggedTunableNumber kPivotAmpD = new LoggedTunableNumber("Pivot Amp D ", 0.0, "Shooter");
       public static final LoggedTunableNumber kPivotkS = new LoggedTunableNumber("Pivot KS", .3, "Shooter");
@@ -151,8 +151,8 @@ public final class Constants {
 
       
       public static final Rotation2d maxAngle = Rotation2d.fromDegrees(77); 
-      public static final Rotation2d kAmpShot = Rotation2d.fromDegrees(66);
-      public static final Rotation2d kAmpBottom = Rotation2d.fromDegrees(55);
+      public static final Rotation2d kAmpShot = Rotation2d.fromDegrees(70);
+      public static final Rotation2d kAmpBottom = Rotation2d.fromDegrees(50);
       public static final Rotation2d minAngle = Rotation2d.fromDegrees(15);
       public static final Rotation2d homeAngle = Rotation2d.fromDegrees(34);
       public static final Rotation2d kFenderAngle = Rotation2d.fromDegrees(70);
