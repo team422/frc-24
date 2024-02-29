@@ -43,6 +43,8 @@ public interface DriverControls {
 
   public default void setDriverRumble(double value, RumbleType side){
   }
+
+   public default Trigger fenderShot(){return new Trigger(()->false);};
   
 
  

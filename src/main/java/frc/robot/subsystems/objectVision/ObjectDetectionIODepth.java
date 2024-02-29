@@ -58,7 +58,7 @@ public class ObjectDetectionIODepth implements ObjectDetectionIO {
     var queue = observationSubscriber.readQueue();
     inputs.timestamps = new double[queue.length];
     inputs.objects = new double[queue.length][];
-    System.out.println(queue.length);
+    // System.out.println(queue.length);
     for (int i = 0; i < queue.length; i++) {
         inputs.timestamps[i] = queue[i].timestamp / 1000000.0;
         inputs.objects[i] = queue[i].value;

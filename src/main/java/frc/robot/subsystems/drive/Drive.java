@@ -73,6 +73,7 @@ public class Drive extends ProfiledSubsystem {
   private double m_lastFPGATimestamp;
 
   public ChassisSpeeds m_desChassisSpeeds;
+  public ChassisSpeeds m_desAutoChassisSpeeds;
   public SimpleMotorFeedforward m_driveFeedforward;
   public PIDController m_driveController;
   public PIDController m_turnController;
@@ -152,7 +153,7 @@ public class Drive extends ProfiledSubsystem {
   private Rotation2d lastGyroYaw = new Rotation2d();
   Rotation2d m_aprilTagFieldRotation = new Rotation2d(0);
 
-  PIDController m_autoAlignController = new PIDController(1, 0.0, 0.0);
+  PIDController m_autoAlignController = new PIDController(15.0, 0.0, 0.0);
 
   private static final LoggedTunableNumber coastSpeedLimit =
   new LoggedTunableNumber(
@@ -217,6 +218,7 @@ public class Drive extends ProfiledSubsystem {
 
     double[] wheelSpeedsLikelyhood = new double[4];
     double[] wheelSpeedsCorrection = new double[4];
+    m_autoAlignController.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   public void setProfile(DriveProfiles profile) {
@@ -657,7 +659,7 @@ public class Drive extends ProfiledSubsystem {
   }
 
   public void addVisionMeasurement(Pose2d pose, double timeStamp, Matrix<N3,N1> stds  ){
-    System.out.println("Adding vision measurement");
+    // System.out.println("Adding vision measurement");
     m_poseEstimator.addVisionMeasurement(pose, timeStamp, stds);
   }
 
@@ -784,11 +786,12 @@ odometryLock.lock();
     // calculateSlipLikelyhood();
     // Logger.getInstance().processInputs("Gyro", m_gyroInputs);  
     // m_profiles.getPeriodicFunction().run();
-    if (m_profiles.currentProfile == DriveProfiles.kTrajectoryFollowing){
+    if (m_profiles.getCurrentProfile() == DriveProfiles.kTrajectoryFollowing){
+      m_desChassisSpeeds = m_desAutoChassisSpeeds;
       defaultPeriodic();
 
     }
-    else if (m_profiles.currentProfile == DriveProfiles.kAutoAlign){
+    else if (m_profiles.getCurrentProfile() == DriveProfiles.kAutoAlign){
       m_desChassisSpeeds = calculateAutoAlignChassisSpeeds();
       defaultPeriodic();
     }
@@ -1005,8 +1008,12 @@ odometryLock.lock();
     m_desChassisSpeeds = speeds;
   }
 
+  public void driveAuto(ChassisSpeeds speeds ){
+    m_desAutoChassisSpeeds = speeds;
+  }
+
   public void driveRobotRelative(ChassisSpeeds speeds) {
-    drive(ChassisSpeeds.fromRobotRelativeSpeeds(speeds, getPose().getRotation()));
+    drive(speeds);
   }
 
   public Double[] calculateTractionLoss(SwerveModuleState[] curModules, ChassisSpeeds curSpeeds,

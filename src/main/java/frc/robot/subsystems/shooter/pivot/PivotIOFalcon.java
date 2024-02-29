@@ -30,9 +30,12 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.Robot;
 import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
+import frc.robot.RobotState.RobotCurrentAction;
 
 public class PivotIOFalcon implements PivotIO {
     // Hardware
@@ -148,12 +151,27 @@ public class PivotIOFalcon implements PivotIO {
     public void runSetpoint(Rotation2d angle, double feedforward) {
         m_desiredAngle = angle;
 
-        System.out.println(angle);
+        // System.out.println(angle);
         leaderTalon.setControl(positionVoltageCycle.withPosition(m_desiredAngle.getRotations()).withUpdateFreqHz(0));
     }
 
     @Override
     public void updateInputs(PivotIOInputs inputs) {
+        if(frc.robot.RobotState.getInstance().curAction.equals(RobotCurrentAction.kAmpLineup)){
+            LoggedTunableNumber.ifChanged(hashCode(),()->{
+                controllerConfig.kP = ShooterPivotConstants.kPivotAmpP.get();
+                controllerConfig.kI = ShooterPivotConstants.kPivotAmpI.get();
+                controllerConfig.kD = ShooterPivotConstants.kPivotAmpD.get();
+
+            }, ShooterPivotConstants.kPivotAmpP,ShooterPivotConstants.kPivotAmpI,ShooterPivotConstants.kPivotAmpD,ShooterPivotConstants.kUsingAmp);   
+        }else{
+            LoggedTunableNumber.ifChanged(hashCode(),()->{
+                controllerConfig.kP = ShooterPivotConstants.kPivotP.get();
+                controllerConfig.kI = ShooterPivotConstants.kPivotI.get();
+                controllerConfig.kD = ShooterPivotConstants.kPivotD.get();
+
+            }, ShooterPivotConstants.kPivotP,ShooterPivotConstants.kPivotI,ShooterPivotConstants.kPivotD,ShooterPivotConstants.kUsingAmp);   
+        }
         leaderTalon.setPosition(getCurrentAngle().getRotations(), 0.0);
         
         inputs.firstMotorConnected =
@@ -195,7 +213,7 @@ public class PivotIOFalcon implements PivotIO {
 
     public void simulationPeriodic(){
         TalonFXSimState lSimState = leaderTalon.getSimState();
-        System.out.println(lSimState.getMotorVoltage());
+        // System.out.println(lSimState.getMotorVoltage());
         m_pivotSim.setInputVoltage(lSimState.getMotorVoltage());
 
         m_pivotSim.update(0.02);

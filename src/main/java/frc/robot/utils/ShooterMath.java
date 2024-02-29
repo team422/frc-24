@@ -2,8 +2,6 @@ package frc.robot.utils;
 
 import java.util.ArrayList;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Plane;
-import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -13,6 +11,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.util.Units;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterMathConstants;
 
@@ -28,6 +28,10 @@ public class ShooterMath {
     // 3d position middle left of the speaker from field constants
     Translation3d middleOfSpeaker =  FieldConstants.kShooterCenter;
 
+    InterpolatingDoubleTreeMap m_distanceAngle = new InterpolatingDoubleTreeMap();
+
+    InterpolatingDoubleTreeMap m_shootSpeedRight = new InterpolatingDoubleTreeMap();
+    InterpolatingDoubleTreeMap m_shootSpeedLeft = new InterpolatingDoubleTreeMap();
 
 
 
@@ -38,7 +42,62 @@ public class ShooterMath {
 
     public ShooterMath(Translation3d shooterTranslation) { // translation should be to the pivot of the shooter
         this.shooterTranslation = shooterTranslation;
+        setUpTreeMap();
     }
+
+    public void setUpTreeMap(){
+        // 37.625
+        double constantAddition = Units.inchesToMeters(36+15.5);
+        m_distanceAngle.put(0.0+constantAddition,61.0);
+        m_distanceAngle.put(Units.inchesToMeters(12.0)+constantAddition,51.0);
+        m_distanceAngle.put(Units.inchesToMeters(36.125)+constantAddition,45.0);
+        m_distanceAngle.put(Units.inchesToMeters(47.125)+constantAddition,42.0);
+        m_distanceAngle.put(Units.inchesToMeters(63.25)+constantAddition,39.0);
+        m_distanceAngle.put(Units.inchesToMeters(79.5)+constantAddition,37.0);
+        m_distanceAngle.put(Units.inchesToMeters(94.5)+constantAddition,34.0);
+        m_distanceAngle.put(Units.inchesToMeters(113.625)+constantAddition,26.0);
+        m_distanceAngle.put(Units.inchesToMeters(133.625)+constantAddition,24.0);
+        m_distanceAngle.put(Units.inchesToMeters(155.625)+constantAddition,23.0);
+        m_distanceAngle.put(Units.inchesToMeters(173.625)+constantAddition,22.5);
+        // m_distanceAngle.put(Units.inchesToMeters(173.625)+constantAddition,23.0);
+        
+        
+        
+        
+        
+        
+        m_shootSpeedRight.put(0.0+constantAddition,15.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(12.0)+constantAddition,18.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(23.75)+constantAddition,18.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(36.125)+constantAddition,20.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(47.125)+constantAddition,20.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(63.25)+constantAddition,18.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(79.5)+constantAddition,18.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(94.5)+constantAddition,19.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(113.625)+constantAddition,28.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(133.625)+constantAddition,28.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(155.625)+constantAddition,28.0);
+        // m_shootSpeedRight.put(Units.inchesToMeters(173.625)+constantAddition,28.0);
+        // m_shootSpeedRight.put(Units.inchesToMeters(173.625)+constantAddition,32.0);
+        
+        m_shootSpeedLeft.put(0.0+constantAddition,15.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(12.0)+constantAddition,18.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(23.75)+constantAddition,18.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(36.125)+constantAddition,16.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(47.125)+constantAddition,16.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(63.25)+constantAddition,14.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(79.5)+constantAddition,14.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(94.25)+constantAddition,15.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(113.625)+constantAddition,24.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(133.625)+constantAddition,24.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(155.625)+constantAddition,24.0);
+        // m_shootSpeedLeft.put(Units.inchesToMeters(173.625)+constantAddition,24.0);
+        // m_shootSpeedLeft.put(Units.inchesToMeters(173.625)+constantAddition,31.0);
+        
+
+
+    }
+
 
     public ArrayList<Rotation2d> setNextShootingPoseAndVelocity(Pose2d plannedRobotPose, Twist2d plannedSpeed ,Translation3d target3d){
         // assume the rotation of the planned robot pose is incorrect
@@ -50,7 +109,7 @@ public class ShooterMath {
         // now we get the distance from the shooter to the target
 
         double distance = shooterPosition.getTranslation().getDistance(target3d);
-        double speed = getShooterMetersPerSecond(distance);
+        double speed = (getShooterMetersPerSecond(distance).get(0) + getShooterMetersPerSecond(distance).get(1))/2.0;
 
         double timeOfFlight = distance/speed;
         // System.out.println(speed);
@@ -68,8 +127,13 @@ public class ShooterMath {
         Logger.recordOutput("run",run);
         Rotation2d yaw = Rotation2d.fromRadians(Math.atan2(newTarget.getY()-shooterPosition.getTranslation().getY(), newTarget.getX()-shooterPosition.getTranslation().getX()));
         // Rotation2d elevation = Rotation2d.fromRadians(Math.asin((newTarget.getZ()-shooterPosition.getZ())/newTarget.minus(shooterPosition.getTranslation()).getNorm()));
-        Rotation2d elevation = Rotation2d.fromRadians(Math.atan(rise/run));
+        // Rotation2d elevation = Rotation2d.fromRadians(Math.atan(rise/run));
+        // Rotation2d elevation = Rotation2d.fromDegrees(m_distanceAngle.get(run));
+        Rotation2d elevation = Rotation2d.fromDegrees(m_distanceAngle.get(run));
+        // Double speedLeft = 
+        // Double speedRight = 
         Logger.recordOutput("Shooter Math", new Pose2d(shooterPosition.toPose2d().getTranslation(), yaw));
+        Logger.recordOutput("Shooter Elevation", elevation);
         // Logger.recordOutput("ShooterMath", newRobotPose);
         ArrayList<Rotation2d> vals = new ArrayList<>();
         vals.add(yaw);
@@ -80,8 +144,13 @@ public class ShooterMath {
 
     }
 
-    public double getShooterMetersPerSecond(double distance){
-        return ShooterMathConstants.cubicA * Math.pow(distance, 3) + ShooterMathConstants.cubicB * Math.pow(distance, 2) + ShooterMathConstants.cubicC * distance + ShooterMathConstants.cubicD;
+
+
+    public ArrayList<Double> getShooterMetersPerSecond(double distance){
+        ArrayList<Double> vals = new ArrayList<>();
+        vals.add(m_shootSpeedLeft.get(distance));
+        vals.add(m_shootSpeedRight.get(distance));
+        return vals;
     }
 
 

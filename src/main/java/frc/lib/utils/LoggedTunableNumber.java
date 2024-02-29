@@ -75,6 +75,10 @@ public class LoggedTunableNumber {
         }
     }
 
+    public void set(double val){
+        dashboardNumber.set(val);
+    }
+
     /**
      * Checks whether the number has changed since our last check
      *

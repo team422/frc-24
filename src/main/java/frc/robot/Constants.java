@@ -1,4 +1,6 @@
 package frc.robot;
+import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
+
 import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.Matrix;
@@ -21,7 +23,7 @@ import frc.lib.utils.LoggedTunableNumber;
 
 public final class Constants {
     public static final boolean tuningMode = true;
-    public static final boolean fullManualShooterAndPivotSpeedControls = false;
+    public static final boolean fullManualShooterAndPivotSpeedControls = true;
     public static final double loopPeriodSecs = 0.02;
 
   public static final class MetaConstants {
@@ -113,15 +115,17 @@ public final class Constants {
     public static final class FlywheelConstants {
       public static final double kFlywheelGearRatio = 1/1.5;
       public static final double kFlywheelDiameter = Units.inchesToMeters(4);
-      public static final LoggedTunableNumber kFlywheelP = new LoggedTunableNumber("Flywheel P", 2, "Shooter");
+      public static final LoggedTunableNumber kFlywheelP = new LoggedTunableNumber("Flywheel P", 0.010000, "Shooter");
       public static final LoggedTunableNumber kFlywheelI = new LoggedTunableNumber("Flywheel I", 0.0, "Shooter");
-      public static final LoggedTunableNumber kFlywheelD = new LoggedTunableNumber("Flywheel D", 0.05, "Shooter");
-      public static final LoggedTunableNumber kFlywheelKS = new LoggedTunableNumber("Flywheel KS", .33329, "Shooter");
-      public static final LoggedTunableNumber kFlywheelKV = new LoggedTunableNumber("Flywheel KV", 0.00083, "Shooter");
+      public static final LoggedTunableNumber kFlywheelD = new LoggedTunableNumber("Flywheel D", 0.00, "Shooter");
+      public static final LoggedTunableNumber kFlywheelKS = new LoggedTunableNumber("Flywheel KS", 0.200000, "Shooter");
+      public static final LoggedTunableNumber kFlywheelKV = new LoggedTunableNumber("Flywheel KV", 0.120000, "Shooter");
       public static final LoggedTunableNumber kFlywheelKA = new LoggedTunableNumber("Flywheel KA", 0.0, "Shooter");
       public static final double kMaxSpeed = 100;
       public static final double kIdleSpeed = 0;
-      public static final LoggedTunableNumber kFlywheelSpeed = new LoggedTunableNumber("Flywheel Speed", 0.0, "Shooter");
+      public static final LoggedTunableNumber kFlywheelSpeedLeft = new LoggedTunableNumber("Flywheel Speed Left", 0.0, "Shooter");
+      public static final LoggedTunableNumber kFlywheelSpeedRight = new LoggedTunableNumber("Flywheel Speed Right", 0.0, "Shooter");
+      public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 10.0, "Shooter");
     }
 
     public static final class ShooterPivotConstants {
@@ -131,20 +135,27 @@ public final class Constants {
 
       public static final LoggedTunableNumber kPivotI = new LoggedTunableNumber("Pivot I", 0.0, "Shooter");
       public static final LoggedTunableNumber kPivotD = new LoggedTunableNumber("Pivot D", 0.05, "Shooter");
+      public static final LoggedTunableNumber kPivotAmpP = new LoggedTunableNumber("Pivot Amp P ", 10.0, "Shooter");
+      public static final LoggedTunableNumber kPivotAmpI = new LoggedTunableNumber("Pivot Amp I ", 0.0, "Shooter");
+      public static final LoggedTunableNumber kPivotAmpD = new LoggedTunableNumber("Pivot Amp D ", 0.0, "Shooter");
       public static final LoggedTunableNumber kPivotkS = new LoggedTunableNumber("Pivot KS", .3, "Shooter");
+
       public static final LoggedTunableNumber kPivotkV = new LoggedTunableNumber("Pivot KV", 0.83, "Shooter");
       public static final LoggedTunableNumber kPivotkA = new LoggedTunableNumber("Pivot KA", 0.0, "Shooter");
       public static final LoggedTunableNumber kPivotkG = new LoggedTunableNumber("Pivot KG", 0.0, "Shooter"); 
-
-      public static final double kOffset = Rotation2d.fromDegrees(181.7-13).getRotations();
+      public static final LoggedTunableNumber kUsingAmp = new LoggedTunableNumber("Pivot using amp", 0, "Shooter"); 
+      public static final double kOffset = Rotation2d.fromDegrees(181.7-13+52+6).getRotations();
 
       public static final LoggedTunableNumber kShooterAngle = new LoggedTunableNumber("Shooter Angle", 0.0, "Shooter");
       // public static final double kOffset = Rotation2d.fromDegrees(0).getRotations();
 
       
       public static final Rotation2d maxAngle = Rotation2d.fromDegrees(77); 
+      public static final Rotation2d kAmpShot = Rotation2d.fromDegrees(66);
+      public static final Rotation2d kAmpBottom = Rotation2d.fromDegrees(55);
       public static final Rotation2d minAngle = Rotation2d.fromDegrees(15);
       public static final Rotation2d homeAngle = Rotation2d.fromDegrees(34);
+      public static final Rotation2d kFenderAngle = Rotation2d.fromDegrees(70);
 
       public static final double maxSpeed = 1.0;
       public static final double maxAcceleration = 1.0;
@@ -157,7 +168,7 @@ public final class Constants {
 
   public static final class DriveConstants {
     public static final Integer kId = 1;
-    public static final Integer kOdometryFrequency = 100;
+    public static final Integer kOdometryFrequency = 250;
     public static final double kMaxSpeedMetersPerSecond = 5.9;
     public static final double kMaxAngularSpeedRadiansPerSecond = 3.0 * Math.PI;
     public static final double controllerDeadzone = 0.04;
@@ -254,7 +265,7 @@ public final class Constants {
     public static final double kShooterTopHeight = Units.inchesToMeters(98.25);
     public static final double kShooterBaseLength = Units.inchesToMeters(217.9585);
     public static final Rotation2d kShooterAngle = Rotation2d.fromDegrees(14);
-    public static final Translation3d kShooterCenter = new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(217.9585), Units.inchesToMeters(80));
+    public static final Translation3d kShooterCenter = new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(217.9585), Units.inchesToMeters(84));
     public static final Translation3d kShooterLeftCenter = kShooterCenter.minus(new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(41.375)/4, 0));
     public static final Translation3d kShooterRightCenter = kShooterCenter.plus(new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(41.375)/4, 0));
     public static final double kShooterWidth = Units.inchesToMeters(41.375);
