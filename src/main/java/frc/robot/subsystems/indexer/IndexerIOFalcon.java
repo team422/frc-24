@@ -125,7 +125,7 @@ private final PositionTorqueCurrentFOC positionControl =
             m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
             if (m_finalBeamBreak.get() && m_initialBeamBreak.get()) {
                 RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
-
+                
             }
 
         }

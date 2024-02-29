@@ -153,7 +153,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
 
         drivePosition = m_driveMotor.getPosition();
         turnPosition = m_turnMotor.getPosition();
-        BaseStatusSignal.setUpdateFrequencyForAll(50.0, drivePosition, turnPosition);
+        BaseStatusSignal.setUpdateFrequencyForAll(250.0, drivePosition, turnPosition);
 
         driveVelocity = m_driveMotor.getVelocity();
         driveAppliedVolts = m_driveMotor.getMotorVoltage();
@@ -460,8 +460,8 @@ inputs.odometryTurnPositions =
 
     @Override
   public void runDriveVelocitySetpoint(double velocityRadsPerSec, double feedForward) {
-    System.out.println(velocityRadsPerSec);
-    System.out.println(driveVelocity.getValueAsDouble());
+    // System.out.println(velocityRadsPerSec);
+    // System.out.println(driveVelocity.getValueAsDouble());
     m_driveMotor.setControl(
         driveVelocityVoltage
             .withVelocity(velocityRadsPerSec)

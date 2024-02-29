@@ -6,23 +6,28 @@ package frc.robot;
 
 import java.util.List;
 
+import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.ctre.phoenix6.unmanaged.Unmanaged;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.autonPlanning.PathPlannerUtil;
+import frc.lib.utils.FieldGeomUtil;
 import frc.lib.utils.NetworkTablesTEBInterfacer;
 import frc.lib.utils.VirtualSubsystem;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Ports;
 import frc.robot.Constants.ShooterConstants.FlywheelConstants;
+import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
 import frc.robot.Constants.Vision.ObjectDetection;
 import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.commands.autonomous.AutoFactory;
@@ -66,6 +71,8 @@ public class RobotContainer {
 
   ObjectDetectionCam m_objectDetectionCams;
 
+  Command autoDriveCommand;
+
 
   private LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
 
@@ -84,30 +91,35 @@ public class RobotContainer {
   }
 
   public void configureCommands(){
-    m_drive.setDefaultCommand(new TeleopControllerNoAugmentation(m_drive,()->m_driverControls.getDriveForward(),()->m_driverControls.getDriveLeft() , ()-> m_driverControls.getDriveRotation(), DriveConstants.controllerDeadzone));
+    // m_drive.setDefaultCommand();
+    
     m_driverControls.resetFieldCentric().onTrue(Commands.runOnce(()->m_drive.resetPose(new Pose2d(m_robotState.getEstimatedPose().getTranslation(),Rotation2d.fromDegrees(180)))));
       m_driverControls.setClimberServoClose().onTrue(Commands.runOnce(()->{
-        System.out.println("Setting climber servo to close");
+        // System.out.println("Setting climber servo to close");
         m_climb.setServoPosition(0);}));
 
       m_driverControls.setClimberServoOpen().onTrue(Commands.runOnce(()->{
-        System.out.println("Setting climber servo to open");
+        // System.out.println("Setting climber servo to open");
         m_climb.setServoPosition(0.25);
       }));
 
-      // m_testingController.finalShoot().onTrue(Commands.runOnce(()->{
-      //   System.out.println("NOW SHOOT");
-      //   m_indexer.setState(IndexerState.SHOOTING);
-      // }));
+      m_driverControls.finalShoot().onTrue(Commands.runOnce(()->{
+        System.out.println("NOW SHOOT");
+        m_indexer.setState(IndexerState.SHOOTING);
+      }));
 
 
 
       m_testingController.cimberLockToggle().onTrue(Commands.runOnce(()->{
         m_climb.toggleServo();
       }));
+
+      new Trigger(()->{if(Math.abs(m_testingController.climberStick()) > 0.2) {return true;} else {return false;}}).whileTrue(Commands.run(()->m_climb.setSpeed(m_testingController.climberStick()))).onFalse(Commands.runOnce(()->m_climb.setSpeed(0)));
       // new Trigger(()->{if(Math.abs(m_testingController.climberStick()) > 0.2){return true;}else{return false;}} ) .whileTrue(Commands.runOnce(()->{
       //   m_climb.setSpeed(m_testingController.climberStick());
       // })).whileFalse(Commands.runOnce(()->m_climb.setSpeed(0)));
+
+      
 
       // new Trigger(()->{if(Math.abs(m_testingController.getFeederStick()) > 0.2){return true;}else{return false;}} ).onTrue(Commands.runOnce(()->{
       //   // m_indexer.setManualSpeed(m_testingController.getFeederStick());
@@ -147,19 +159,27 @@ public class RobotContainer {
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
 
-      m_driverControls.finalShoot().onTrue(Commands.runOnce(()->{
+      m_driverControls.fenderShot().onTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kShootFender);
       }));
 
-      m_driverControls.ampAutoLineup().onTrue(Commands.runOnce(()->{
+      m_driverControls.ampAutoLineup().whileTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpLineup);
-        Command goToPosition = m_autoFactory.trajectoryGenerateToPosition(FieldConstants.kAmpBlue, DriveConstants.kAutoAlignToAmpSpeed,false);
-        m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
-        goToPosition.andThen(Commands.runOnce(()->{
+        
+        autoDriveCommand = m_autoFactory.trajectoryGenerateToPosition(FieldConstants.kAmpBlue,DriveConstants.kAutoAlignToAmpSpeed ,DriverStation.getAlliance().equals(Alliance.Red));
+        // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
+        
+        autoDriveCommand.andThen(Commands.runOnce(()->{
           m_drive.setProfile(DriveProfiles.kDefault);
         })).schedule();
 
 
+      })).onFalse(Commands.runOnce(()->{
+        autoDriveCommand.cancel();
+        m_autoFactory.cancel();
+        // m_drive.drive(new ChassisSpeeds(0.0, 0.0,Rotation2d.fromDegrees(0).getRadians()));
+        System.out.println("CANCELLING AUTO DRIVE");
+        m_drive.setProfile(DriveProfiles.kDefault);
       }));
 
 
@@ -306,6 +326,7 @@ public class RobotContainer {
 
   public void onEnabled(){
     m_robotState.updateTestScheduler();
+    new TeleopControllerNoAugmentation(m_drive,()->m_driverControls.getDriveForward(),()->m_driverControls.getDriveLeft() , ()-> m_driverControls.getDriveRotation(), DriveConstants.controllerDeadzone).schedule();
     
   }
   private void configureBindings() {

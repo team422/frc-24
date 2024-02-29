@@ -31,7 +31,7 @@ public class TeleopControllerNoAugmentation extends Command {
     this.zRotation = zRotation;
     this.deadzone = deadzone;
     m_controlsHandler = new EricNubControls();
-    addRequirements(drive);
+    // addRequirements(drive);
   }
   @Override
   public void execute() {
@@ -41,7 +41,7 @@ public class TeleopControllerNoAugmentation extends Command {
     curXSpeed *= DriveConstants.kMaxSpeedMetersPerSecond;
     curYSpeed *= DriveConstants.kMaxSpeedMetersPerSecond;
     curZRotation *= DriveConstants.kMaxAngularSpeedRadiansPerSecond;
-
+    // System.out.println("Running");
     speeds = ChassisSpeeds.fromFieldRelativeSpeeds(curXSpeed, curYSpeed, curZRotation,
         m_drive.getPose().getRotation());
     // System.out.println(speeds);

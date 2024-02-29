@@ -35,7 +35,7 @@ public class GyroIOPigeon implements GyroIO {
     m_gyro.getConfigurator().apply(new Pigeon2Configuration());
     m_gyro.getConfigurator().setYaw(0.0);
     yaw.setUpdateFrequency(DriveConstants.kOdometryFrequency);
-    yawVelocity.setUpdateFrequency(100.0);
+    yawVelocity.setUpdateFrequency(250.0);
     // Pigeon2Configurator m_gyroConfig = m_gyro.getConfigurator();
 
     // Pigeon2Configuration gyroConfig = new Pigeon2Configuration();

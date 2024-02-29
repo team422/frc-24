@@ -38,11 +38,11 @@ public class Robot extends LoggedRobot {
     // Initialize the AdvantageKit Logger
     LoggerUtil.initializeLogger();
     // System.out.println(new ObjectMapper().writeValueAsString(AprilTagFields.k2024Crescendo.loadAprilTagLayoutField()));
-    try {
-      System.out.println(new ObjectMapper().writeValueAsString(AprilTagFields.k2024Crescendo.loadAprilTagLayoutField()));
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException("Failed to serialize AprilTag layout JSON for Northstar");
-    }
+    // try {
+    // //   // System.out.println(new ObjectMapper().writeValueAsString(AprilTagFields.k2024Crescendo.loadAprilTagLayoutField()));
+    // } catch (JsonProcessingException e) {
+    //   throw new RuntimeException("Failed to serialize AprilTag layout JSON for Northstar");
+    // }
 
     if (Robot.isSimulation()) {
       DriverStation.silenceJoystickConnectionWarning(true);

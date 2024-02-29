@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter.flywheel;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -8,16 +10,20 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.ShooterConstants.FlywheelConstants;
@@ -33,6 +39,11 @@ public class FlywheelIOKraken implements FlywheelIO {
   private final StatusSignal<Double> AppliedVolts;
   private final StatusSignal<Double> TorqueCurrent;
   private final StatusSignal<Double> TempCelsius;
+  private final StatusSignal<Double> PositionLeft;
+  private final StatusSignal<Double> VelocityLeft;
+  private final StatusSignal<Double> AppliedVoltsLeft;
+  private final StatusSignal<Double> TorqueCurrentLeft;
+  private final StatusSignal<Double> TempCelsiusLeft;
 
 
   // Control
@@ -42,7 +53,8 @@ public class FlywheelIOKraken implements FlywheelIO {
   private final VelocityTorqueCurrentFOC velocityControl =
       new VelocityTorqueCurrentFOC(0.0);
   private final NeutralOut neutralControl = new NeutralOut().withUpdateFreqHz(0.0);
-
+    private final PIDController mController = new PIDController(1, 0, 0);
+    private  SimpleMotorFeedforward mFeedforward = new SimpleMotorFeedforward(1, 0, 0);
   private  DCMotorSim m_simLeft = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 1.0/2, 0.005);
     private  DCMotorSim m_simRight = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 1.0/2, 0.005);
 
@@ -83,9 +95,15 @@ public class FlywheelIOKraken implements FlywheelIO {
         // Set signals
         Position = m_krakenLeft.getPosition();
         Velocity = m_krakenLeft.getVelocity();
+        // VelocityLeft = m_krakenRight.getVelocity();
         AppliedVolts = m_krakenLeft.getMotorVoltage();
         TorqueCurrent = m_krakenLeft.getTorqueCurrent();
         TempCelsius = m_krakenLeft.getDeviceTemp();
+        PositionLeft = m_krakenRight.getPosition();
+        VelocityLeft = m_krakenRight.getVelocity();
+        AppliedVoltsLeft = m_krakenRight.getMotorVoltage();
+        TorqueCurrentLeft = m_krakenRight.getTorqueCurrent();
+        TempCelsiusLeft = m_krakenRight.getDeviceTemp();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             100.0,
@@ -93,7 +111,12 @@ public class FlywheelIOKraken implements FlywheelIO {
             Velocity,
             AppliedVolts,
             TorqueCurrent,
-            TempCelsius
+            TempCelsius,
+            PositionLeft,
+            VelocityLeft,
+            PositionLeft,
+            TorqueCurrentLeft,
+            TempCelsiusLeft
             );
 
     }
@@ -111,20 +134,53 @@ public class FlywheelIOKraken implements FlywheelIO {
     @Override
     public void setDesiredSpeed(double speed) {
         double rpm = metersPerSecondToRPM(speed);
+        
         m_krakenLeft.setControl(velocityControl.withVelocity(rpm/60.0));
         m_krakenRight.setControl(velocityControl.withVelocity((rpm*0.95)/60.0));
+        
 
     }
 
     @Override
+    public void setDesiredSpeedWithSpin(double speedLeft, double speedRight){
+        Logger.recordOutput("Shooter Attempted RPM", metersPerSecondToRPM(speedRight)/60.0);
+        
+        // m_krakenLeft.setControl(velocityControl.withVelocity(metersPerSecondToRPM(speedLeft)/60.0));
+        // m_krakenRight.setControl(velocityControl.withVelocity((metersPerSecondToRPM(speedRight))/60.0));
+        // m_krakenRight.setControl(new TorqueCurrentFOC(15));
+        m_krakenRight.setControl(new VoltageOut(mFeedforward.calculate(metersPerSecondToRPM(speedRight)/60.0)+mController.calculate(metersPerSecondToRPM(speedRight)/60.0, m_krakenRight.getRotorVelocity().getValueAsDouble())));
+        m_krakenLeft.setControl(new VoltageOut(mFeedforward.calculate(metersPerSecondToRPM(speedLeft)/60.0)+mController.calculate(metersPerSecondToRPM(speedLeft)/60.0, m_krakenLeft.getRotorVelocity().getValueAsDouble())));
+    }
+
+    
+
+    @Override
     public void updateInputs(FlywheelIOInputs inputs) {
+        LoggedTunableNumber.ifChanged(hashCode(),()->{
+            controllerConfig.kP = FlywheelConstants.kFlywheelP.get();
+        controllerConfig.kI = FlywheelConstants.kFlywheelI.get();
+        controllerConfig.kD = FlywheelConstants.kFlywheelD.get();
+        controllerConfig.kS = FlywheelConstants.kFlywheelKS.get();
+        controllerConfig.kV = FlywheelConstants.kFlywheelKV.get();
+        controllerConfig.kA = FlywheelConstants.kFlywheelKA.get();
+        mController.setPID(FlywheelConstants.kFlywheelP.get(), FlywheelConstants.kFlywheelI.get(), FlywheelConstants.kFlywheelD.get());
+        mFeedforward = new SimpleMotorFeedforward(FlywheelConstants.kFlywheelKS.get(),FlywheelConstants.kFlywheelKV.get(),FlywheelConstants.kFlywheelKA.get());
+
+        m_krakenLeft.getConfigurator().apply(controllerConfig,1.0);
+        m_krakenRight.getConfigurator().apply(controllerConfig,1.0);
+        }, FlywheelConstants.kFlywheelP,FlywheelConstants.kFlywheelI,FlywheelConstants.kFlywheelD,FlywheelConstants.kFlywheelKA,FlywheelConstants.kFlywheelKS,FlywheelConstants.kFlywheelKV);
             inputs.firstMotorConnected =
             BaseStatusSignal.refreshAll(
                 Position,
                 Velocity,
                 AppliedVolts,
                 TorqueCurrent,
-                TempCelsius)
+                TempCelsius,
+                PositionLeft,
+                VelocityLeft,
+                PositionLeft,
+                TorqueCurrentLeft,
+                TempCelsiusLeft,AppliedVolts,AppliedVoltsLeft)
                     .isOK();
             inputs.secondMotorConnected = m_krakenRight.isAlive();
 
@@ -133,6 +189,12 @@ public class FlywheelIOKraken implements FlywheelIO {
             inputs.AppliedVolts = AppliedVolts.getValueAsDouble();
             inputs.OutputCurrent = TorqueCurrent.getValueAsDouble();
             inputs.TempCelsius = TempCelsius.getValueAsDouble();
+            inputs.PositionRadsLeft  = Units.rotationsToRadians(PositionLeft.getValueAsDouble());
+            inputs.VelocityRpmLeft = VelocityLeft.getValueAsDouble() * 60.0;
+            inputs.AppliedVoltsLeft = AppliedVolts.getValueAsDouble();
+            inputs.OutputCurrentLeft = TorqueCurrent.getValueAsDouble();
+            inputs.TempCelsiusLeft = TempCelsius.getValueAsDouble();
+            inputs.AppliedVoltsLeft = AppliedVoltsLeft.getValueAsDouble();
 
             simulationPeriodic();
 

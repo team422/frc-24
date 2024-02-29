@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
@@ -16,6 +17,7 @@ import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShooterConstants.FlywheelConstants;
 import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
 import frc.robot.subsystems.shooter.pivot.PivotIOInputsAutoLogged;
@@ -33,6 +35,8 @@ public class Shooter extends ProfiledSubsystem {
     TrapezoidProfile motionProfile;
     TrapezoidProfile.State setpointState;
     ArmFeedforward ff;
+
+    
 
 
     double m_desiredSpeed; // m/s
@@ -61,6 +65,8 @@ public class Shooter extends ProfiledSubsystem {
         m_inputsFlywheel = new FlywheelIOInputsAutoLogged();
     }
 
+    
+
 
 
     @Override
@@ -71,6 +77,7 @@ public class Shooter extends ProfiledSubsystem {
     public void periodic() {
         m_pivotIO.updateInputs(m_inputsPivot);
         m_flywheelIO.updateInputs(m_inputsFlywheel);
+        
         
         Logger.processInputs("Shooter Pivot", m_inputsPivot);
         Logger.processInputs("Shooter Flywheel", m_inputsFlywheel); 
@@ -89,21 +96,22 @@ public class Shooter extends ProfiledSubsystem {
         // m_pivotIO.setDesiredAngle(angle);
         Logger.recordOutput("ShooterFF",ff.calculate(setpointState.position, setpointState.velocity));
         Logger.recordOutput("ShooterPosition",setpointState.position);
-        if (Constants.fullManualShooterAndPivotSpeedControls){
-            Rotation2d m_ang = Rotation2d.fromRadians(MathUtil.clamp(
+            if(isIntaking == ShooterIsIntaking.intaking) {
+                m_pivotIO.runSetpoint(ShooterPivotConstants.homeAngle, 0);
+
+            }
+            else if (Constants.fullManualShooterAndPivotSpeedControls){
+                Rotation2d m_ang = Rotation2d.fromRadians(MathUtil.clamp(
                 Rotation2d.fromDegrees(ShooterPivotConstants.kShooterAngle.get()).getRadians(),
                       ShooterPivotConstants.minAngle.getRadians(),
                       ShooterPivotConstants.maxAngle.getRadians()));
             m_pivotIO.runSetpoint(m_ang, 0);
-            m_flywheelIO.setDesiredSpeed(FlywheelConstants.kFlywheelSpeed.get());
-
-        } else {
-            if(isIntaking == ShooterIsIntaking.intaking) {
-                m_pivotIO.runSetpoint(ShooterPivotConstants.homeAngle, 0);
-            }else{
+            // m_flywheelIO.setDesiredSpeed(FlywheelConstants.kFlywheelSpeed.get());
+            m_flywheelIO.setDesiredSpeedWithSpin(FlywheelConstants.kFlywheelSpeedLeft.get(),FlywheelConstants.kFlywheelSpeedRight.get());
+            }
+            else{
                 m_pivotIO.runSetpoint(m_desiredAngle, ff.calculate(setpointState.position, setpointState.velocity));
             }
-        }
     }
 
     public void setPivotAngle(Rotation2d angle) {
@@ -115,8 +123,16 @@ public class Shooter extends ProfiledSubsystem {
         
     }
 
+    public boolean isPivotWithinTolerance(Rotation2d angle,Rotation2d tolerance){
+        return Math.abs(m_desiredAngle.minus(angle).getDegrees()) < tolerance.getDegrees();
+    }
+
     public void setFlywheelSpeed(double speed) {
         m_flywheelIO.setDesiredSpeed(speed);
+    }
+
+    public void setFlywheelSpeedWithSpin(double speedLeft,double speedRight){
+        m_flywheelIO.setDesiredSpeedWithSpin(speedLeft, speedRight);
     }
 
     
@@ -135,7 +151,16 @@ public class Shooter extends ProfiledSubsystem {
     }
 
     public boolean isWithinTolerance(double speed) {
+        if(m_inputsFlywheel.curSpeed - speed > 0){
+            return true;
+        }
         return Math.abs(m_inputsFlywheel.curSpeed - speed) < IntakeConstants.kFlywheelTolerance;
 
     }
+
+    // public boolean isWithinToleranceWithSpin(double speedLeft,double speedRight){
+
+    //     if(m_inputsFlywheel. - )
+
+    // }
 }

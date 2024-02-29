@@ -74,6 +74,11 @@ public class DriverControlsXboxController implements DriverControls {
   }
 
   @Override
+  public Trigger fenderShot(){
+    return m_controller.triangle();
+  }
+
+  @Override
   public Trigger ampAutoLineup(){
     return m_controller.L1();
   }
