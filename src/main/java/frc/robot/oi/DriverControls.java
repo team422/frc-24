@@ -47,6 +47,18 @@ public interface DriverControls {
    public default Trigger fenderShot(){return new Trigger(()->false);};
   
 
+   public default Trigger autoIntake() {
+    return new Trigger(()->false);
+   }
+
+   public default Trigger intakeVomit(){
+    return new Trigger(()->false);
+   }
+
+   public default Trigger runTune(){
+    return new Trigger(()->false);
+   }
+
  
 
 }

@@ -69,6 +69,8 @@ public class FlywheelIOKraken implements FlywheelIO {
 
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.CurrentLimits.SupplyCurrentLimit = 50.0;
+        config.CurrentLimits.StatorCurrentLimit = 150.0;
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -128,6 +130,15 @@ public class FlywheelIOKraken implements FlywheelIO {
         double rotationsPerSecond = metersPerSecond / circumference;
         double rpm = rotationsPerSecond * 60.0;
         return rpm;
+
+    }
+
+    public double RPMtoMetersPerSecond(double RPM){
+        double diameter = FlywheelConstants.kFlywheelDiameter;
+        double circumference = Math.PI * diameter;
+        // double rotationsPerSecond = metersPerSecond / circumference;
+        double metersPerSecond = (RPM / 60)*circumference;
+        return metersPerSecond;
 
     }
 
@@ -191,6 +202,8 @@ public class FlywheelIOKraken implements FlywheelIO {
             inputs.TempCelsius = TempCelsius.getValueAsDouble();
             inputs.PositionRadsLeft  = Units.rotationsToRadians(PositionLeft.getValueAsDouble());
             inputs.VelocityRpmLeft = VelocityLeft.getValueAsDouble() * 60.0;
+            inputs.VelocityLeft = RPMtoMetersPerSecond(Velocity.getValueAsDouble() * 60);
+            inputs.Velocity = RPMtoMetersPerSecond(VelocityLeft.getValueAsDouble() * 60);
             inputs.AppliedVoltsLeft = AppliedVolts.getValueAsDouble();
             inputs.OutputCurrentLeft = TorqueCurrent.getValueAsDouble();
             inputs.TempCelsiusLeft = TempCelsius.getValueAsDouble();

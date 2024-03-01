@@ -18,6 +18,8 @@ public class TeleopControllerNoAugmentation extends Command {
   double curXSpeed;
   double curYSpeed;
   double curZRotation;
+  
+  PIDController mTurnController;
   double deadzone;
   ChassisSpeeds speeds;
   EricNubControls m_controlsHandler;

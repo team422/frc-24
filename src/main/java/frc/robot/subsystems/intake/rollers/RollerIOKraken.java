@@ -21,6 +21,8 @@ public class RollerIOKraken implements RollerIO {
         config = m_motor.getConfigurator();
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs();
         currentLimits.SupplyCurrentLimit = 40;
+        currentLimits.StatorCurrentLimit = 150.0;
+        currentLimits.StatorCurrentLimitEnable = true;
         currentLimits.SupplyTimeThreshold = 0.4;
         currentLimits.SupplyCurrentLimitEnable = true;
         currentLimits.SupplyCurrentThreshold = 50;

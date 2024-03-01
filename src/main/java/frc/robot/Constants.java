@@ -102,7 +102,7 @@ public final class Constants {
 
     public static final double kIntakeStowTime = 0.75; // Seconds from indexer receiving game piece to stowing the intake
 
-    public static final LoggedTunableNumber kIntakeP = new LoggedTunableNumber("Intake P", .4, "Intake");
+    public static final LoggedTunableNumber kIntakeP = new LoggedTunableNumber("Intake P", .8, "Intake");
     public static final LoggedTunableNumber kIntakeI = new LoggedTunableNumber("Intake I", 0.0, "Intake");
     public static final LoggedTunableNumber kIntakeD = new LoggedTunableNumber("Intake D", 0.05, "Intake");
 
@@ -130,7 +130,7 @@ public final class Constants {
     public static final class ShooterPivotConstants {
       // Real constants
       public static final double gearboxRatio = 46.722222;
-      public static final LoggedTunableNumber kPivotP = new LoggedTunableNumber("Pivot P", 30.0, "Shooter");
+      public static final LoggedTunableNumber kPivotP = new LoggedTunableNumber("Pivot P", 100.0, "Shooter");
 
       public static final LoggedTunableNumber kPivotI = new LoggedTunableNumber("Pivot I", 0.0, "Shooter");
       public static final LoggedTunableNumber kPivotD = new LoggedTunableNumber("Pivot D", 0.05, "Shooter");
@@ -141,7 +141,7 @@ public final class Constants {
 
       public static final LoggedTunableNumber kPivotkV = new LoggedTunableNumber("Pivot KV", 0.83, "Shooter");
       public static final LoggedTunableNumber kPivotkA = new LoggedTunableNumber("Pivot KA", 0.0, "Shooter");
-      public static final LoggedTunableNumber kPivotkG = new LoggedTunableNumber("Pivot KG", 0.0, "Shooter"); 
+      public static final LoggedTunableNumber kPivotkG = new LoggedTunableNumber("Pivot KG", 0.150000, "Shooter"); 
       public static final LoggedTunableNumber kUsingAmp = new LoggedTunableNumber("Pivot using amp", 0, "Shooter"); 
       public static final double kOffset = Rotation2d.fromDegrees(181.7-13+52+6).getRotations();
 
@@ -154,10 +154,31 @@ public final class Constants {
       public static final Rotation2d kAmpBottom = Rotation2d.fromDegrees(50);
       public static final Rotation2d minAngle = Rotation2d.fromDegrees(15);
       public static final Rotation2d homeAngle = Rotation2d.fromDegrees(34);
-      public static final Rotation2d kFenderAngle = Rotation2d.fromDegrees(70);
+      public static final Rotation2d kFenderAngle = Rotation2d.fromDegrees(61);
 
       public static final double maxSpeed = 1.0;
       public static final double maxAcceleration = 1.0;
+
+      public static final Translation3d topRightSpeaker =
+        new Translation3d(
+            Units.inchesToMeters(18.055),
+            Units.inchesToMeters(238.815),
+            Units.inchesToMeters(83.091));
+
+    public static final Translation3d topLeftSpeaker =
+        new Translation3d(
+            Units.inchesToMeters(18.055),
+            Units.inchesToMeters(197.765),
+            Units.inchesToMeters(83.091));
+
+    public static final Translation3d bottomRightSpeaker =
+        new Translation3d(0.0, Units.inchesToMeters(238.815), Units.inchesToMeters(78.324));
+    public static final Translation3d bottomLeftSpeaker =
+        new Translation3d(0.0, Units.inchesToMeters(197.765), Units.inchesToMeters(78.324));
+
+    /** Center of the speaker opening (blue alliance) */
+    public static final Translation3d centerSpeakerOpening =
+        bottomLeftSpeaker.interpolate(topRightSpeaker, 0.5);
 
       // SIM
       public static final Rotation2d simOffset = Rotation2d.fromDegrees(35);
@@ -171,9 +192,9 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 5.9;
     public static final double kMaxAngularSpeedRadiansPerSecond = 3.0 * Math.PI;
     public static final double controllerDeadzone = 0.04;
-    public static final double kShootToleranceDeg = 1;
-    public static final double kWheelBase = Units.inchesToMeters(23);
-    public static final double kTrackWidth = Units.inchesToMeters(23);
+    public static final double kShootToleranceDeg = 5;
+    public static final double kWheelBase = Units.inchesToMeters(18.754);
+    public static final double kTrackWidth = Units.inchesToMeters(18.754);
     public static Translation2d[] kModuleTranslations = {
         new Translation2d(kWheelBase / 2.0, kTrackWidth / 2.0), // front left
         new Translation2d(kWheelBase / 2.0, -kTrackWidth / 2.0), // front right
@@ -198,11 +219,11 @@ public final class Constants {
     public static final boolean useMotionMagic = false;
     public static final Matrix<N3, N1> odometryStateStdDevs = new Matrix<>(VecBuilder.fill(0.003, 0.003, 0.0002));
     public static final PathConstraints kAutoAlignToAmpSpeed = new PathConstraints(5.9,6,2,2);
-    public static final PathConstraints kDriveToPieceSpeed = new PathConstraints(5.9,6,2,2);
+    public static final PathConstraints kDriveToPieceSpeed = new PathConstraints(2,1,2,2);
   }
 
   public static final class ModuleConstants {
-    public static final LoggedTunableNumber kDriveP = new LoggedTunableNumber("Drive wP", 2.0, "Drive");
+    public static final LoggedTunableNumber kDriveP = new LoggedTunableNumber("Drive wP", 3., "Drive");
     public static final LoggedTunableNumber kDriveI = new LoggedTunableNumber("Drive I", 0.0, "Drive");
     public static final LoggedTunableNumber kDriveD = new LoggedTunableNumber("Drive D", 0.00, "Drive");
     public static final LoggedTunableNumber kDriveFF = new LoggedTunableNumber("Drive FF", 2.96, "Drive");
@@ -214,7 +235,7 @@ public final class Constants {
     public static final LoggedTunableNumber kFFDriveI = new LoggedTunableNumber("FFDrive I", 0.0, "Drive");
     public static final LoggedTunableNumber kFFDriveD = new LoggedTunableNumber("FFDrive D", 0.00, "Drive");
 
-    public static final LoggedTunableNumber kTurningP = new LoggedTunableNumber("TurnP", 1.5, "Drive");
+    public static final LoggedTunableNumber kTurningP = new LoggedTunableNumber("TurnP", 2.5, "Drive");
     public static final LoggedTunableNumber kTurningI = new LoggedTunableNumber("Turning I", 0.00, "Drive");
     public static final LoggedTunableNumber kTurningD = new LoggedTunableNumber("Turning D", 0.00 , "Drive");
 

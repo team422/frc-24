@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.Constants.IndexerConstants;
@@ -28,6 +29,9 @@ public class IndexerIOFalcon implements IndexerIO {
     TalonFX m_falconFirst;
     TalonFXConfigurator m_config;
     Slot0Configs m_slot0;
+
+    double thresholdFirst = 0;
+    double thresholdSecond = 0;
 
     TalonFX m_falconSecond;
 private final PositionTorqueCurrentFOC positionControl =
@@ -100,6 +104,14 @@ private final PositionTorqueCurrentFOC positionControl =
 
     @Override
     public void manageState(IndexerState state) {
+
+        if(!m_initialBeamBreak.get()){
+            Logger.recordOutput("Rumble", 0.1);
+            RobotState.getInstance().setDriverRumble(0.1,RumbleType.kBothRumble);
+        }else{
+            RobotState.getInstance().setDriverRumble(0.0, RumbleType.kBothRumble);
+        }
+
         if (state == IndexerState.IDLE) {
             m_falconFirst.setControl(new NeutralOut());
             m_falconSecond.setControl(new NeutralOut());
@@ -107,8 +119,9 @@ private final PositionTorqueCurrentFOC positionControl =
             m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
             m_falconSecond.setControl(velocityControl.withVelocity(0));
             m_falconSecond.setControl(velocityControl.withVelocity(0));
-            if (!m_initialBeamBreak.get()) {
-                RobotState.getInstance().setGamePieceLocation(GamePieceLocation.INDEXER);
+            if (!getFirstBeamBreak()) {
+                // RobotState.getInstance().setGamePieceLocation(GamePieceLocation.INDEXER);
+                
                 Logger.recordOutput("IS SETTING", true);
             }
         } else if (state == IndexerState.INDEXING) {
@@ -117,16 +130,32 @@ private final PositionTorqueCurrentFOC positionControl =
             if (!m_finalBeamBreak.get()) {
                 m_falconFirst.setControl(new NeutralOut());
             }else{
+                // m_falconFirst.setControl(new NeutralOut());
                 m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
             }
 
         } else if (state == IndexerState.SHOOTING) {
             m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
             m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
-            if (m_finalBeamBreak.get() && m_initialBeamBreak.get()) {
+            if (m_finalBeamBreak.get() && getFirstBeamBreak()) {
                 RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
                 
             }
+
+        }
+    }
+
+    public boolean getFirstBeamBreak(){
+        if(!m_initialBeamBreak.get()){
+            thresholdFirst +=1;
+            if(thresholdFirst > 3){
+                thresholdFirst = 0;
+                return false;
+            }
+            return true;
+        }else {
+            thresholdFirst = 0;
+            return true;
 
         }
     }

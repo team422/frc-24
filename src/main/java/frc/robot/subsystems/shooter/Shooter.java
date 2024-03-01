@@ -75,6 +75,9 @@ public class Shooter extends ProfiledSubsystem {
 
     @Override
     public void periodic() {
+        LoggedTunableNumber.ifChanged(hashCode(), (()->{
+            new ArmFeedforward(ShooterPivotConstants.kPivotkS.get(),ShooterPivotConstants.kPivotkG.get(), ShooterPivotConstants.kPivotkV.get(), ShooterPivotConstants.kPivotkA.get());
+        }), ShooterPivotConstants.kPivotkS,ShooterPivotConstants.kPivotkG, ShooterPivotConstants.kPivotkV, ShooterPivotConstants.kPivotkA);
         m_pivotIO.updateInputs(m_inputsPivot);
         m_flywheelIO.updateInputs(m_inputsFlywheel);
         
@@ -110,7 +113,7 @@ public class Shooter extends ProfiledSubsystem {
             m_flywheelIO.setDesiredSpeedWithSpin(FlywheelConstants.kFlywheelSpeedLeft.get(),FlywheelConstants.kFlywheelSpeedRight.get());
             }
             else{
-                m_pivotIO.runSetpoint(m_desiredAngle, ff.calculate(setpointState.position, setpointState.velocity));
+                m_pivotIO.runSetpoint(m_desiredAngle, 0);
             }
     }
 
@@ -124,14 +127,14 @@ public class Shooter extends ProfiledSubsystem {
     }
 
     public boolean isPivotWithinTolerance(Rotation2d angle,Rotation2d tolerance){
-        System.out.println(m_desiredAngle.getDegrees()-angle.getDegrees());
+        // System.out.println(m_desiredAngle.getDegrees()-angle.getDegrees());
         System.out.println(Math.abs(m_desiredAngle.getDegrees()-angle.getDegrees()) < tolerance.getDegrees());
         return Math.abs(m_pivotIO.getCurrentAngle().getDegrees()-angle.getDegrees()) < tolerance.getDegrees();
     }
 
-    public void setFlywheelSpeed(double speed) {
-        m_flywheelIO.setDesiredSpeed(speed);
-    }
+    // public void setFlywheelSpeed(double speed) {
+    //     m_flywheelIO.setDesiredSpeed(speed);
+    // }
 
     public void setFlywheelSpeedWithSpin(double speedLeft,double speedRight){
         m_flywheelIO.setDesiredSpeedWithSpin(speedLeft, speedRight);
@@ -160,9 +163,12 @@ public class Shooter extends ProfiledSubsystem {
 
     }
 
-    // public boolean isWithinToleranceWithSpin(double speedLeft,double speedRight){
+    public boolean isWithinToleranceWithSpin(double speedLeft,double speedRight){
+        
+        if(m_inputsFlywheel.VelocityLeft > speedLeft && m_inputsFlywheel.Velocity > speedRight ){
+            return true;
+        }
+        return false;
 
-    //     if(m_inputsFlywheel. - )
-
-    // }
+    }
 }

@@ -104,15 +104,15 @@ public class FieldUtil {
 
   private Pose2d transformPose(Pose2d pose) {
     // if(Robot.isSimulation()){
-      if(DriverStation.getAlliance().isEmpty()){
-        return pose;
-      }
+      // if(DriverStation.getAlliance().isEmpty()){
+      //   return pose;
+      // }
     // }
-    if (DriverStation.getAlliance().get() == Alliance.Blue) {
+    // if (DriverStation.getAlliance().get() == Alliance.Blue) {
       return pose;
-    }
+    // }
 
-    return pose.relativeTo(FieldConstants.kOppositeField);
+    // return pose.relativeTo(FieldConstants.kOppositeField);
   }
 
 }

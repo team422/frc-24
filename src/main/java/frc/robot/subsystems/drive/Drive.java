@@ -74,6 +74,8 @@ public class Drive extends ProfiledSubsystem {
 
   public ChassisSpeeds m_desChassisSpeeds;
   public ChassisSpeeds m_desAutoChassisSpeeds;
+  public ChassisSpeeds m_driveToPieceSpeeds;
+  public ChassisSpeeds m_autoShootChassisSpeeds = new ChassisSpeeds(0, 0, 0);
   public SimpleMotorFeedforward m_driveFeedforward;
   public PIDController m_driveController;
   public PIDController m_turnController;
@@ -115,7 +117,7 @@ public class Drive extends ProfiledSubsystem {
   }
 
   public enum DriveProfiles {
-    kDefault, kTuning, kTesting, kFFdrive, kFFPIDDrive, kModuleAndAccuracyTesting, kTrajectoryFollowing, kAutoAlign, kShootWithTrajectory
+    kDefault, kTuning, kTesting, kFFdrive, kFFPIDDrive, kModuleAndAccuracyTesting, kTrajectoryFollowing, kAutoAlign, kShootWithTrajectory,kAutoPiecePickup,kAutoShoot
   }
 
   // Profiling variables
@@ -148,12 +150,14 @@ public class Drive extends ProfiledSubsystem {
 
   public AprilTagFieldCreationStage m_aprilTagFieldCreationStage = AprilTagFieldCreationStage.kSpinningToFind;
 
+  // public SwerveDrivePoseEstimator m_DrivePoseEstimator;
+
   public ArrayList<AprilTag> m_aprilTagsFoundAsTransforms = new ArrayList<AprilTag>();
   public ArrayList<Integer> m_tags = new ArrayList<Integer>();
   private Rotation2d lastGyroYaw = new Rotation2d();
   Rotation2d m_aprilTagFieldRotation = new Rotation2d(0);
 
-  PIDController m_autoAlignController = new PIDController(15.0, 0.0, 0.0);
+  PIDController m_autoAlignController = new PIDController(7.5, 0.0, 0.0);
 
   private static final LoggedTunableNumber coastSpeedLimit =
   new LoggedTunableNumber(
@@ -167,6 +171,7 @@ public class Drive extends ProfiledSubsystem {
     m_modules = modules;
     m_gyro = gyro;
     m_gyroInputs = new GyroInputsAutoLogged();
+
     for (int i = 0; i < 10; i++) {
       for (SwerveModuleIO module : m_modules) {
         module.resetDistance();
@@ -174,33 +179,34 @@ public class Drive extends ProfiledSubsystem {
         // module.resetEncoders();
       }
     }
-
+    
     m_inputs = new SwerveModuleInputsAutoLogged[modules.length];
     for (int i = 0; i < m_inputs.length; i++) {
       m_inputs[i] = new SwerveModuleInputsAutoLogged();
     }
     m_poseEstimator = new SwerveDrivePoseEstimator(
-        Constants.DriveConstants.kDriveKinematics, m_gyro.getAngle(), getSwerveModulePositions(), startPose);
-    m_hasResetOdometry = false;
-    m_lastFPGATimestamp = Timer.getFPGATimestamp();
-
-    HashMap<Enum<?>, Runnable> drivePeriodicHash = new HashMap<Enum<?>, Runnable>();
-    drivePeriodicHash.put(DriveProfiles.kDefault, this::defaultPeriodic);
-    drivePeriodicHash.put(DriveProfiles.kTuning, this::tuningPeriodic);
-
-    drivePeriodicHash.put(DriveProfiles.kTesting, this::testingPeriodic);
-    drivePeriodicHash.put(DriveProfiles.kFFdrive, this::ffPeriodic);
-    drivePeriodicHash.put(DriveProfiles.kModuleAndAccuracyTesting, this::moduleAndAccuracyTesting);
-    drivePeriodicHash.put(DriveProfiles.kTrajectoryFollowing, this::trajectoryFollowingPeriodic);
-    Class<? extends Enum<?>> profileEnumClass = DriveProfiles.class;
-    Enum<?> defaultProfile = DriveProfiles.kDefault;
-    m_profiles = new SubsystemProfiles(profileEnumClass, drivePeriodicHash, defaultProfile);
-    ff = new SimpleMotorFeedforward(ModuleConstants.kffkS.get(), ModuleConstants.kffkV.get(), 0);
-    for (SwerveModuleIO module : m_modules) {
-      module.setDrivePID(ModuleConstants.kDriveP.get(), ModuleConstants.kDriveI.get(), ModuleConstants.kDriveD.get());
-      module.setTurnPID(ModuleConstants.kTurningP.get(), ModuleConstants.kTurningI.get(), ModuleConstants.kTurningD.get());
-    }
-    
+      Constants.DriveConstants.kDriveKinematics, m_gyro.getAngle(), getSwerveModulePositions(), startPose);
+      m_hasResetOdometry = false;
+      m_lastFPGATimestamp = Timer.getFPGATimestamp();
+      
+      HashMap<Enum<?>, Runnable> drivePeriodicHash = new HashMap<Enum<?>, Runnable>();
+      drivePeriodicHash.put(DriveProfiles.kDefault, this::defaultPeriodic);
+      drivePeriodicHash.put(DriveProfiles.kTuning, this::tuningPeriodic);
+      
+      drivePeriodicHash.put(DriveProfiles.kTesting, this::testingPeriodic);
+      drivePeriodicHash.put(DriveProfiles.kFFdrive, this::ffPeriodic);
+      drivePeriodicHash.put(DriveProfiles.kModuleAndAccuracyTesting, this::moduleAndAccuracyTesting);
+      drivePeriodicHash.put(DriveProfiles.kTrajectoryFollowing, this::trajectoryFollowingPeriodic);
+      Class<? extends Enum<?>> profileEnumClass = DriveProfiles.class;
+      Enum<?> defaultProfile = DriveProfiles.kDefault;
+      m_profiles = new SubsystemProfiles(profileEnumClass, drivePeriodicHash, defaultProfile);
+      ff = new SimpleMotorFeedforward(ModuleConstants.kffkS.get(), ModuleConstants.kffkV.get(), 0);
+      for (SwerveModuleIO module : m_modules) {
+        module.setDrivePID(ModuleConstants.kDriveP.get(), ModuleConstants.kDriveI.get(), ModuleConstants.kDriveD.get());
+        module.setTurnPID(ModuleConstants.kTurningP.get(), ModuleConstants.kTurningI.get(), ModuleConstants.kTurningD.get());
+      }
+      // m_DrivePoseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_gyro.getAngle(), getSwerveModulePositions(), startPose);
+      
     this.m_driveFeedforward = new SimpleMotorFeedforward(ModuleConstants.kDriveKS.get(), ModuleConstants.kDriveKV.get(),
         ModuleConstants.kDriveKA.get());
     this.m_driveController = new PIDController(ModuleConstants.kDriveP.get(), ModuleConstants.kDriveI.get(),
@@ -231,6 +237,11 @@ public class Drive extends ProfiledSubsystem {
     } else {
       return ModuleConstants.kStartAccelSim.get() + ModuleConstants.kAccelDropoffSim.get() * curSpeed;
     }
+  }
+
+
+  public void setDriveToPieceChassisSpeeds(ChassisSpeeds speeds) {
+    m_driveToPieceSpeeds = speeds;
   }
 
   public void ffPeriodic() {
@@ -695,6 +706,7 @@ public class Drive extends ProfiledSubsystem {
   }
   @Override
   public void periodic() {
+    // m_DrivePoseEstimator.update(m_gyro.getAngle(), getSwerveModulePositions());
     
 odometryLock.lock();
     // Read timestamps from odometry thread and fake sim timestamps
@@ -792,6 +804,15 @@ odometryLock.lock();
 
     }
     else if (m_profiles.getCurrentProfile() == DriveProfiles.kAutoAlign){
+      m_desChassisSpeeds = calculateAutoAlignChassisSpeeds();
+      defaultPeriodic();
+    }
+    else if (m_profiles.getCurrentProfile() == DriveProfiles.kAutoPiecePickup){
+      m_desChassisSpeeds = m_driveToPieceSpeeds;
+
+      defaultPeriodic();
+    } else if(m_profiles.getCurrentProfile() == DriveProfiles.kAutoShoot){
+      m_desChassisSpeeds = m_autoShootChassisSpeeds;
       m_desChassisSpeeds = calculateAutoAlignChassisSpeeds();
       defaultPeriodic();
     }
@@ -1041,6 +1062,7 @@ odometryLock.lock();
 
   public Pose2d getPose() {
     // Return the current pose
+    // return m_DrivePoseEstimator.getEstimatedPosition();
     return RobotState.getInstance().getEstimatedPose();
   }
 
