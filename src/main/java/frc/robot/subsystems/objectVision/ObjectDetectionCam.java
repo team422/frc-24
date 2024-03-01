@@ -14,6 +14,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Timer;
 import frc.lib.utils.VirtualSubsystem;
+import frc.robot.Robot;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.objectVision.ObjectDetectionIO.ObjectDetectionVisionIOInputs;
 
 public class ObjectDetectionCam extends VirtualSubsystem {
@@ -86,21 +88,53 @@ public class ObjectDetectionCam extends VirtualSubsystem {
                         // add current position to positions array
                         Pose3d currentPose = new Pose3d(frc.robot.RobotState.getInstance().getEstimatedPose());
 
+                        positions.clear();
+
                         
-
-                        positions.add(currentPose.plus(noteTranslation));
+                        Pose3d fPose = new Pose3d(currentPose.plus(noteTranslation).getTranslation(),currentPose.plus(noteTranslation).getRotation().plus(new Rotation3d(0,0,Math.PI)));
+                        positions.add(fPose);
                     }
-
-
                 }
+
                 // log the positions
                 Logger.recordOutput("ObjectDetectionVision/Inst" , positions.get(0));
           }
+
+
+          if (Robot.isSimulation()){
+            HashMap<String,Pose2d> val = frc.robot.FieldConstants.getGamePieces();
+            for (Map.Entry<String, Pose2d> entry : val.entrySet()) {
+                String key = entry.getKey();
+                Pose2d value = entry.getValue();
+                positions.add(new Pose3d(value.getTranslation().getX(), value.getTranslation().getY(), 0.0, new Rotation3d(0.0,0.0,value.getRotation().getRadians()))); 
+            }
+          }
+
+
 
 
 
 
         
     }
+
+    public Pose2d getClosestNote() {
+        if (positions.size() == 0) {
+            return null;
+        }
+        else {
+            Pose2d currentPose = frc.robot.RobotState.getInstance().getEstimatedPose();
+            Pose2d closestNote = new Pose2d();
+            double closestDistance = Double.MAX_VALUE;
+            for (Pose3d note : positions) {
+                double distance = note.getTranslation().toTranslation2d().getDistance(currentPose.getTranslation());
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestNote = new Pose2d(note.getTranslation().getX(), note.getTranslation().getY(), note.getRotation().toRotation2d());
+                }
+            }
+            return closestNote;
+    }
+  }
     
 }

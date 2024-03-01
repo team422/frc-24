@@ -1,20 +1,20 @@
 package frc.robot.oi;
 
 import edu.wpi.first.wpilibj.PS5Controller;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.utils.EricNubControls;
 
-public class DriverControlsXboxController implements DriverControls {
+public class DriverControlsXboxReal implements DriverControls {
 
-  // CommandXboxController m_controller;
-  CommandPS5Controller m_controller;
+  CommandXboxController m_controller;
   EricNubControls m_controls;
 
-  public DriverControlsXboxController(int xboxControllerPort) {
-    m_controller = new CommandPS5Controller(xboxControllerPort);
+  public DriverControlsXboxReal(int xboxControllerPort) {
+    m_controller = new CommandXboxController(xboxControllerPort);
     m_controls = new EricNubControls();
   }
 
@@ -59,28 +59,28 @@ public class DriverControlsXboxController implements DriverControls {
 
   @Override
   public Trigger goToIntakePosition(){
-    return new Trigger(()->m_controller.getR2Axis()>0.1);
+    return m_controller.b();
   }
 
   @Override
   public Trigger goToShootPositionAndRev(){
-    return m_controller.L2();
+    return m_controller.leftTrigger();
   }
 
 
   @Override
   public Trigger finalShoot() {
-    return m_controller.R1();
+    return m_controller.rightBumper();
   }
 
   @Override
   public Trigger fenderShot(){
-    return m_controller.triangle();
+    return m_controller.y();
   }
 
   @Override
   public Trigger ampAutoLineup(){
-    return m_controller.L1();
+    return m_controller.leftBumper();
   }
 
   @Override
@@ -88,19 +88,23 @@ public class DriverControlsXboxController implements DriverControls {
     m_controller.getHID().setRumble(side, rumble);
   }
 
+  // @Override
+  // public Trigger autoIntake(){
+  //   return m_controller.b();
+  // }
   @Override
   public Trigger autoIntake(){
-    return m_controller.circle();
+    return new Trigger(()->false);
   }
 
   @Override
   public Trigger intakeVomit(){
-    return m_controller.R3();
+    return m_controller.rightStick();
   }
 
   @Override
   public Trigger runTune(){
-    return m_controller.square();
+    return m_controller.x();
   }
 
 

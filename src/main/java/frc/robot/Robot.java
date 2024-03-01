@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.sql.DriverPropertyInfo;
+
 import org.littletonrobotics.junction.LoggedRobot;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.advantagekit.LoggerUtil;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.subsystems.drive.Drive.DriveProfiles;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -53,7 +56,13 @@ public class Robot extends LoggedRobot {
     robotContainer = new RobotContainer();
   }
 
+  @Override
+  public void driverStationConnected(){
+      robotContainer.onDSConnected();
+  }
+
   /** This function is called periodically during all modes. */
+
   @Override
   public void robotPeriodic() {
     // Runs the Scheduler. This is responsible for polling buttons, adding
@@ -87,7 +96,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     robotContainer.onEnabled();
-    // RobotState.getInstance().setDriveType(DriveProfiles.kFFdrive);
+    RobotState.getInstance().setDriveType(DriveProfiles.kTrajectoryFollowing);
     autonomousCommand = robotContainer.getAutonomousCommand();
     // autonomousCommand = Commands.none();
 
@@ -109,7 +118,7 @@ public class Robot extends LoggedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    // RobotState.getInstance().setDriveType(DriveProfiles.kDefault);
+    RobotState.getInstance().setDriveType(DriveProfiles.kDefault);
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }

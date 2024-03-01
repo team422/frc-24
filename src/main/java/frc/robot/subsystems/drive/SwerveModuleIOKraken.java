@@ -38,6 +38,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Robot;
+import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 public class SwerveModuleIOKraken implements SwerveModuleIO {
@@ -103,11 +104,17 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         driveConfig = new TalonFXConfiguration();
         driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
         driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        driveConfig.CurrentLimits.StatorCurrentLimit = 150;
+        driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         driveConfig.Voltage.PeakForwardVoltage = 12.0;
         driveConfig.Voltage.PeakReverseVoltage = 12.0;
         
         turnConfig = new TalonFXConfiguration();
         turnConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
+        turnConfig.CurrentLimits.StatorCurrentLimit = 150.0;
+        turnConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        // statorCurrentLimit = 150.0;
+        
         turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         turnConfig.Voltage.PeakForwardVoltage = 12.0;
         turnConfig.Voltage.PeakReverseVoltage = -12.0;
@@ -233,6 +240,10 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         //         turnAppliedVolts,
         //         turnSupplyCurrent,
         //         turnTorqueCurrent);
+
+        LoggedTunableNumber.ifChanged(hashCode(), ()->{
+            setDrivePID(ModuleConstants.kDriveP.get(), ModuleConstants.kDriveI.get(), ModuleConstants.kDriveD.get());
+        },ModuleConstants.kDriveP,ModuleConstants.kDriveI, ModuleConstants.kDriveD);
 
                 inputs.driveMotorConnected =
         BaseStatusSignal.refreshAll(
@@ -459,14 +470,13 @@ inputs.odometryTurnPositions =
     }
 
     @Override
-  public void runDriveVelocitySetpoint(double velocityRadsPerSec, double feedForward) {
-    // System.out.println(velocityRadsPerSec);
-    // System.out.println(driveVelocity.getValueAsDouble());
-    m_driveMotor.setControl(
-        driveVelocityVoltage
-            .withVelocity(velocityRadsPerSec)
-            .withFeedForward(feedForward).withSlot(0));
-    // m_driveMotor.setControl(new VoltageOut(mDriveController.calculate(driveVelocity.getValueAsDouble(), velocityRadsPerSec)));
+  public void runDriveVelocitySetpoint(double velocityMetersPerSec, double feedForward) {
+    System.out.println(velocityMetersPerSec*2);
+    System.out.println(driveVelocity.getValueAsDouble());
+    // m_driveMotor.setControl(
+    //     driveVelocityVoltage
+    //         .withVelocity(velocityRadsPerSec).withSlot(0));
+    m_driveMotor.setControl(new VoltageOut(mDriveController.calculate(driveVelocity.getValueAsDouble(), velocityMetersPerSec*2)));
 
   }
     @Override

@@ -5,6 +5,7 @@ import java.util.List;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.commands.PathfindHolonomic;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -14,13 +15,16 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotState;
-import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.shooting.ShootAtPositionWithVelocity;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.indexer.Indexer.IndexerState;
 import frc.robot.subsystems.intake.Intake;
 
 public class AutoFactory extends Command {
@@ -34,7 +38,19 @@ public class AutoFactory extends Command {
   public AutoFactory(Drive drive, Intake intake) {
     m_drive = drive;
     m_intake = intake;
-    NamedCommands.registerCommand("AutoShoot",  new ShootAtPositionWithVelocity());
+    NamedCommands.registerCommand("AutoShoot", Commands.runOnce(()->{
+      RobotState.getInstance().setIndexer(IndexerState.INDEXING);
+    }).andThen(new AutoShoot()) );
+    NamedCommands.registerCommand("AutoIntake", new AutoIntake() );
+    NamedCommands.registerCommand("stow", Commands.run(()->{
+      RobotState.getInstance().stowAndStopIntake();
+    }));
+
+    NamedCommands.registerCommand("deployIntake",Commands.run(()->{
+      RobotState.getInstance().goToIntakePosition();
+      m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
+      // RobotState.getInstance().setShooterSpeed(0);
+    }));
     // NamedCommands.registerCommand("AutoShoot",Commands.runOnce(()->{
     //   System.out.println("AutoShoot");
     
@@ -50,17 +66,17 @@ public class AutoFactory extends Command {
                     new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
                     5.4, // Max module speed, in m/s
                     0.4, // Drive base radius in meters. Distance from robot center to furthest module.
-                    new ReplanningConfig() // Default path replanning config. See the API for the options here
+                    new ReplanningConfig(false,false) // Default path replanning config. See the API for the options here
             ),
             () -> {
               // Boolean supplier that controls when the path will be mirrored for the red alliance
               // This will flip the path being followed to the red side of the field.
               // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-              // var alliance = DriverStation.getAlliance();
-              // if (alliance.isPresent()) {
-              //   return alliance.get() == DriverStation.Alliance.Red;
-              // }
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
               return false;
             },
             m_drive // The subsystem that will be used to follow the path
@@ -117,8 +133,13 @@ public class AutoFactory extends Command {
     if (flipped) {
       return AutoBuilder.pathfindToPoseFlipped(finalPose, constraints,0.0);
     } else{
-
+      
       return AutoBuilder.pathfindToPose(finalPose, constraints,0.0 );
     }
+  }
+  public PathfindHolonomic generateTrajectoryToPose(Pose2d finalPose, PathConstraints constraints, boolean flipped,RobotState robotState) {
+
+    return new PathfindHolonomic(finalPose, constraints, ()->RobotState.getInstance().getEstimatedPose(), ()->RobotState.getInstance().getChassisSpeeds(), robotState::setDriveToPieceChassisSpeeds, new HolonomicPathFollowerConfig(5.2,Units.inchesToMeters(15.5) , new ReplanningConfig()));
+
   }
 }

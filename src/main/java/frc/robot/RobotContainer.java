@@ -33,7 +33,7 @@ import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.drive.TeleopControllerNoAugmentation;
 import frc.robot.oi.DriverControls;
-import frc.robot.oi.DriverControlsXboxController;
+import frc.robot.oi.DriverControlsXboxReal;
 import frc.robot.oi.ManualController;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.ClimbIOTalon;
@@ -80,11 +80,11 @@ public class RobotContainer {
     configureSubsystems();
     configureBindings();
     configureCommands();
-    configureAutonomous();
+    
   }
 
   public void configureControllers(){
-    m_driverControls = new DriverControlsXboxController(4);
+    m_driverControls = new DriverControlsXboxReal(4);
     m_testingController = new ManualController(3);
     
   }
@@ -106,6 +106,14 @@ public class RobotContainer {
         System.out.println("NOW SHOOT");
         m_indexer.setState(IndexerState.SHOOTING);
       }));
+
+
+      m_driverControls.runTune().onTrue(Commands.runOnce(()->{
+        // m_robotState.setRobotCurrentAction(RobotCurrentAction.kTune);
+        m_indexer.setState(IndexerState.INDEXING);
+        m_intake.setIntakeSpeed(0);
+      }));
+      
 
 
 
@@ -156,10 +164,13 @@ public class RobotContainer {
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kRevAndAlign);
       })).onFalse(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+        m_robotState.setDriveType(DriveProfiles.kDefault);
       }));
 
       m_driverControls.fenderShot().onTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kShootFender);
+      })).onFalse(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
 
       m_driverControls.ampAutoLineup().whileTrue(Commands.runOnce(()->{
@@ -174,6 +185,21 @@ public class RobotContainer {
 
 
       }));
+
+
+      m_driverControls.intakeVomit().whileTrue(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kVomit);
+      })).onFalse(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+      }));
+
+      m_driverControls.autoIntake().whileTrue(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kAutoIntake);
+      }))
+      .onFalse(Commands.runOnce(()->{
+        m_drive.setProfile(DriveProfiles.kDefault);
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+      }));
       // .onFalse(Commands.runOnce(()->{
       //   autoDriveCommand.cancel();
       //   m_autoFactory.cancel();
@@ -181,6 +207,7 @@ public class RobotContainer {
       //   System.out.println("CANCELLING AUTO DRIVE");
       //   m_drive.setProfile(DriveProfiles.kDefault);
       // }));
+
 
 
 
@@ -200,12 +227,15 @@ public class RobotContainer {
   }
 
   public void configureAutonomous(){
-    m_autoFactory = new AutoFactory(m_drive, null);
+    m_autoFactory = new AutoFactory(m_drive, m_intake);
     planPathPlanner();
     
   }
 
   
+  public void onDSConnected(){
+    configureAutonomous();
+  }
 
   public void configureSubsystems(){
     if (Robot.isSimulation()) {
@@ -302,7 +332,7 @@ public class RobotContainer {
 
     m_objectDetectionCams = new ObjectDetectionCam(new ObjectDetectionIODepth(""));
     
-    m_robotState = RobotState.startInstance(m_drive, m_climb, m_indexer,m_shooter, m_objectDetectionCams, m_aprilTagVision, m_intake);
+    m_robotState = RobotState.startInstance(m_drive, m_climb, m_indexer,m_shooter, m_objectDetectionCams, m_aprilTagVision, m_intake,this::getAutoFactory,m_driverControls);
     // m_TebInterfacer = new NetworkTablesTEBInterfacer("teb");
   }
 
@@ -316,6 +346,10 @@ public class RobotContainer {
     // System.out.println("Drive chassis speeds: "+m_drive.getChassisSpeeds());
   }
 
+  public AutoFactory getAutoFactory(){
+    return m_autoFactory;
+  }
+
   public void onDisabled(){
     m_drive.setWheelIdleBrake(true);
   }
@@ -326,6 +360,11 @@ public class RobotContainer {
 
   public void onEnabled(){
     m_robotState.updateTestScheduler();
+    if(edu.wpi.first.wpilibj.RobotState.isTeleop()){
+      m_drive.setProfile(DriveProfiles.kDefault);
+      
+      m_drive.drive(new ChassisSpeeds(0,0,0));
+    }
     new TeleopControllerNoAugmentation(m_drive,()->m_driverControls.getDriveForward(),()->m_driverControls.getDriveLeft() , ()-> m_driverControls.getDriveRotation(), DriveConstants.controllerDeadzone).schedule();
     
   }

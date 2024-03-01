@@ -152,7 +152,7 @@ public class PivotIOFalcon implements PivotIO {
         m_desiredAngle = angle;
 
         // System.out.println(angle);
-        leaderTalon.setControl(positionVoltageCycle.withPosition(m_desiredAngle.getRotations()).withUpdateFreqHz(0));
+        leaderTalon.setControl(positionVoltageCycle.withPosition(m_desiredAngle.getRotations()).withFeedForward(feedforward).withUpdateFreqHz(0));
     }
 
     @Override
@@ -162,15 +162,23 @@ public class PivotIOFalcon implements PivotIO {
                 controllerConfig.kP = ShooterPivotConstants.kPivotAmpP.get();
                 controllerConfig.kI = ShooterPivotConstants.kPivotAmpI.get();
                 controllerConfig.kD = ShooterPivotConstants.kPivotAmpD.get();
+                controllerConfig.kG = ShooterPivotConstants.kPivotkG.get();
+                controllerConfig.kS = ShooterPivotConstants.kPivotkS.get();
+                leaderTalon.getConfigurator().apply(controllerConfig);
+                followerTalon.getConfigurator().apply(controllerConfig);
 
-            }, ShooterPivotConstants.kPivotAmpP,ShooterPivotConstants.kPivotAmpI,ShooterPivotConstants.kPivotAmpD,ShooterPivotConstants.kUsingAmp);   
+            }, ShooterPivotConstants.kPivotAmpP,ShooterPivotConstants.kPivotAmpI,ShooterPivotConstants.kPivotAmpD,ShooterPivotConstants.kUsingAmp,ShooterPivotConstants.kPivotkG);   
         }else{
             LoggedTunableNumber.ifChanged(hashCode(),()->{
                 controllerConfig.kP = ShooterPivotConstants.kPivotP.get();
                 controllerConfig.kI = ShooterPivotConstants.kPivotI.get();
                 controllerConfig.kD = ShooterPivotConstants.kPivotD.get();
+                controllerConfig.kG = ShooterPivotConstants.kPivotkG.get();
+                controllerConfig.kS = ShooterPivotConstants.kPivotkS.get();
+                leaderTalon.getConfigurator().apply(controllerConfig);
+                followerTalon.getConfigurator().apply(controllerConfig);
 
-            }, ShooterPivotConstants.kPivotP,ShooterPivotConstants.kPivotI,ShooterPivotConstants.kPivotD,ShooterPivotConstants.kUsingAmp);   
+            }, ShooterPivotConstants.kPivotP,ShooterPivotConstants.kPivotI,ShooterPivotConstants.kPivotD,ShooterPivotConstants.kUsingAmp,ShooterPivotConstants.kPivotkG);   
         }
         leaderTalon.setPosition(getCurrentAngle().getRotations(), 0.0);
         

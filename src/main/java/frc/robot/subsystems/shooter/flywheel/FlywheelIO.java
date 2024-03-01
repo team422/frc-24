@@ -23,7 +23,8 @@ public interface FlywheelIO extends LoggedIO<FlywheelIO.FlywheelIOInputs> {
         public double AppliedVoltsLeft = 0.0;
         public double OutputCurrentLeft = 0.0;
         public double TempCelsiusLeft = 0.0;
-        
+        public double VelocityLeft = 0.0;
+        public double Velocity = 0.0;
 
     
     }
