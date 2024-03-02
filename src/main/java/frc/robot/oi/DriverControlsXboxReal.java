@@ -107,6 +107,11 @@ public class DriverControlsXboxReal implements DriverControls {
     return m_controller.x();
   }
 
+  @Override
+  public Trigger hockeyPuck(){
+    return m_controller.a();
+  }
+
 
 
 
