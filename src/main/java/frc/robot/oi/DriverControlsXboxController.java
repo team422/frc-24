@@ -103,6 +103,11 @@ public class DriverControlsXboxController implements DriverControls {
     return m_controller.square();
   }
 
+  @Override
+  public Trigger hockeyPuck(){
+    return m_controller.cross();
+  }
+
 
 
 

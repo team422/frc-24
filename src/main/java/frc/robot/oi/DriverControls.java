@@ -59,6 +59,10 @@ public interface DriverControls {
     return new Trigger(()->false);
    }
 
+   public default Trigger hockeyPuck(){
+    return new Trigger(()->false);
+   }
+
  
 
 }
