@@ -6,7 +6,6 @@ package frc.robot;
 
 import java.util.List;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.ctre.phoenix6.unmanaged.Unmanaged;
@@ -15,33 +14,27 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.autonPlanning.PathPlannerUtil;
-import frc.lib.utils.FieldGeomUtil;
 import frc.lib.utils.NetworkTablesTEBInterfacer;
 import frc.lib.utils.VirtualSubsystem;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Ports;
-import frc.robot.Constants.ShooterConstants.FlywheelConstants;
-import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
-import frc.robot.Constants.Vision.ObjectDetection;
 import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.drive.TeleopControllerNoAugmentation;
 import frc.robot.oi.DriverControls;
+import frc.robot.oi.DriverControlsXboxController;
 import frc.robot.oi.DriverControlsXboxReal;
 import frc.robot.oi.ManualController;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.ClimbIOTalon;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.Drive.DriveProfiles;
 import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.subsystems.drive.SwerveModuleIOKraken;
-import frc.robot.subsystems.drive.SwerveModuleIOSim;
-import frc.robot.subsystems.drive.Drive.DriveProfiles;
 import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
@@ -53,6 +46,7 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterIsIntaking;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOKraken;
 import frc.robot.subsystems.shooter.pivot.PivotIOFalcon;
+import frc.robot.utils.AllianceFlipUtil;
 
 public class RobotContainer {
 
@@ -81,11 +75,10 @@ public class RobotContainer {
     configureBindings();
     configureSubsystems();
     configureCommands();
-    
   }
 
   public void configureControllers(){
-    m_driverControls = new DriverControlsXboxReal(4);
+    m_driverControls = new DriverControlsXboxController(4);
     m_testingController = new ManualController(3);
     
   }
@@ -93,7 +86,7 @@ public class RobotContainer {
   public void configureCommands(){
     // m_drive.setDefaultCommand();
     
-    m_driverControls.resetFieldCentric().onTrue(Commands.runOnce(()->m_drive.resetPose(new Pose2d(m_robotState.getEstimatedPose().getTranslation(),Rotation2d.fromDegrees(180)))));
+    m_driverControls.resetFieldCentric().onTrue(Commands.runOnce(()->m_drive.resetPose(new Pose2d(m_robotState.getEstimatedPose().getTranslation(),AllianceFlipUtil.apply(Rotation2d.fromDegrees(180))))));
       m_driverControls.setClimberServoClose().onTrue(Commands.runOnce(()->{
         // System.out.println("Setting climber servo to close");
         m_climb.setServoPosition(0);}));
@@ -106,13 +99,20 @@ public class RobotContainer {
       m_driverControls.finalShoot().onTrue(Commands.runOnce(()->{
         System.out.println("NOW SHOOT");
         m_indexer.setState(IndexerState.SHOOTING);
+      })).onFalse(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
 
 
-      m_driverControls.runTune().onTrue(Commands.runOnce(()->{
-        // m_robotState.setRobotCurrentAction(RobotCurrentAction.kTune);
-        m_indexer.setState(IndexerState.INDEXING);
-        m_intake.setIntakeSpeed(0);
+      // m_driverControls.runTune().onTrue(Commands.runOnce(()->{
+      //   // m_robotState.setRobotCurrentAction(RobotCurrentAction.kTune);
+      //   m_indexer.setState(IndexerState.INDEXING);
+      //   m_intake.setIntakeSpeed(0);
+      // }));
+
+
+      m_testingController.amp().onTrue(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpShoot);
       }));
       
 
@@ -365,8 +365,9 @@ public class RobotContainer {
       m_drive.setProfile(DriveProfiles.kDefault);
       
       m_drive.drive(new ChassisSpeeds(0,0,0));
+      new TeleopControllerNoAugmentation(m_drive,()->m_driverControls.getDriveForward(),()->m_driverControls.getDriveLeft() , ()-> m_driverControls.getDriveRotation(), DriveConstants.controllerDeadzone).schedule();
+
     }
-    new TeleopControllerNoAugmentation(m_drive,()->m_driverControls.getDriveForward(),()->m_driverControls.getDriveLeft() , ()-> m_driverControls.getDriveRotation(), DriveConstants.controllerDeadzone).schedule();
     
   }
   private void configureBindings() {

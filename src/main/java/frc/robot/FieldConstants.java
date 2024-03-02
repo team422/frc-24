@@ -44,6 +44,7 @@ public class FieldConstants {
     public final static AprilTagFieldLayout field = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
     public static final Pose2d kAmpBlue = new Pose2d(1.749, 7.82, new Rotation2d(90));
+    public static final Translation2d kCorner = new Translation2d(0, 7.82);
 
     public static final AprilTagFieldLayout getAprilTags(){
         return field;

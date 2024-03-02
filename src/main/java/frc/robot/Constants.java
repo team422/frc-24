@@ -1,4 +1,5 @@
 package frc.robot;
+import org.apache.commons.math3.analysis.function.Log;
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 
 import com.pathplanner.lib.path.PathConstraints;
@@ -125,6 +126,7 @@ public final class Constants {
       public static final LoggedTunableNumber kFlywheelSpeedLeft = new LoggedTunableNumber("Flywheel Speed Left", 0.0, "Shooter");
       public static final LoggedTunableNumber kFlywheelSpeedRight = new LoggedTunableNumber("Flywheel Speed Right", 0.0, "Shooter");
       public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 3.600000, "Shooter");
+      public static final LoggedTunableNumber kFlywheelHockeyPuck = new LoggedTunableNumber("Flywheel hockey puck speed", 12.0, "Shooter");
     }
 
     public static final class ShooterPivotConstants {
@@ -150,7 +152,7 @@ public final class Constants {
 
       
       public static final Rotation2d maxAngle = Rotation2d.fromDegrees(77); 
-      public static final Rotation2d kAmpShot = Rotation2d.fromDegrees(70);
+      public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Shooter Amp Angle",66.0, "Amp");
       public static final Rotation2d kAmpBottom = Rotation2d.fromDegrees(50);
       public static final Rotation2d minAngle = Rotation2d.fromDegrees(15);
       public static final Rotation2d homeAngle = Rotation2d.fromDegrees(34);
