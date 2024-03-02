@@ -83,7 +83,7 @@ public class ShooterMath {
         m_shootSpeedRight.put(Units.inchesToMeters(143.625)+constantAddition,17.0);
         m_shootSpeedRight.put(Units.inchesToMeters(160.625)+constantAddition,17.0);
         m_shootSpeedRight.put(Units.inchesToMeters(175.625)+constantAddition,17.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(200.625)+constantAddition,16.000000);
+        m_shootSpeedRight.put(Units.inchesToMeters(200.625)+constantAddition,18.000000);
         
         m_shootSpeedLeft.put(0.0+constantAddition,12.0);
         m_shootSpeedLeft.put(Units.inchesToMeters(13.5)+constantAddition,12.0);
@@ -99,7 +99,7 @@ public class ShooterMath {
         m_shootSpeedLeft.put(Units.inchesToMeters(143.625)+constantAddition,15.000000);
         m_shootSpeedLeft.put(Units.inchesToMeters(160.625)+constantAddition,17.0);
         m_shootSpeedLeft.put(Units.inchesToMeters(175.625)+constantAddition,17.0);
-        m_shootSpeedLeft.put(Units.inchesToMeters(200.625)+constantAddition,18.000000);
+        m_shootSpeedLeft.put(Units.inchesToMeters(200.625)+constantAddition,16.000000);
 
         
 

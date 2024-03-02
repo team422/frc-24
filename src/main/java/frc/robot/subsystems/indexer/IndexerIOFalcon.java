@@ -119,8 +119,8 @@ private final PositionTorqueCurrentFOC positionControl =
             m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
             m_falconSecond.setControl(velocityControl.withVelocity(0));
             m_falconSecond.setControl(velocityControl.withVelocity(0));
-            if (!getFirstBeamBreak()) {
-                // RobotState.getInstance().setGamePieceLocation(GamePieceLocation.INDEXER);
+            if (!m_initialBeamBreak.get()) {
+                RobotState.getInstance().setGamePieceLocation(GamePieceLocation.INDEXER);
                 
                 Logger.recordOutput("IS SETTING", true);
             }
@@ -137,7 +137,7 @@ private final PositionTorqueCurrentFOC positionControl =
         } else if (state == IndexerState.SHOOTING) {
             m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
             m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
-            if (m_finalBeamBreak.get() && getFirstBeamBreak()) {
+            if (m_finalBeamBreak.get() && m_initialBeamBreak.get()) {
                 RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
                 
             }

@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.utils.EricNubControls;
 import frc.robot.RobotState;
@@ -44,6 +45,11 @@ public class TeleopControllerNoAugmentation extends Command {
     curYSpeed *= DriveConstants.kMaxSpeedMetersPerSecond;
     curZRotation *= DriveConstants.kMaxAngularSpeedRadiansPerSecond;
     // System.out.println("Running");
+    if (DriverStation.getAlliance().isPresent()
+          && DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+            curXSpeed *= -1;
+            curYSpeed *= -1;
+    }
     speeds = ChassisSpeeds.fromFieldRelativeSpeeds(curXSpeed, curYSpeed, curZRotation,
         m_drive.getPose().getRotation());
     // System.out.println(speeds);

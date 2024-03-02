@@ -55,6 +55,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.northstarAprilTagVision.AprilTagVision;
 import frc.robot.subsystems.objectVision.ObjectDetectionCam;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.ShooterMath;
 import frc.robot.subsystems.climb.Climb;
 
@@ -78,7 +79,7 @@ public class RobotState {
     private DriverControls mDriveControls;
 
     public enum RobotCurrentAction {
-      kStow,kIntake,kShootFender,kRevAndAlign, kShootWithAutoAlign,kAmpLineup,kAmpShoot, kAutoIntake, kAutoShoot, kPathPlanner,kVomit,kTune
+      kStow,kIntake,kShootFender,kRevAndAlign, kShootWithAutoAlign,kAmpLineup,kAmpShoot, kAutoIntake, kAutoShoot, kPathPlanner,kVomit,kTune,kHockeyPuck
     }
 
     public RobotCurrentAction curAction = RobotCurrentAction.kStow;
@@ -342,8 +343,12 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
             stowAndStopIntake();
         }
         if (location == GamePieceLocation.SHOOTER){
-            shooterStopTime = Timer.getFPGATimestamp() + 1;
+          if (!edu.wpi.first.wpilibj.RobotState.isTeleop()){
+            shooterStopTime = Timer.getFPGATimestamp() + .4;
             Logger.recordOutput("knows it shot", shooterStopTime);
+          }else {
+            shooterStopTime = Timer.getFPGATimestamp();
+          }
 
         }
     }
@@ -402,7 +407,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         }
 
         if (curAction == RobotCurrentAction.kStow) {
-          // m_drive.setProfile(DriveProfiles.kDefault);
+          m_drive.setProfile(DriveProfiles.kDefault);
           stowAndStopIntake();
           stowShooter();
           m_shooter.setFlywheelSpeedWithSpin(0,0);
@@ -431,33 +436,57 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
 
         } else if (curAction == RobotCurrentAction.kRevAndAlign){
           Pose2d predPose = getPredictedPose(0.0,0.0);
+          Translation3d finalTarget = AllianceFlipUtil.apply(frc.robot.FieldConstants.centerSpeakerOpening);
 
-          ArrayList<Rotation2d> mRotations = m_shooterMath.setNextShootingPoseAndVelocity(predPose,robotVelocity,FieldConstants.kShooterCenter);
+          ArrayList<Rotation2d> mRotations = m_shooterMath.setNextShootingPoseAndVelocity(predPose,robotVelocity,finalTarget);
           // double speed = m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,FieldConstants.kShooterCenter));
           
           m_drive.setProfile(DriveProfiles.kAutoAlign);
-          m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,FieldConstants.kShooterCenter)).get(0),m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,frc.robot.FieldConstants.centerSpeakerOpening)).get(1));
+
+
+          m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(0),m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(1));
           m_shooter.setPivotAngle(mRotations.get(1));
           m_drive.setDriveTurnOverride(mRotations.get(0));
 
         } else if (curAction == RobotCurrentAction.kShootWithAutoAlign){
           Pose2d predPose = getPredictedPose(0.4,0.4);
-          ArrayList<Rotation2d> mRotations = m_shooterMath.setNextShootingPoseAndVelocity(predPose,robotVelocity,FieldConstants.kShooterCenter);
+          Translation3d finalTarget = AllianceFlipUtil.apply(frc.robot.FieldConstants.centerSpeakerOpening);
+          ArrayList<Rotation2d> mRotations = m_shooterMath.setNextShootingPoseAndVelocity(predPose,robotVelocity,finalTarget);
           // double speed = m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,FieldConstants.kShooterCenter));
           m_drive.setProfile(DriveProfiles.kAutoAlign);
           // m_shooter.setFlywheelSpeed(speed);
-          m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,FieldConstants.kShooterCenter)).get(0),m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,FieldConstants.kShooterCenter)).get(1));
+          m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(0),m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(1));
           m_shooter.setPivotAngle(mRotations.get(1));
           m_drive.setDriveTurnOverride(mRotations.get(0));
           if (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) {
             m_indexer.setState(Indexer.IndexerState.SHOOTING);
-
           }
         }
         else if(curAction == RobotCurrentAction.kVomit){
           m_intake.setIntakeSpeed(-1);
           goToIntakePosition();
           
+        } else if (curAction == RobotCurrentAction.kAmpShoot){
+          Rotation2d finalShot = Rotation2d.fromDegrees(ShooterPivotConstants.kAmpShot.get());
+          m_shooter.setPivotAngle(finalShot);
+          m_shooter.setFlywheelSpeedWithSpin(FlywheelConstants.kAmpSpeed.get(), FlywheelConstants.kAmpSpeed.get());
+          if ((m_shooter.isPivotWithinTolerance(finalShot, Rotation2d.fromDegrees(1) )) &&m_shooter.isWithinToleranceWithSpin(FlywheelConstants.kAmpSpeed.get(),FlywheelConstants.kAmpSpeed.get()) ) {
+            m_indexer.setState(Indexer.IndexerState.SHOOTING);
+          }
+        } else if (curAction == RobotCurrentAction.kHockeyPuck){
+          Pose2d predPose = getPredictedPose(0.0,0.0);
+          Translation2d finalTarget = AllianceFlipUtil.apply(frc.robot.FieldConstants.kCorner);
+
+          ArrayList<Rotation2d> mRotations = m_shooterMath.setNextShootingPoseAndVelocity(predPose,robotVelocity,new Translation3d(finalTarget.getX(), finalTarget.getY(), 0.0));
+          // double speed = m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,FieldConstants.kShooterCenter));
+          
+          m_drive.setProfile(DriveProfiles.kAutoAlign);
+
+
+          m_shooter.setFlywheelSpeedWithSpin(FlywheelConstants.kFlywheelHockeyPuck.get(),FlywheelConstants.kFlywheelHockeyPuck.get());
+          // m_shooter.setPivotAngle(mRotations.get(1));
+          m_drive.setDriveTurnOverride(mRotations.get(0));
+
         }
         // } else if (curAction == RobotCurrentAction.kAmpLineup){
         //   // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
@@ -487,6 +516,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           // if (m_drive.isTrajectoryComplete()){
           //     setRobotCurrentAction(RobotCurrentAction.kAmpShoot);
           // }
+
          else if (curAction == RobotCurrentAction.kPathPlanner){
 
           m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
@@ -498,8 +528,9 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           // then we set to kPathPlanner
           m_drive.setProfile(DriveProfiles.kAutoShoot);
           Pose2d predictedPose = getPredictedPose(0.3, 0.3);
-          ArrayList<Rotation2d> mRotations = m_shooterMath.setNextShootingPoseAndVelocity(predictedPose,robotVelocity,FieldConstants.kShooterCenter);
-          ArrayList <Double> speeds = m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predictedPose,FieldConstants.kShooterCenter));
+          Translation3d finalTarget = AllianceFlipUtil.apply(frc.robot.FieldConstants.centerSpeakerOpening);
+          ArrayList<Rotation2d> mRotations = m_shooterMath.setNextShootingPoseAndVelocity(predictedPose,robotVelocity,finalTarget);
+          ArrayList <Double> speeds = m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predictedPose,finalTarget));
           m_shooter.setPivotAngle(mRotations.get(1));
           m_drive.drive(new ChassisSpeeds(0, 0, 0));
           m_shooter.setFlywheelSpeedWithSpin(speeds.get(0),speeds.get(1));

@@ -41,4 +41,9 @@ public class ManualController {
         return m_controller.y();
     }
 
+
+    public Trigger amp(){
+        return m_controller.b();
+    }
+
 }
