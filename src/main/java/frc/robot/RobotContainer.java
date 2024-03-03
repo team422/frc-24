@@ -98,9 +98,10 @@ public class RobotContainer {
       m_driverControls.finalShoot().onTrue(Commands.runOnce(()->{
         System.out.println("NOW SHOOT");
         m_indexer.setState(IndexerState.SHOOTING);
-      })).onFalse(Commands.runOnce(()->{
-        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
+      // .onFalse(Commands.runOnce(()->{
+      //   m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+      // }));
 
 
       // m_driverControls.runTune().onTrue(Commands.runOnce(()->{
@@ -112,6 +113,13 @@ public class RobotContainer {
 
       m_testingController.amp().onTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpShoot);
+      }));
+
+      m_driverControls.hockeyPuck().whileTrue(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kHockeyPuck);
+      })).onFalse(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+        m_robotState.setDriveType(DriveProfiles.kDefault);
       }));
       
 
@@ -152,15 +160,13 @@ public class RobotContainer {
 
       m_driverControls.goToIntakePosition().whileTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kIntake);
-        
-
         m_shooter.isIntaking = ShooterIsIntaking.intaking;
       })).onFalse(Commands.runOnce(()->{
           m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
           m_shooter.isIntaking = ShooterIsIntaking.notIntaking;
       }));
 
-      m_driverControls.goToShootPositionAndRev().onTrue(Commands.runOnce(()->{
+      m_driverControls.goToShootPositionAndRev().whileTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kRevAndAlign);
       })).onFalse(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
@@ -173,20 +179,24 @@ public class RobotContainer {
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
 
-      m_driverControls.ampAutoLineup().whileTrue(Commands.runOnce(()->{
-        m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpLineup);
+      // m_driverControls.ampAutoLineup().whileTrue(Commands.runOnce(()->{
+      //   m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpLineup);
         
-        // autoDriveCommand = m_autoFactory.trajectoryGenerateToPosition(FieldConstants.kAmpBlue,DriveConstants.kAutoAlignToAmpSpeed ,DriverStation.getAlliance().equals(Alliance.Red));
-        // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
+      //   // autoDriveCommand = m_autoFactory.trajectoryGenerateToPosition(FieldConstants.kAmpBlue,DriveConstants.kAutoAlignToAmpSpeed ,DriverStation.getAlliance().equals(Alliance.Red));
+      //   // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
         
-        // autoDriveCommand.andThen(Commands.runOnce(()->{
-        //   m_drive.setProfile(DriveProfiles.kDefault);
-        // })).schedule();
+      //   // autoDriveCommand.andThen(Commands.runOnce(()->{
+      //   //   m_drive.setProfile(DriveProfiles.kDefault);
+      //   // })).schedule();
 
 
+      // }));
+
+      m_driverControls.autoAlignToGamePiece().whileTrue(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kGamePieceLock);
+      })).onFalse(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
-
-
       m_driverControls.intakeVomit().whileTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kVomit);
       })).onFalse(Commands.runOnce(()->{

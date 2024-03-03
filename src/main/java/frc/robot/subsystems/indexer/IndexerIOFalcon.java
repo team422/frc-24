@@ -14,6 +14,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import frc.robot.Constants;
 import frc.robot.RobotState;
@@ -38,6 +40,7 @@ private final PositionTorqueCurrentFOC positionControl =
         new PositionTorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
 
     double distanceToFront = -1;
+    double autoTimerShot = -1;
 
     DigitalInput m_initialBeamBreak;
     DigitalInput m_finalBeamBreak;
@@ -120,7 +123,7 @@ private final PositionTorqueCurrentFOC positionControl =
             m_falconSecond.setControl(velocityControl.withVelocity(0));
             m_falconSecond.setControl(velocityControl.withVelocity(0));
             if (!m_initialBeamBreak.get()) {
-                RobotState.getInstance().setGamePieceLocation(GamePieceLocation.INDEXER);
+                // RobotState.getInstance().setGamePieceLocation(GamePieceLocation.INDEXER);
                 
                 Logger.recordOutput("IS SETTING", true);
             }
@@ -135,12 +138,26 @@ private final PositionTorqueCurrentFOC positionControl =
             }
 
         } else if (state == IndexerState.SHOOTING) {
-            m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
-            m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
-            if (m_finalBeamBreak.get() && m_initialBeamBreak.get()) {
-                RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
-                
+            if (edu.wpi.first.wpilibj.RobotState.isAutonomous()){
+                if (autoTimerShot == -1){
+                    autoTimerShot = Timer.getFPGATimestamp() + 1.25;
+                }
+                m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeedAuto));
+                m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeedAuto));
+            }else{
+                m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
+                m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
             }
+            // if (m_finalBeamBreak.get()) {
+            //     RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
+                
+            // }
+            if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
+                if(autoTimerShot < Timer.getFPGATimestamp()){
+                    RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
+                    autoTimerShot = -1;
+                }
+        }
 
         }
     }

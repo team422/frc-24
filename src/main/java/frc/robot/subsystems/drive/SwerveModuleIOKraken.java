@@ -37,10 +37,10 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.Robot;
 import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
+import frc.robot.Robot;
 public class SwerveModuleIOKraken implements SwerveModuleIO {
     private TalonFX m_driveMotor;
     private TalonFX m_turnMotor;
@@ -94,6 +94,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
 
     private final DCMotorSim mDriveSim = new DCMotorSim(DCMotor.getKrakenX60Foc(1), ModuleConstants.kDriveGearRatio, 0.4);
     private final DCMotorSim mTurnSim = new DCMotorSim(DCMotor.getFalcon500Foc(1), ModuleConstants.kTurnPositionConversionFactor, 0.4);
+    double angleRadsSet = 0;
 
 
     public SwerveModuleIOKraken(int drivePort, int turnPort, int cancoderId, boolean turnMotorInverted) {
@@ -141,7 +142,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         turnConfig.Feedback.RotorToSensorRatio = 150/7;
         turnConfig.Feedback.FeedbackRemoteSensorID = m_turnEncoder.getDeviceID();
         turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
+        turnConfig.ClosedLoopGeneral.ContinuousWrap = false;
         
         // mDriveController = new PIDController(m, turnPort, cancoderId)
         
@@ -155,8 +156,9 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         }
         // setDrivePID(ModuleConstants.kDriveP.get(), ModuleConstants.kDriveI.get(), ModuleConstants.kDriveD.get());
         mDriveController = new PIDController(0.3,0,0);
-        mTurnController = new PIDController(0.3, 0.0, 0.0);
+        mTurnController = new PIDController(0.3, 0.0, 0.1);
         mTurnController.enableContinuousInput(-Math.PI, Math.PI);
+
 
         drivePosition = m_driveMotor.getPosition();
         turnPosition = m_turnMotor.getPosition();
@@ -244,6 +246,9 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         LoggedTunableNumber.ifChanged(hashCode(), ()->{
             setDrivePID(ModuleConstants.kDriveP.get(), ModuleConstants.kDriveI.get(), ModuleConstants.kDriveD.get());
         },ModuleConstants.kDriveP,ModuleConstants.kDriveI, ModuleConstants.kDriveD);
+        LoggedTunableNumber.ifChanged(hashCode(), ()->{
+            setTurnPID(ModuleConstants.kTurningP.get(), ModuleConstants.kTurningI.get(), ModuleConstants.kTurningD.get());
+        },ModuleConstants.kTurningP,ModuleConstants.kTurningI, ModuleConstants.kTurningD);
 
                 inputs.driveMotorConnected =
         BaseStatusSignal.refreshAll(
@@ -263,6 +268,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         inputs.turnAngleRads = getAngle().getRadians();
         inputs.turnRadsPerSecond = getTurnVelocityRadsPerSecond();
         inputs.angleDegrees = getAngle().getDegrees();
+        inputs.desiredAngleDegrees = Rotation2d.fromRadians(angleRadsSet).getDegrees();
         inputs.currentAmpsDrive = getDriveCurrent();
         inputs.angleDegreesCanCoder = turnAbsolutePosition.get().getDegrees();
         inputs.currentAmpsSupplied = driveSupplyCurrent.getValue();
@@ -471,8 +477,8 @@ inputs.odometryTurnPositions =
 
     @Override
   public void runDriveVelocitySetpoint(double velocityMetersPerSec, double feedForward) {
-    System.out.println(velocityMetersPerSec*2);
-    System.out.println(driveVelocity.getValueAsDouble());
+    // System.out.println(velocityMetersPerSec*2);
+    // System.out.println(driveVelocity.getValueAsDouble());
     // m_driveMotor.setControl(
     //     driveVelocityVoltage
     //         .withVelocity(velocityRadsPerSec).withSlot(0));
@@ -493,6 +499,7 @@ inputs.odometryTurnPositions =
     @Override
   public void runTurnPositionSetpoint(double angleRads) {
     // System.out.println("running turn position setpoint" + angleRads);
+    angleRadsSet = angleRads;
     if (Robot.isReal()){
 
         m_turnMotor.setControl(new VoltageOut(-mTurnController.calculate(turnAbsolutePosition.get().getRadians(), angleRads)).withEnableFOC(true));

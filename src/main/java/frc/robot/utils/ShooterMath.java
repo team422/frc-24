@@ -53,8 +53,8 @@ public class ShooterMath {
         m_distanceAngle.put(Units.inchesToMeters(28.5)+constantAddition,48.0);
         m_distanceAngle.put(Units.inchesToMeters(41.125)+constantAddition,43.0);
         m_distanceAngle.put(Units.inchesToMeters(53.25)+constantAddition,39.0);
-        m_distanceAngle.put(Units.inchesToMeters(64.5)+constantAddition,37.0);
-        m_distanceAngle.put(Units.inchesToMeters(76.5)+constantAddition,33.0);
+        m_distanceAngle.put(Units.inchesToMeters(64.5)+constantAddition,36.0);
+        m_distanceAngle.put(Units.inchesToMeters(76.5)+constantAddition,32.0);
         m_distanceAngle.put(Units.inchesToMeters(87.625)+constantAddition,31.0);
         m_distanceAngle.put(Units.inchesToMeters(100.625)+constantAddition,29.0);
         m_distanceAngle.put(Units.inchesToMeters(116.625)+constantAddition,27.0);
@@ -74,8 +74,8 @@ public class ShooterMath {
         m_shootSpeedRight.put(Units.inchesToMeters(28.5)+constantAddition,12.0);
         m_shootSpeedRight.put(Units.inchesToMeters(41.125)+constantAddition,12.0);
         m_shootSpeedRight.put(Units.inchesToMeters(53.125)+constantAddition,12.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(64.25)+constantAddition,15.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(76.5)+constantAddition,15.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(64.25)+constantAddition,12.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(76.5)+constantAddition,12.0);
         m_shootSpeedRight.put(Units.inchesToMeters(87.5)+constantAddition,15.0);
         m_shootSpeedRight.put(Units.inchesToMeters(100.625)+constantAddition,15.0);
         m_shootSpeedRight.put(Units.inchesToMeters(116.625)+constantAddition,16.0);

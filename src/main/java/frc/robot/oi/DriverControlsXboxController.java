@@ -105,7 +105,12 @@ public class DriverControlsXboxController implements DriverControls {
 
   @Override
   public Trigger hockeyPuck(){
-    return m_controller.cross();
+    return m_controller.L1();
+  }
+
+  @Override
+  public Trigger autoAlignToGamePiece(){
+    return m_controller.povDown();
   }
 
 

@@ -126,14 +126,14 @@ public final class Constants {
       public static final double kIdleSpeed = 0;
       public static final LoggedTunableNumber kFlywheelSpeedLeft = new LoggedTunableNumber("Flywheel Speed Left", 0.0, "Shooter");
       public static final LoggedTunableNumber kFlywheelSpeedRight = new LoggedTunableNumber("Flywheel Speed Right", 0.0, "Shooter");
-      public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 3.600000, "Shooter");
-      public static final LoggedTunableNumber kFlywheelHockeyPuck = new LoggedTunableNumber("Flywheel hockey puck speed", 12.0, "Shooter");
+      public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 3.800000, "Shooter");
+      public static final LoggedTunableNumber kFlywheelHockeyPuck = new LoggedTunableNumber("Flywheel hockey puck speed", 17.0, "Hockey Puck");
     }
 
     public static final class ShooterPivotConstants {
       // Real constants
       public static final double gearboxRatio = 46.722222;
-      public static final LoggedTunableNumber kPivotP = new LoggedTunableNumber("Pivot P", 100.0, "Shooter");
+      public static final LoggedTunableNumber kPivotP = new LoggedTunableNumber("Pivot P", 70.0, "Shooter");
 
       public static final LoggedTunableNumber kPivotI = new LoggedTunableNumber("Pivot I", 0.0, "Shooter");
       public static final LoggedTunableNumber kPivotD = new LoggedTunableNumber("Pivot D", 0.05, "Shooter");
@@ -148,12 +148,14 @@ public final class Constants {
       public static final LoggedTunableNumber kUsingAmp = new LoggedTunableNumber("Pivot using amp", 0, "Shooter"); 
       public static final double kOffset = Rotation2d.fromDegrees(181.7-13+52+6).getRotations();
 
+      public static final LoggedTunableNumber kHockeyPuck = new LoggedTunableNumber("hockey puck", 13,"Hockey Puck");
+
       public static final LoggedTunableNumber kShooterAngle = new LoggedTunableNumber("Shooter Angle", 0.0, "Shooter");
       // public static final double kOffset = Rotation2d.fromDegrees(0).getRotations();
 
       
       public static final Rotation2d maxAngle = Rotation2d.fromDegrees(77); 
-      public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Shooter Amp Angle",66.0, "Amp");
+      public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Shooter Amp Angle",62.0, "Amp");
       public static final Rotation2d kAmpBottom = Rotation2d.fromDegrees(50);
       public static final Rotation2d minAngle = Rotation2d.fromDegrees(15);
       public static final Rotation2d homeAngle = Rotation2d.fromDegrees(34);
@@ -226,7 +228,7 @@ public final class Constants {
   }
 
   public static final class ModuleConstants {
-    public static final LoggedTunableNumber kDriveP = new LoggedTunableNumber("Drive wP", 3., "Drive");
+    public static final LoggedTunableNumber kDriveP = new LoggedTunableNumber("Drive wP", 1.5, "Drive");
     public static final LoggedTunableNumber kDriveI = new LoggedTunableNumber("Drive I", 0.0, "Drive");
     public static final LoggedTunableNumber kDriveD = new LoggedTunableNumber("Drive D", 0.00, "Drive");
     public static final LoggedTunableNumber kDriveFF = new LoggedTunableNumber("Drive FF", 2.96, "Drive");
@@ -314,6 +316,7 @@ public final class Constants {
 
   public static final class IndexerConstants {
     public static final double kIndexerSpeed = 50;
+    public static final double kIndexerSpeedAuto = 100;
     public static final double kIndexerLength = Units.inchesToMeters(15);
     public static final double kRollerDiameter = Units.inchesToMeters(1.6);    
     public static final double gearboxRatio = 1;

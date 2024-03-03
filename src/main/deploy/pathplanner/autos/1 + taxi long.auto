@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.8508352640173417,
-      "y": 4.5642520704465435
+      "x": 0.6320988239402949,
+      "y": 4.380355099558239
     },
-    "rotation": 119.55096823717025
+    "rotation": 119.78721285888375
   },
   "command": {
     "type": "sequential",
@@ -20,19 +20,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "right side"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.4
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoShoot"
+            "pathName": "1 + taxi"
           }
         }
       ]
