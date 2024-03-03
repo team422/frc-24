@@ -29,6 +29,7 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
     public double voltageOutTurn;
     public boolean driveMotorConnected;
     public boolean turnMotorConnected;
+    public double desiredAngleDegrees;
   }
 
   public SwerveModulePosition getPosition();

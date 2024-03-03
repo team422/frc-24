@@ -5,7 +5,7 @@
       "x": 0.8508352640173417,
       "y": 4.5642520704465435
     },
-    "rotation": 119.55096823717025
+    "rotation": 118.61536996115076
   },
   "command": {
     "type": "sequential",
@@ -24,9 +24,15 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 0.4
+            "name": "AutoShoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Second to third long"
           }
         },
         {
