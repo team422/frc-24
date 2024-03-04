@@ -126,7 +126,7 @@ public final class Constants {
       public static final LoggedTunableNumber kFlywheelSpeedLeft = new LoggedTunableNumber("Flywheel Speed Left", 0.0, "Shooter");
       public static final LoggedTunableNumber kFlywheelSpeedRight = new LoggedTunableNumber("Flywheel Speed Right", 0.0, "Shooter");
       public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 3.800000, "Shooter");
-      public static final LoggedTunableNumber kFlywheelHockeyPuck = new LoggedTunableNumber("Flywheel hockey puck speed", 17.0, "Hockey Puck");
+      public static final LoggedTunableNumber kFlywheelHockeyPuck = new LoggedTunableNumber("Flywheel hockey puck speed", 13.5, "Hockey Puck");
     }
 
     public static final class ShooterPivotConstants {
@@ -147,14 +147,14 @@ public final class Constants {
       public static final LoggedTunableNumber kUsingAmp = new LoggedTunableNumber("Pivot using amp", 0, "Shooter"); 
       public static final double kOffset = Rotation2d.fromDegrees(181.7-13+52+6).getRotations();
 
-      public static final LoggedTunableNumber kHockeyPuck = new LoggedTunableNumber("hockey puck", 13,"Hockey Puck");
+      public static final LoggedTunableNumber kHockeyPuck = new LoggedTunableNumber("hockey puck", 66,"Hockey Puck");
 
       public static final LoggedTunableNumber kShooterAngle = new LoggedTunableNumber("Shooter Angle", 0.0, "Shooter");
       // public static final double kOffset = Rotation2d.fromDegrees(0).getRotations();
 
       
       public static final Rotation2d maxAngle = Rotation2d.fromDegrees(77); 
-      public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Shooter Amp Angle",62.0, "Amp");
+      public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Shooter Amp Angle",12.0, "Amp");
       public static final Rotation2d kAmpBottom = Rotation2d.fromDegrees(50);
       public static final Rotation2d minAngle = Rotation2d.fromDegrees(15);
       public static final Rotation2d homeAngle = Rotation2d.fromDegrees(34);
@@ -239,9 +239,9 @@ public final class Constants {
     public static final LoggedTunableNumber kFFDriveI = new LoggedTunableNumber("FFDrive I", 0.0, "Drive");
     public static final LoggedTunableNumber kFFDriveD = new LoggedTunableNumber("FFDrive D", 0.00, "Drive");
 
-    public static final LoggedTunableNumber kTurningP = new LoggedTunableNumber("TurnP", 2.5, "Drive");
+    public static final LoggedTunableNumber kTurningP = new LoggedTunableNumber("TurnP", 3.5, "Drive");
     public static final LoggedTunableNumber kTurningI = new LoggedTunableNumber("Turning I", 0.00, "Drive");
-    public static final LoggedTunableNumber kTurningD = new LoggedTunableNumber("Turning D", 0.00 , "Drive");
+    public static final LoggedTunableNumber kTurningD = new LoggedTunableNumber("Turning D", 0.10 , "Drive");
 
     public static final LoggedTunableNumber kDriveKS = new LoggedTunableNumber("Drive KS", 1.0, "Drive");
     public static final LoggedTunableNumber kDriveKV = new LoggedTunableNumber("Drive KV", 3.0, "Drive");

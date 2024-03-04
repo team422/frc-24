@@ -192,6 +192,9 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
       public void addVisionObservation(VisionObservation observation) {
     // latestParameters = null;
     // If measurement is old enough to be outside the pose buffer's timespan, skip.
+    // if (edu.wpi.first.wpilibj.RobotState.isAutonomous()){
+    //   return ;
+    // }
     try {
       if (poseBuffer.getInternalBuffer().lastKey() - poseBufferSizeSeconds
           > observation.timestamp()) {
@@ -347,7 +350,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
             shooterStopTime = Timer.getFPGATimestamp() + .4;
             Logger.recordOutput("knows it shot", shooterStopTime);
           }else {
-            shooterStopTime = Timer.getFPGATimestamp() + .9;
+            shooterStopTime = Timer.getFPGATimestamp() + .5;
             
           }
 
@@ -479,9 +482,9 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           Rotation2d finalShot = Rotation2d.fromDegrees(ShooterPivotConstants.kAmpShot.get());
           m_shooter.setPivotAngle(finalShot);
           m_shooter.setFlywheelSpeedWithSpin(FlywheelConstants.kAmpSpeed.get(), FlywheelConstants.kAmpSpeed.get());
-          if ((m_shooter.isPivotWithinTolerance(finalShot, Rotation2d.fromDegrees(1) )) &&m_shooter.isWithinToleranceWithSpin(FlywheelConstants.kAmpSpeed.get(),FlywheelConstants.kAmpSpeed.get()) ) {
-            m_indexer.setState(Indexer.IndexerState.SHOOTING);
-          }
+          // if ((m_shooter.isPivotWithinTolerance(finalShot, Rotation2d.fromDegrees(1) )) &&m_shooter.isWithinToleranceWithSpin(FlywheelConstants.kAmpSpeed.get(),FlywheelConstants.kAmpSpeed.get()) ) {
+          //   m_indexer.setState(Indexer.IndexerState.SHOOTING);
+          // }
         } else if (curAction == RobotCurrentAction.kHockeyPuck){
           Pose2d predPose = getPredictedPose(0.0,0.0);
           Translation2d finalTarget = AllianceFlipUtil.apply(frc.robot.FieldConstants.kCorner);

@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.6320988239402949,
-      "y": 4.380355099558239
+      "x": 0.6943347848092756,
+      "y": 4.440374003297027
     },
     "rotation": 119.78721285888375
   },
@@ -21,6 +21,24 @@
           "type": "path",
           "data": {
             "pathName": "1 + taxi"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 run"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShoot"
           }
         }
       ]

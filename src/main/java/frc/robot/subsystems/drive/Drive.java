@@ -28,6 +28,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.geometry.Twist3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -314,15 +315,14 @@ public class Drive extends ProfiledSubsystem {
     if (m_desChassisSpeeds == null) {
       return;
     }
-
     SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(m_desChassisSpeeds);
 
-    // SwerveDriveKinematics.desaturateWheelSpeeds(
-    //     moduleStates,
-    //     speeds,
-    //     DriveConstants.kMaxModuleSpeedMetersPerSecond,
-    //     DriveConstants.kMaxSpeedMetersPerSecond,
-    //     DriveConstants.kMaxAngularSpeedRadiansPerSecond);
+  SwerveDriveKinematics.desaturateWheelSpeeds(
+        moduleStates,
+        m_desChassisSpeeds,
+        DriveConstants.kMaxSpeedMetersPerSecond,
+        DriveConstants.kMaxSpeedMetersPerSecond,
+        DriveConstants.kMaxAngularSpeedRadiansPerSecond);
 
     for (int i = 0; i < moduleStates.length; i++) {
       moduleStates[i] = SwerveModuleState.optimize(moduleStates[i], m_modules[i].getAngle());
@@ -772,12 +772,12 @@ odometryLock.lock();
               wheelPositions.positions[j].angle.minus(lastPositions.positions[j].angle).getRadians()
                   / dt;
           // Check if delta is too large
-          if (Math.abs(omega) > 28 * 5.0
-              || Math.abs(velocity) > 5.8 * 5.0) {
-            includeMeasurement = false;
+          // if (Math.abs(omega) > 28 * 5.0
+          //     || Math.abs(velocity) > 5.8 * 5.0) {
+          //   includeMeasurement = false;
             
-            break;
-          }
+          //   break;
+          // }
         }
       }
       Logger.recordOutput("INCLUDING MEASUREMENT", includeMeasurement);
