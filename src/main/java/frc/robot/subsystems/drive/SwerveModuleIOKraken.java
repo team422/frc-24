@@ -29,6 +29,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -92,8 +93,8 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
   private final NeutralOut driveNeutral = new NeutralOut().withUpdateFreqHz(0);
   private final NeutralOut turnNeutral = new NeutralOut().withUpdateFreqHz(0);
 
-    private final DCMotorSim mDriveSim = new DCMotorSim(DCMotor.getKrakenX60Foc(1), ModuleConstants.kDriveGearRatio, 0.4);
-    private final DCMotorSim mTurnSim = new DCMotorSim(DCMotor.getFalcon500Foc(1), ModuleConstants.kTurnPositionConversionFactor, 0.4);
+    private  DCMotorSim mDriveSim = new DCMotorSim(DCMotor.getKrakenX60Foc(1), ModuleConstants.kDriveConversionFactor, 0.4);
+    private  DCMotorSim mTurnSim = new DCMotorSim(DCMotor.getFalcon500Foc(1), ModuleConstants.kTurnPositionConversionFactor, 0.4);
     double angleRadsSet = 0;
 
 
@@ -168,6 +169,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         driveAppliedVolts = m_driveMotor.getMotorVoltage();
         driveSupplyCurrent = m_driveMotor.getSupplyCurrent();
         driveTorqueCurrent = m_driveMotor.getTorqueCurrent();
+        
         turnAbsolutePosition = ()->{return Rotation2d.fromRotations(m_turnEncoder.getPosition().getValueAsDouble());};
         turnVelocity = m_turnMotor.getVelocity();
         turnAppliedVolts = m_turnMotor.getMotorVoltage();
@@ -209,7 +211,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         TalonFXSimState simDrive =  m_driveMotor.getSimState();
         TalonFXSimState simTurn = m_turnMotor.getSimState();
         // System.out.println(simTurn.getMotorVoltage());
-
+        Logger.recordOutput("Motor sim", simTurn.getMotorVoltage());
         mDriveSim.setInputVoltage(Math.min(12,Math.max(simDrive.getMotorVoltage(),-12)));
         mTurnSim.setInputVoltage(Math.min(12,Math.max(simTurn.getMotorVoltage(),-12)));
 
@@ -505,7 +507,7 @@ inputs.odometryTurnPositions =
         m_turnMotor.setControl(new VoltageOut(-mTurnController.calculate(turnAbsolutePosition.get().getRadians(), angleRads)).withEnableFOC(true));
         // m_turnMotor.setControl(new VoltageOut(3).withEnableFOC(true));
     } else {
-        m_turnMotor.setControl(new VoltageOut(mTurnController.calculate(turnAbsolutePosition.get().getRadians(), angleRads)).withEnableFOC(true));
+        m_turnMotor.setControl(new VoltageOut(mTurnController.calculate(turnAbsolutePosition.get().getRadians() % (Math.PI *2), angleRads)).withEnableFOC(true));
     }
 
   }
