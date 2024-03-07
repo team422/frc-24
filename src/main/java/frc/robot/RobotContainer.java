@@ -105,11 +105,11 @@ public class RobotContainer {
       // }));
 
 
-      // m_driverControls.runTune().onTrue(Commands.runOnce(()->{
-      //   // m_robotState.setRobotCurrentAction(RobotCurrentAction.kTune);
-      //   m_indexer.setState(IndexerState.INDEXING);
-      //   m_intake.setIntakeSpeed(0);
-      // }));
+      m_driverControls.runTune().onTrue(Commands.runOnce(()->{
+        // m_robotState.setRobotCurrentAction(RobotCurrentAction.kTune);
+        m_indexer.setState(IndexerState.INDEXING);
+        m_intake.setIntakeSpeed(0);
+      }));
 
 
       m_testingController.amp().onTrue(Commands.runOnce(()->{
@@ -272,7 +272,7 @@ public class RobotContainer {
     
     
     // m_shooter = new Shooter(new PivotIOSim(), new FlywheelIOSim());
-    Unmanaged.setPhoenixDiagnosticsStartTime(-1);
+    // Unmanaged.setPhoenixDiagnosticsStartTime(-1);
     m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new AprilTagVisionIONorthstar("northstar_0",""),new AprilTagVisionIONorthstar("northstar_1",""),new AprilTagVisionIONorthstar("northstar_2",""),new AprilTagVisionIONorthstar("northstar_3",""));
     if (Robot.isSimulation()) {
       SwerveModuleIO[] m_SwerveModuleIOs = {

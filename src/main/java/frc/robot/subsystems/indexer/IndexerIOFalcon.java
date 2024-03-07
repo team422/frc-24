@@ -123,9 +123,9 @@ private final PositionTorqueCurrentFOC positionControl =
             m_falconSecond.setControl(velocityControl.withVelocity(0));
             m_falconSecond.setControl(velocityControl.withVelocity(0));
             if (!m_initialBeamBreak.get()) {
-                // RobotState.getInstance().setGamePieceLocation(GamePieceLocation.INDEXER);
+                RobotState.getInstance().setGamePieceLocation(GamePieceLocation.INDEXER);
                 
-                Logger.recordOutput("IS SETTING", true);
+                Logger.recordOutput("IS SETTING", Timer.getFPGATimestamp());
             }
         } else if (state == IndexerState.INDEXING) {
             
@@ -148,10 +148,10 @@ private final PositionTorqueCurrentFOC positionControl =
                 m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
                 m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
             }
-            // if (m_finalBeamBreak.get()) {
-            //     RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
+            if (m_finalBeamBreak.get()) {
+                RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
                 
-            // }
+            }
             if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
                 if(autoTimerShot < Timer.getFPGATimestamp()){
                     RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
