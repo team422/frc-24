@@ -72,8 +72,8 @@ public final class Constants {
     public static final int servoPort2 = 8;
 
     // beambreak ports
-    public static final int beamBreakPort = 8;
-    public static final int beamBreakPort2 = 7;
+    public static final int beamBreakPort = 7;
+    public static final int beamBreakPort2 = 8;
 
     public static final int shooterLeft = 35;
     public static final int shooterRight = 36;
@@ -116,11 +116,11 @@ public final class Constants {
     public static final class FlywheelConstants {
       public static final double kFlywheelGearRatio = 1/1.5;
       public static final double kFlywheelDiameter = Units.inchesToMeters(4);
-      public static final LoggedTunableNumber kFlywheelP = new LoggedTunableNumber("Flywheel P", 0.010000, "Shooter");
+      public static final LoggedTunableNumber kFlywheelP = new LoggedTunableNumber("Flywheel P", -0.200000, "Shooter");
       public static final LoggedTunableNumber kFlywheelI = new LoggedTunableNumber("Flywheel I", 0.0, "Shooter");
-      public static final LoggedTunableNumber kFlywheelD = new LoggedTunableNumber("Flywheel D", 0.00, "Shooter");
+      public static final LoggedTunableNumber kFlywheelD = new LoggedTunableNumber("Flywheel D", 0.010000, "Shooter");
       public static final LoggedTunableNumber kFlywheelKS = new LoggedTunableNumber("Flywheel KS", 0.200000, "Shooter");
-      public static final LoggedTunableNumber kFlywheelKV = new LoggedTunableNumber("Flywheel KV", 0.120000, "Shooter");
+      public static final LoggedTunableNumber kFlywheelKV = new LoggedTunableNumber("Flywheel KV", 0.130000, "Shooter");
       public static final LoggedTunableNumber kFlywheelKA = new LoggedTunableNumber("Flywheel KA", 0.0, "Shooter");
       public static final double kMaxSpeed = 100;
       public static final double kIdleSpeed = 0;
@@ -136,7 +136,7 @@ public final class Constants {
       public static final LoggedTunableNumber kPivotP = new LoggedTunableNumber("Pivot P", 70.0, "Shooter");
 
       public static final LoggedTunableNumber kPivotI = new LoggedTunableNumber("Pivot I", 0.0, "Shooter");
-      public static final LoggedTunableNumber kPivotD = new LoggedTunableNumber("Pivot D", 0.05, "Shooter");
+      public static final LoggedTunableNumber kPivotD = new LoggedTunableNumber("Pivot D", 1.5, "Shooter");
       public static final LoggedTunableNumber kPivotAmpP = new LoggedTunableNumber("Pivot Amp P ", 1.0, "Shooter");
       public static final LoggedTunableNumber kPivotAmpI = new LoggedTunableNumber("Pivot Amp I ", 0.0, "Shooter");
       public static final LoggedTunableNumber kPivotAmpD = new LoggedTunableNumber("Pivot Amp D ", 0.0, "Shooter");
@@ -146,7 +146,7 @@ public final class Constants {
       public static final LoggedTunableNumber kPivotkA = new LoggedTunableNumber("Pivot KA", 0.0, "Shooter");
       public static final LoggedTunableNumber kPivotkG = new LoggedTunableNumber("Pivot KG", 0.150000, "Shooter"); 
       public static final LoggedTunableNumber kUsingAmp = new LoggedTunableNumber("Pivot using amp", 0, "Shooter"); 
-      public static final double kOffset = Rotation2d.fromDegrees(181.7-13+52+6).getRotations();
+      public static final double kOffset = Rotation2d.fromDegrees(181.7-13+52+6+123).getRotations();
 
       public static final LoggedTunableNumber kHockeyPuck = new LoggedTunableNumber("hockey puck", 66,"Hockey Puck");
 
@@ -228,7 +228,7 @@ public final class Constants {
   }
 
   public static final class ModuleConstants {
-    public static final LoggedTunableNumber kDriveP = new LoggedTunableNumber("Drive wP", 1.5, "Drive");
+    public static final LoggedTunableNumber kDriveP = new LoggedTunableNumber("Drive wP", 2.6, "Drive");
     public static final LoggedTunableNumber kDriveI = new LoggedTunableNumber("Drive I", 0.0, "Drive");
     public static final LoggedTunableNumber kDriveD = new LoggedTunableNumber("Drive D", 0.00, "Drive");
     public static final LoggedTunableNumber kDriveFF = new LoggedTunableNumber("Drive FF", 2.96, "Drive");
@@ -240,9 +240,9 @@ public final class Constants {
     public static final LoggedTunableNumber kFFDriveI = new LoggedTunableNumber("FFDrive I", 0.0, "Drive");
     public static final LoggedTunableNumber kFFDriveD = new LoggedTunableNumber("FFDrive D", 0.00, "Drive");
 
-    public static final LoggedTunableNumber kTurningP = new LoggedTunableNumber("TurnP", 3.5, "Drive");
+    public static final LoggedTunableNumber kTurningP = new LoggedTunableNumber("TurnP", 5.0, "Drive");
     public static final LoggedTunableNumber kTurningI = new LoggedTunableNumber("Turning I", 0.00, "Drive");
-    public static final LoggedTunableNumber kTurningD = new LoggedTunableNumber("Turning D", 0.10 , "Drive");
+    public static final LoggedTunableNumber kTurningD = new LoggedTunableNumber("Turning D", 0.0 , "Drive");
 
     public static final LoggedTunableNumber kDriveKS = new LoggedTunableNumber("Drive KS", 1.0, "Drive");
     public static final LoggedTunableNumber kDriveKV = new LoggedTunableNumber("Drive KV", 3.0, "Drive");

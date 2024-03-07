@@ -2,15 +2,22 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 3.4172968959777204,
-      "y": 5.888514896449436
+      "x": 1.8938814631612106,
+      "y": 5.661774530503719
     },
     "rotation": -179.30464217189026
   },
   "command": {
     "type": "sequential",
     "data": {
-      "commands": []
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "tune path"
+          }
+        }
+      ]
     }
   },
   "folder": null,

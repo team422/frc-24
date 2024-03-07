@@ -347,7 +347,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         }
         if (location == GamePieceLocation.SHOOTER){
           if (!edu.wpi.first.wpilibj.RobotState.isTeleop()){
-            shooterStopTime = Timer.getFPGATimestamp() + .4;
+            shooterStopTime = Timer.getFPGATimestamp() ;
             Logger.recordOutput("knows it shot", shooterStopTime);
           }else {
             shooterStopTime = Timer.getFPGATimestamp() + .5;
