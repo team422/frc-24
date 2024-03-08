@@ -7,9 +7,9 @@ import frc.robot.Robot;
 import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
 
-public class AutoShoot extends Command {
+public class AutoFender extends Command {
     double simTime = -1 ;
-    public AutoShoot() {
+    public AutoFender() {
         // Use addRequirements() here to declare subsystem dependencies.
         // Configure additional PID constants here
     }
@@ -18,16 +18,16 @@ public class AutoShoot extends Command {
     @Override
     public void initialize() {
         simTime = Timer.getFPGATimestamp();
-        frc.robot.RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoShoot);
+        frc.robot.RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoFender);
     }
     @Override
     public boolean isFinished() {
-            if(Timer.getFPGATimestamp() - simTime > 2){
+            if(Timer.getFPGATimestamp() - simTime > 1){
                 frc.robot.RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
                 return true;
             }
         frc.robot.RobotState.getInstance().setIndexer(IndexerState.INDEXING);
-        return frc.robot.RobotState.getInstance().curAction != RobotCurrentAction.kAutoShoot;
+        return frc.robot.RobotState.getInstance().curAction != RobotCurrentAction.kAutoFender;
     }
 
     

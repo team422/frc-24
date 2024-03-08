@@ -158,7 +158,7 @@ public final class Constants {
       public static final Rotation2d kAmpBottom = Rotation2d.fromDegrees(50);
       public static final Rotation2d minAngle = Rotation2d.fromDegrees(15);
       public static final Rotation2d homeAngle = Rotation2d.fromDegrees(34);
-      public static final Rotation2d kFenderAngle = Rotation2d.fromDegrees(61);
+      public static final Rotation2d kFenderAngle = Rotation2d.fromDegrees(57);
 
       public static final double maxSpeed = 1.0;
       public static final double maxAcceleration = 1.0;
@@ -223,7 +223,7 @@ public final class Constants {
     public static final boolean useMotionMagic = false;
     public static final Matrix<N3, N1> odometryStateStdDevs = new Matrix<>(VecBuilder.fill(0.003, 0.003, 0.0002));
     public static final PathConstraints kAutoAlignToAmpSpeed = new PathConstraints(5.9,6,2,2);
-    public static final PathConstraints kDriveToPieceSpeed = new PathConstraints(2,1,2,2);
+    public static final PathConstraints kDriveToPieceSpeed = new PathConstraints(3,1.5,2,2);
   }
 
   public static final class ModuleConstants {
