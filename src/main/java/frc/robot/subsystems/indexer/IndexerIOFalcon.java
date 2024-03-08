@@ -122,10 +122,10 @@ private final PositionTorqueCurrentFOC positionControl =
             m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
             m_falconSecond.setControl(velocityControl.withVelocity(0));
             m_falconSecond.setControl(velocityControl.withVelocity(0));
-            if (!m_initialBeamBreak.get()) {
+            if (!m_initialBeamBreak.get() && !edu.wpi.first.wpilibj.RobotState.isAutonomous()) {
                 RobotState.getInstance().setGamePieceLocation(GamePieceLocation.INDEXER);
                 
-                Logger.recordOutput("IS SETTING", Timer.getFPGATimestamp());
+                Logger.recordOutput("Autostow noteindexer", Timer.getFPGATimestamp());
             }
         } else if (state == IndexerState.INDEXING) {
             
