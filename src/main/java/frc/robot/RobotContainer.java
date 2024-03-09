@@ -7,15 +7,15 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import com.ctre.phoenix6.unmanaged.Unmanaged;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -29,6 +29,7 @@ import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.drive.TeleopControllerNoAugmentation;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsXboxController;
+import frc.robot.oi.DriverControlsXboxReal;
 import frc.robot.oi.ManualController;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.ClimbIOTalon;
@@ -139,7 +140,6 @@ public class RobotContainer {
       m_driverControls.hockeyPuck().whileTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kHockeyPuck);
       })).onFalse(Commands.runOnce(()->{
-        Logger.recordOutput("stow Trigger 1", Timer.getFPGATimestamp());
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
         m_robotState.setDriveType(DriveProfiles.kDefault);
       }));
@@ -190,19 +190,13 @@ public class RobotContainer {
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kIntake);
         m_shooter.isIntaking = ShooterIsIntaking.intaking;
       })).onFalse(Commands.runOnce(()->{
-          if(m_robotState.curAction != RobotCurrentAction.kRevAndAlign){
-            m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
-          }else{
-            m_robotState.stowAndStopIntake();
-          }
-          Logger.recordOutput("stow Trigger", Timer.getFPGATimestamp());
+          m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
           m_shooter.isIntaking = ShooterIsIntaking.notIntaking;
       }));
 
       m_driverControls.goToShootPositionAndRev().whileTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kRevAndAlign);
       })).onFalse(Commands.runOnce(()->{
-        Logger.recordOutput("stow Trigger 2", Timer.getFPGATimestamp());
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
         m_robotState.setDriveType(DriveProfiles.kDefault);
       }));
@@ -229,13 +223,11 @@ public class RobotContainer {
       m_driverControls.autoAlignToGamePiece().whileTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kGamePieceLock);
       })).onFalse(Commands.runOnce(()->{
-        Logger.recordOutput("stow Trigger 3", Timer.getFPGATimestamp());
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
       m_driverControls.intakeVomit().whileTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kVomit);
       })).onFalse(Commands.runOnce(()->{
-        Logger.recordOutput("stow Trigger 4", Timer.getFPGATimestamp());
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
 
@@ -244,7 +236,6 @@ public class RobotContainer {
       }))
       .onFalse(Commands.runOnce(()->{
         m_drive.setProfile(DriveProfiles.kDefault);
-        Logger.recordOutput("stow Trigger 5", Timer.getFPGATimestamp());
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
       // .onFalse(Commands.runOnce(()->{

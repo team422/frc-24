@@ -17,15 +17,19 @@ public class AutoShoot extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        simTime = Timer.getFPGATimestamp();
+        if (Robot.isSimulation()){
+            simTime = Timer.getFPGATimestamp();
+        }
         frc.robot.RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoShoot);
     }
     @Override
     public boolean isFinished() {
-            if(Timer.getFPGATimestamp() - simTime > 2){
+        if (Robot.isSimulation()){
+            if(Timer.getFPGATimestamp() - simTime > 1){
                 frc.robot.RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
                 return true;
             }
+        }
         frc.robot.RobotState.getInstance().setIndexer(IndexerState.INDEXING);
         return frc.robot.RobotState.getInstance().curAction != RobotCurrentAction.kAutoShoot;
     }

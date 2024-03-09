@@ -59,8 +59,7 @@ public class DriverControlsXboxController implements DriverControls {
 
   @Override
   public Trigger goToIntakePosition(){
-    // return new Trigger(()->m_controller.getR2Axis()>0.1);
-    return m_controller.R2();
+    return new Trigger(()->m_controller.getR2Axis()>0.1);
   }
 
   @Override

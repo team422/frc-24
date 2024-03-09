@@ -101,7 +101,7 @@ public class Shooter extends ProfiledSubsystem {
         Logger.recordOutput("ShooterPosition",setpointState.position);
             if(isIntaking == ShooterIsIntaking.intaking) {
                 m_pivotIO.runSetpoint(ShooterPivotConstants.homeAngle, 0);
-                
+
             }
             else if (Constants.fullManualShooterAndPivotSpeedControls){
                 Rotation2d m_ang = Rotation2d.fromRadians(MathUtil.clamp(
@@ -155,14 +155,6 @@ public class Shooter extends ProfiledSubsystem {
         // return new Transform3d(-0, 0, 0, new Rotation3d(0, m_rotation.getRadians(), 0));
     }
 
-    public double metersPerSecondToRPM(double metersPerSecond) {
-        double diameter = FlywheelConstants.kFlywheelDiameter;
-        double circumference = Math.PI * diameter;
-        double rotationsPerSecond = metersPerSecond / circumference;
-        double rpm = rotationsPerSecond * 60.0;
-        return rpm;
-
-    }
     public boolean isWithinTolerance(double speed) {
         if(m_inputsFlywheel.curSpeed - speed > 0){
             return true;
@@ -172,13 +164,11 @@ public class Shooter extends ProfiledSubsystem {
     }
 
     public boolean isWithinToleranceWithSpin(double speedLeft,double speedRight){
-        // Logger.recordOutput("Velo Left",m_inputsFlywheel.VelocityLeft);
-        // Logger.recordOutput("Velo Actual", metersPerSecondToRPM(speedLeft/60.0));
-        return m_flywheelIO.checkIfTolerance(metersPerSecondToRPM(speedLeft/60.0), metersPerSecondToRPM(speedRight/60.0));
-        // if(Math.abs(m_inputsFlywheel.Velocity - metersPerSecondToRPM(speedRight)/60.0) < 2.5 ){
-        //     return true;
-        // }
-        // return false;
+        
+        if(m_inputsFlywheel.VelocityLeft > speedLeft && m_inputsFlywheel.Velocity > speedRight ){
+            return true;
+        }
+        return false;
 
     }
 }

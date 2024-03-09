@@ -41,9 +41,6 @@ public class AutoFactory extends Command {
     NamedCommands.registerCommand("AutoShoot", Commands.runOnce(()->{
       RobotState.getInstance().setIndexer(IndexerState.INDEXING);
     }).andThen(new AutoShoot()) );
-    NamedCommands.registerCommand("AutoFender", Commands.runOnce(()->{
-      RobotState.getInstance().setIndexer(IndexerState.INDEXING);
-    }).andThen(new AutoFender()) );
     NamedCommands.registerCommand("AutoIntake", new AutoIntake() );
     NamedCommands.registerCommand("stow", Commands.run(()->{
       RobotState.getInstance().stowAndStopIntake();
@@ -62,25 +59,25 @@ public class AutoFactory extends Command {
 
     AutoBuilder.configureHolonomic(
         m_drive::getPose, // Robot pose supplier
-        (Pose2d pose)->{return;}, // Method to reset odometry (will be called if your auto has a starting pose)
+        m_drive::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
         m_drive::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         m_drive::driveAuto, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                    new PIDConstants(10.0, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(2.0, 0.0, 0.0), // Translation PID constants
                     new PIDConstants(1.0, 0.0, 0.0), // Rotation PID constants
-                    5.2, // Max module speed, in m/s
+                    3.5, // Max module speed, in m/s
                     0.4, // Drive base radius in meters. Distance from robot center to furthest module.
-                    new ReplanningConfig() // Default path replanning config. See the API for the options here
+                    new ReplanningConfig(false,false) // Default path replanning config. See the API for the options here
             ),
             () -> {
               // Boolean supplier that controls when the path will be mirrored for the red alliance
               // This will flip the path being followed to the red side of the field.
               // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-              // var alliance = DriverStation.getAlliance();
-              // if (alliance.isPresent()) {
-              //   return alliance.get() == DriverStation.Alliance.Red;
-              // }
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
               return false;
             },
             m_drive // The subsystem that will be used to follow the path

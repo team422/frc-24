@@ -14,7 +14,7 @@ import frc.robot.utils.AllianceFlipUtil;
 public class FieldConstants {
   public static final Translation3d topRightSpeaker =
         new Translation3d(
-            Units.inchesToMeters(0),
+            Units.inchesToMeters(18.055),
             Units.inchesToMeters(238.815),
             Units.inchesToMeters(83.091));
 

@@ -155,13 +155,9 @@ public class FlywheelIOKraken implements FlywheelIO {
 
     @Override
     public void setDesiredSpeedWithSpin(double speedLeft, double speedRight){
-        // Logger.recordOutput("Speed Right PID ",mControllerLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0, m_krakenLeft.getRotorVelocity().getValueAsDouble()));
+        Logger.recordOutput("Speed Right PID ",mControllerLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0, m_krakenLeft.getRotorVelocity().getValueAsDouble()));
         Logger.recordOutput("Speed Right Velocity", m_krakenLeft.getRotorVelocity().getValueAsDouble());
         Logger.recordOutput("Speed Right desired", metersPerSecondToRPM(speedLeft)/60.0);
-        Logger.recordOutput("Speed Feedforward Voltage",mFeedforward.calculate(metersPerSecondToRPM(speedLeft)/60.0));
-        // Logger.recordOutput("Speed Left PID ",mControllerLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0, m_krakenRight.getRotorVelocity().getValueAsDouble()));
-        Logger.recordOutput("Speed Left Velocity", m_krakenRight.getRotorVelocity().getValueAsDouble());
-        Logger.recordOutput("Speed Left desired", metersPerSecondToRPM(speedRight)/60.0);
         Logger.recordOutput("Speed Feedforward Voltage",mFeedforward.calculate(metersPerSecondToRPM(speedLeft)/60.0));
 
         // m_krakenLeft.setControl(velocityControl.withVelocity(metersPerSecondToRPM(speedLeft)/60.0));
@@ -211,8 +207,8 @@ public class FlywheelIOKraken implements FlywheelIO {
             inputs.TempCelsius = TempCelsius.getValueAsDouble();
             inputs.PositionRadsLeft  = Units.rotationsToRadians(PositionLeft.getValueAsDouble());
             inputs.VelocityRpmLeft = VelocityLeft.getValueAsDouble() * 60.0;
-            inputs.VelocityLeft = m_krakenLeft.getRotorVelocity().getValueAsDouble();
-            inputs.Velocity = m_krakenRight.getRotorVelocity().getValueAsDouble();
+            inputs.VelocityLeft = RPMtoMetersPerSecond(Velocity.getValueAsDouble() * 60);
+            inputs.Velocity = RPMtoMetersPerSecond(VelocityLeft.getValueAsDouble() * 60);
             inputs.AppliedVoltsLeft = AppliedVolts.getValueAsDouble();
             inputs.OutputCurrentLeft = TorqueCurrent.getValueAsDouble();
             inputs.TempCelsiusLeft = TempCelsius.getValueAsDouble();
@@ -241,13 +237,5 @@ public class FlywheelIOKraken implements FlywheelIO {
      @Override
   public void stop() {
     m_krakenLeft.setControl(neutralControl);
-  }
-
-  @Override
-  public boolean checkIfTolerance(double left, double right){
-    Logger.recordOutput("Delta", m_krakenLeft.getRotorVelocity().getValueAsDouble() - left);
-    Logger.recordOutput("Delta Right", m_krakenRight.getRotorVelocity().getValueAsDouble() - right);
-    return Math.abs(m_krakenLeft.getRotorVelocity().getValueAsDouble() - left) < 2.5 && Math.abs(m_krakenRight.getRotorVelocity().getValueAsDouble() -right) < 2.5;
-
   }
 }
