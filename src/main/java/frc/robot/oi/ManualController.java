@@ -46,4 +46,8 @@ public class ManualController {
         return m_controller.b();
     }
 
+    public Trigger sourceIntake(){
+        return m_controller.povRight();
+    }
+
 }

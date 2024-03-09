@@ -114,6 +114,11 @@ public class DriverControlsXboxController implements DriverControls {
     return m_controller.povDown();
   }
 
+  @Override
+  public Trigger forceShootPiece(){
+    return m_controller.L3();
+  }
+
 
 
 

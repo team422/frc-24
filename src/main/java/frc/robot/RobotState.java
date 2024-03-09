@@ -70,8 +70,8 @@ public class RobotState {
     private ObjectDetectionCam m_objectDetectionCams;
     private AprilTagVision m_aprilTagVision;
     private Intake m_intake;
-    private ShooterMath m_shooterMath;
-    private SwerveTester m_swerveTester;
+    ShooterMath m_shooterMath;
+    SwerveTester m_swerveTester;
     private CustomTrajectoryRunner m_customTrajectoryRunner;
     private Command mDriveToPiece = null;
     private Pose2d mDriveToPiecePose = null;
@@ -79,7 +79,7 @@ public class RobotState {
     private DriverControls mDriveControls;
 
     public enum RobotCurrentAction {
-      kStow,kIntake,kShootFender,kRevAndAlign, kShootWithAutoAlign,kAmpLineup,kAmpShoot, kAutoIntake, kAutoShoot, kPathPlanner,kVomit,kTune,kHockeyPuck,kGamePieceLock,kAutoFender
+      kStow,kIntake,kShootFender,kRevAndAlign, kShootWithAutoAlign,kAmpLineup,kAmpShoot, kAutoIntake, kAutoShoot, kPathPlanner,kVomit,kTune,kHockeyPuck,kGamePieceLock,kAutoFender,kSourceIntake
     }
 
     public RobotCurrentAction curAction = RobotCurrentAction.kStow;
@@ -114,7 +114,7 @@ public class RobotState {
             new SwerveModulePosition()
           });
   private Rotation2d lastGyroAngle = new Rotation2d();
-  private Twist2d robotVelocity = new Twist2d();
+   Twist2d robotVelocity = new Twist2d();
     private GamePieceLocation m_gamePieceLocation = GamePieceLocation.NOT_IN_ROBOT;
     public List<Pose2d> activePath = new ArrayList<Pose2d>();
     private static final double poseBufferSizeSeconds = 2.0;
@@ -402,6 +402,8 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         if(intakeStowTime != -1 && intakeStowTime < Timer.getFPGATimestamp()) {
             intakeStowTime = -1;
         }
+
+        Logger.recordOutput("RobotState/curRobotState", curAction);
         if (shooterStopTime != -1 && shooterStopTime < Timer.getFPGATimestamp()) {
           if(!edu.wpi.first.wpilibj.RobotState.isAutonomous()){
             m_shooter.setFlywheelSpeedWithSpin(ShooterConstants.FlywheelConstants.kIdleSpeed,ShooterConstants.FlywheelConstants.kIdleSpeed);
@@ -444,7 +446,16 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
           goToIntakePosition();
           m_shooter.setFlywheelSpeedWithSpin(0,0);
-        }else if (curAction == RobotCurrentAction.kShootFender){
+        }else if (curAction == RobotCurrentAction.kSourceIntake){
+          // m_drive.setProfile(DriveProfiles.kDefault);
+          
+          m_indexer.setState(IndexerState.INTAKINGSOURCE);
+
+          // m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
+          // goToIntakePosition();
+          m_shooter.setFlywheelSpeedWithSpin(-20,-20);
+        }
+        else if (curAction == RobotCurrentAction.kShootFender){
           m_shooter.setPivotAngle(ShooterPivotConstants.kFenderAngle);
           m_shooter.setFlywheelSpeedWithSpin(9, 9);
           // m_indexer.setState(Indexer.IndexerState.SHOOTING);
@@ -560,16 +571,16 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           // m_shooter.setFlywheelSpeedWithSpin(speeds.get(0),speeds.get(1));
           m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(0),m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(1));
           m_drive.setDriveTurnOverride(mRotations.get(0));
+          ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
           Logger.recordOutput("First",m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)));
           Logger.recordOutput("Second", (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(3) )));
           Logger.recordOutput("Third", (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg));
-          ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
           Logger.recordOutput("Four", actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1);
 
 
 
 
-          if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
+          if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDegTeleop) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
             m_indexer.setState(Indexer.IndexerState.SHOOTING);
             // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
             // setRobotCurrentAction(RobotCurrentAction.kPathPlanner);

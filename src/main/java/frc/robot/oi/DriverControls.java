@@ -67,6 +67,10 @@ public interface DriverControls {
     return new Trigger(()->false);
    }
 
+   public default Trigger forceShootPiece(){
+    return new Trigger(()->false);
+   }
+
  
 
 }

@@ -125,7 +125,7 @@ public final class Constants {
       public static final double kIdleSpeed = 0;
       public static final LoggedTunableNumber kFlywheelSpeedLeft = new LoggedTunableNumber("Flywheel Speed Left", 0.0, "Shooter");
       public static final LoggedTunableNumber kFlywheelSpeedRight = new LoggedTunableNumber("Flywheel Speed Right", 0.0, "Shooter");
-      public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 3.800000, "Shooter");
+      public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 3.8, "Shooter");
       public static final LoggedTunableNumber kFlywheelHockeyPuck = new LoggedTunableNumber("Flywheel hockey puck speed", 13.5, "Hockey Puck");
     }
 
@@ -154,7 +154,7 @@ public final class Constants {
 
       
       public static final Rotation2d maxAngle = Rotation2d.fromDegrees(77); 
-      public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Shooter Amp Angle",12.0, "Amp");
+      public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Shooter Amp Angle",53.0, "Amp");
       public static final Rotation2d kAmpBottom = Rotation2d.fromDegrees(50);
       public static final Rotation2d minAngle = Rotation2d.fromDegrees(15);
       public static final Rotation2d homeAngle = Rotation2d.fromDegrees(34);
@@ -197,6 +197,7 @@ public final class Constants {
     public static final double kMaxAngularSpeedRadiansPerSecond = 3.0 * Math.PI;
     public static final double controllerDeadzone = 0.04;
     public static final double kShootToleranceDeg = 5;
+    public static final double kShootToleranceDegTeleop = 3;
     public static final double kWheelBase = Units.inchesToMeters(18.754);
     public static final double kTrackWidth = Units.inchesToMeters(18.754);
     public static Translation2d[] kModuleTranslations = {

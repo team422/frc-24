@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.littletonrobotics.junction.Logger;
@@ -11,6 +12,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -95,10 +97,29 @@ public class RobotContainer {
         m_climb.setServoPosition(0.25);
       }));
 
-      m_driverControls.finalShoot().onTrue(Commands.runOnce(()->{
+      m_driverControls.forceShootPiece().onTrue(Commands.runOnce(()->{
         System.out.println("NOW SHOOT");
         m_indexer.setState(IndexerState.SHOOTING);
       }));
+
+      m_driverControls.finalShoot().onTrue(Commands.run(()->{
+        m_drive.setProfile(DriveProfiles.kAutoShoot);
+          Pose2d predPose = m_robotState.getPredictedPose(0.3, 0.3);
+          Translation3d finalTarget = AllianceFlipUtil.apply(frc.robot.FieldConstants.centerSpeakerOpening);
+          ArrayList<Rotation2d> mRotations = m_robotState.m_shooterMath.setNextShootingPoseAndVelocity(predPose,m_robotState.robotVelocity,finalTarget);
+          ArrayList <Double> speeds = m_robotState.m_shooterMath.getShooterMetersPerSecond(m_robotState.m_shooterMath.getDistanceFromTarget(predPose,finalTarget));
+          ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
+          Logger.recordOutput("First",m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)));
+          Logger.recordOutput("Second", (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )));
+          Logger.recordOutput("Third", (Math.abs(m_robotState.getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDegTeleop));
+          Logger.recordOutput("Four", actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1);
+        if ((Math.abs(m_robotState.getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
+
+          m_indexer.setState(IndexerState.SHOOTING);
+          Logger.recordOutput("Now shooting", Timer.getFPGATimestamp());
+        }
+      }));
+
       // .onFalse(Commands.runOnce(()->{
       //   m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       // }));
@@ -128,6 +149,12 @@ public class RobotContainer {
 
       m_testingController.cimberLockToggle().onTrue(Commands.runOnce(()->{
         m_climb.toggleServo();
+      }));
+
+      m_testingController.sourceIntake().onTrue(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kSourceIntake);
+      })).onFalse(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
 
       new Trigger(()->{if(Math.abs(m_testingController.climberStick()) > 0.2) {return true;} else {return false;}}).whileTrue(Commands.run(()->m_climb.setSpeed(m_testingController.climberStick()))).onFalse(Commands.runOnce(()->m_climb.setSpeed(0)));

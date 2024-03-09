@@ -31,6 +31,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -84,6 +85,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
       new PositionTorqueCurrentFOC(0);
 
     private final PIDController mDriveController;
+    private SimpleMotorFeedforward mFeedforward;
 
     private PIDController mTurnController;
 
@@ -93,8 +95,8 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
   private final NeutralOut driveNeutral = new NeutralOut().withUpdateFreqHz(0);
   private final NeutralOut turnNeutral = new NeutralOut().withUpdateFreqHz(0);
 
-    private  DCMotorSim mDriveSim = new DCMotorSim(DCMotor.getKrakenX60Foc(1), ModuleConstants.kDriveConversionFactor, 0.4);
-    private  DCMotorSim mTurnSim = new DCMotorSim(DCMotor.getFalcon500Foc(1), ModuleConstants.kTurnPositionConversionFactor, 0.4);
+    private  DCMotorSim mDriveSim = new DCMotorSim(DCMotor.getKrakenX60Foc(1), ModuleConstants.kDriveConversionFactor, 1.2);
+    private  DCMotorSim mTurnSim = new DCMotorSim(DCMotor.getFalcon500Foc(1), ModuleConstants.kTurnPositionConversionFactor, .025);
     double angleRadsSet = 0;
 
 
@@ -157,6 +159,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         }
         // setDrivePID(ModuleConstants.kDriveP.get(), ModuleConstants.kDriveI.get(), ModuleConstants.kDriveD.get());
         mDriveController = new PIDController(0.3,0,0);
+        mFeedforward = new SimpleMotorFeedforward(ModuleConstants.kDriveKS.get(), ModuleConstants.kDriveKV.get(), ModuleConstants.kDriveKA.get());
         mTurnController = new PIDController(0.3, 0.0, 0.1);
         mTurnController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -251,6 +254,10 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         LoggedTunableNumber.ifChanged(hashCode(), ()->{
             setTurnPID(ModuleConstants.kTurningP.get(), ModuleConstants.kTurningI.get(), ModuleConstants.kTurningD.get());
         },ModuleConstants.kTurningP,ModuleConstants.kTurningI, ModuleConstants.kTurningD);
+
+        LoggedTunableNumber.ifChanged(hashCode(), ()->{
+            mFeedforward = new SimpleMotorFeedforward(ModuleConstants.kDriveKS.get(), ModuleConstants.kDriveKV.get(), ModuleConstants.kDriveKA.get());
+        }, ModuleConstants.kDriveKS, ModuleConstants.kDriveKV, ModuleConstants.kDriveKA);
 
                 inputs.driveMotorConnected =
         BaseStatusSignal.refreshAll(
@@ -484,7 +491,9 @@ inputs.odometryTurnPositions =
     // m_driveMotor.setControl(
     //     driveVelocityVoltage
     //         .withVelocity(velocityRadsPerSec).withSlot(0));
-    m_driveMotor.setControl(new VoltageOut(mDriveController.calculate(driveVelocity.getValueAsDouble(), velocityMetersPerSec*2)));
+    // double ff = mFeedforward.calculate(driveVelocity.getValueAsDouble()/2, velocityMetersPerSec, 0.02);
+    double ff = 0;
+    m_driveMotor.setControl(new VoltageOut(mDriveController.calculate(driveVelocity.getValueAsDouble(), velocityMetersPerSec*2) + ff));
 
   }
     @Override

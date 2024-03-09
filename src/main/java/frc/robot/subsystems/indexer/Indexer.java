@@ -12,7 +12,8 @@ public class Indexer extends ProfiledSubsystem {
         IDLE,
         INTAKING,
         INDEXING, 
-        SHOOTING
+        SHOOTING,
+        INTAKINGSOURCE
     }
 
     IndexerState m_state = IndexerState.IDLE;
