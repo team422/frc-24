@@ -104,6 +104,8 @@ public class RobotState {
         NOT_IN_ROBOT
     }
 
+    
+
     private final Matrix<N3, N1> qStdDevs = new Matrix<>(Nat.N3(), Nat.N1());
   private SwerveDriveWheelPositions lastWheelPositions =
       new SwerveDriveWheelPositions(
@@ -467,6 +469,13 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(0),m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(1));
           m_shooter.setPivotAngle(mRotations.get(1));
           m_drive.setDriveTurnOverride(mRotations.get(0));
+          ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
+          ArrayList<Double> speeds = (m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)));
+          if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
+            System.out.println("SHOULD BE RUMBLING");
+            mDriveControls.setDriverRumble(0.2, RumbleType.kLeftRumble);
+          }
+
 
         } else if (curAction == RobotCurrentAction.kShootWithAutoAlign){
           Pose2d predPose = getPredictedPose(0.4,0.4);
@@ -507,7 +516,8 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           m_shooter.setPivotAngle(Rotation2d.fromDegrees(ShooterPivotConstants.kHockeyPuck.get()));
           // m_shooter.setPivotAngle(mRotations.get(1));
           m_drive.setDriveTurnOverride(mRotations.get(0));
-
+          ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
+          
         }
         // } else if (curAction == RobotCurrentAction.kAmpLineup){
         //   // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);

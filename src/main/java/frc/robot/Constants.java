@@ -123,10 +123,10 @@ public final class Constants {
       public static final LoggedTunableNumber kFlywheelKV = new LoggedTunableNumber("Flywheel KV", 0.130000, "Shooter");
       public static final LoggedTunableNumber kFlywheelKA = new LoggedTunableNumber("Flywheel KA", 0.0, "Shooter");
       public static final double kMaxSpeed = 100;
-      public static final double kIdleSpeed = 0;
+      public static final double kIdleSpeed = 10;
       public static final LoggedTunableNumber kFlywheelSpeedLeft = new LoggedTunableNumber("Flywheel Speed Left", 0.0, "Shooter");
       public static final LoggedTunableNumber kFlywheelSpeedRight = new LoggedTunableNumber("Flywheel Speed Right", 0.0, "Shooter");
-      public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 3.800000, "Shooter");
+      public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 3.800000, "Amp");
       public static final LoggedTunableNumber kFlywheelHockeyPuck = new LoggedTunableNumber("Flywheel hockey puck speed", 13.5, "Hockey Puck");
     }
 
@@ -148,14 +148,14 @@ public final class Constants {
       public static final LoggedTunableNumber kUsingAmp = new LoggedTunableNumber("Pivot using amp", 0, "Shooter"); 
       public static final double kOffset = Rotation2d.fromDegrees(181.7-13+52+6+123).getRotations();
 
-      public static final LoggedTunableNumber kHockeyPuck = new LoggedTunableNumber("hockey puck", 66,"Hockey Puck");
+      public static final LoggedTunableNumber kHockeyPuck = new LoggedTunableNumber("hockey puck", 66.0,"Hockey Puck");
 
       public static final LoggedTunableNumber kShooterAngle = new LoggedTunableNumber("Shooter Angle", 0.0, "Shooter");
       // public static final double kOffset = Rotation2d.fromDegrees(0).getRotations();
 
       
       public static final Rotation2d maxAngle = Rotation2d.fromDegrees(77); 
-      public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Shooter Amp Angle",12.0, "Amp");
+      public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Shooter Amp Angle",54.0, "Amp");
       public static final Rotation2d kAmpBottom = Rotation2d.fromDegrees(50);
       public static final Rotation2d minAngle = Rotation2d.fromDegrees(15);
       public static final Rotation2d homeAngle = Rotation2d.fromDegrees(34);
