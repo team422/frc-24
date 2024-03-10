@@ -2,6 +2,7 @@ package frc.robot.oi;
 
 import edu.wpi.first.wpilibj.PS5Controller;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -11,6 +12,7 @@ public class DriverControlsXboxController implements DriverControls {
 
   // CommandXboxController m_controller;
   CommandPS5Controller m_controller;
+  CommandXboxController m_controllerPS4;
   EricNubControls m_controls;
 
   public DriverControlsXboxController(int xboxControllerPort) {
@@ -112,6 +114,11 @@ public class DriverControlsXboxController implements DriverControls {
   @Override
   public Trigger autoAlignToGamePiece(){
     return m_controller.povDown();
+  }
+
+  @Override
+  public Trigger testRumble() {
+    return m_controller.cross();
   }
 
 

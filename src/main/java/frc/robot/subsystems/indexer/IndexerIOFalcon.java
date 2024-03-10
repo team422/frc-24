@@ -122,7 +122,7 @@ private final PositionTorqueCurrentFOC positionControl =
             m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
             m_falconSecond.setControl(velocityControl.withVelocity(0));
             m_falconSecond.setControl(velocityControl.withVelocity(0));
-            if (!m_initialBeamBreak.get() && !edu.wpi.first.wpilibj.RobotState.isAutonomous()) {
+            if (!m_initialBeamBreak.get() && !edu.wpi.first.wpilibj.RobotState.isAutonomous() && !edu.wpi.first.wpilibj.RobotState.isTeleop()) {
                 RobotState.getInstance().setGamePieceLocation(GamePieceLocation.INDEXER);
                 
                 Logger.recordOutput("Autostow noteindexer", Timer.getFPGATimestamp());

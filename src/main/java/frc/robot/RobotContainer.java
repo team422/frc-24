@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -229,7 +230,9 @@ public class RobotContainer {
       // }));
 
 
-
+      m_driverControls.testRumble().whileTrue(Commands.runEnd(
+        () -> m_driverControls.setDriverRumble(0.2, RumbleType.kLeftRumble),
+        () -> m_driverControls.setDriverRumble(0, RumbleType.kLeftRumble)));
 
 
   }
