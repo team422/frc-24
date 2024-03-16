@@ -40,6 +40,7 @@ import frc.lib.utils.SwerveTester;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShooterConstants.FlywheelConstants;
 import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
@@ -57,6 +58,7 @@ import frc.robot.subsystems.objectVision.ObjectDetectionCam;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.ShooterMath;
+import frc.robot.utils.swerve.ModuleLimits;
 import frc.robot.subsystems.climb.Climb;
 
 
@@ -79,7 +81,7 @@ public class RobotState {
     private DriverControls mDriveControls;
 
     public enum RobotCurrentAction {
-      kStow,kIntake,kShootFender,kRevAndAlign, kShootWithAutoAlign,kAmpLineup,kAmpShoot, kAutoIntake, kAutoShoot, kPathPlanner,kVomit,kTune,kHockeyPuck,kGamePieceLock,kAutoFender
+      kStow,kIntake,kShootFender,kRevAndAlign, kShootWithAutoAlign,kAmpLineup,kAmpShoot, kAutoIntake, kAutoShoot, kPathPlanner,kVomit,kTune,kHockeyPuck,kGamePieceLock,kAutoFender,kNoteBackToIntake
     }
 
     public RobotCurrentAction curAction = RobotCurrentAction.kStow;
@@ -163,6 +165,10 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     public static RobotState getInstance() {
         
         return instance;
+    }
+
+    public ModuleLimits getModuleLimits(){
+      return ModuleConstants.freeSpeedLimits;
     }
 
     public void setShooterSpeed(double speed){
@@ -446,9 +452,17 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
           goToIntakePosition();
           m_shooter.setFlywheelSpeedWithSpin(0,0);
-        }else if (curAction == RobotCurrentAction.kShootFender){
+        } else if (curAction == RobotCurrentAction.kNoteBackToIntake){
+          m_indexer.setState(IndexerState.BACKTOINTAKE);
+          m_intake.setIntakeSpeed(-IntakeConstants.intakeSpeed/3);
+          goToIntakePosition();
+          m_shooter.setFlywheelSpeedWithSpin(0,0);
+
+
+        }
+        else if (curAction == RobotCurrentAction.kShootFender){
           m_shooter.setPivotAngle(ShooterPivotConstants.kFenderAngle);
-          m_shooter.setFlywheelSpeedWithSpin(9, 9);
+          m_shooter.setFlywheelSpeedWithSpin(9,9); // 9
           // m_indexer.setState(Indexer.IndexerState.SHOOTING);
           if (m_shooter.isWithinToleranceWithSpin(m_shooterMath.getShooterMetersPerSecond(2).get(0), m_shooterMath.getShooterMetersPerSecond(2).get(1)) && m_shooter.isPivotWithinTolerance(ShooterPivotConstants.kFenderAngle,Rotation2d.fromDegrees(5))) {
             m_indexer.setState(Indexer.IndexerState.SHOOTING);
@@ -469,12 +483,12 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(0),m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(1));
           m_shooter.setPivotAngle(mRotations.get(1));
           m_drive.setDriveTurnOverride(mRotations.get(0));
-          ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
-          ArrayList<Double> speeds = (m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)));
-          if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
-            System.out.println("SHOULD BE RUMBLING");
+          // ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
+          // ArrayList<Double> speeds = (m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)));
+          // if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
+          //   System.out.println("SHOULD BE RUMBLING");
             mDriveControls.setDriverRumble(0.2, RumbleType.kLeftRumble);
-          }
+          // }
 
 
         } else if (curAction == RobotCurrentAction.kShootWithAutoAlign){

@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
 import frc.lib.utils.LoggedTunableNumber;
+import frc.robot.Constants;
+import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.drive.SwerveModuleIO;
@@ -51,11 +53,15 @@ public class Intake extends ProfiledSubsystem {
         Logger.processInputs("Intake Pivot", m_pivotInputs);
         m_rollerIO.updateInputs(m_rollerInputs);
         Logger.processInputs("Intake Roller", m_rollerInputs);
-
+        if (Constants.fullManualIntakePivotAndSpeedControls){
+            m_PivotIO.setDesiredAngle(Rotation2d.fromDegrees(IntakeConstants.kIntakePivotManualControl.get()));
+            m_rollerIO.setVoltage(IntakeConstants.kIntakeRollerManualControl.get());
+        } else {
         if (RobotState.getInstance().getMaxIntakeAngle().getDegrees() < m_rotation.getDegrees()){
             m_PivotIO.setDesiredAngle(RobotState.getInstance().getMaxIntakeAngle());
         } else {
             m_PivotIO.setDesiredAngle(m_rotation);
+        }
         }
     }
 

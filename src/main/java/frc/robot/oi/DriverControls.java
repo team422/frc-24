@@ -21,7 +21,9 @@ public interface DriverControls {
 
   public Trigger setClimberServoOpen();
 
-
+  public default Trigger ampBackTrigger(){
+    return new Trigger(()->false);
+  };
 
 
   public Trigger goToIntakePosition();

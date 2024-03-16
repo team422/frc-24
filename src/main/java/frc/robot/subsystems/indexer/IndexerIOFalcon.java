@@ -145,8 +145,8 @@ private final PositionTorqueCurrentFOC positionControl =
                 m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeedAuto));
                 m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeedAuto));
             }else{
-                m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
-                m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
+                m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
+                m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
             }
             if (m_finalBeamBreak.get()) {
                 RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
@@ -158,6 +158,10 @@ private final PositionTorqueCurrentFOC positionControl =
                     autoTimerShot = -1;
                 }
         }
+
+        } else if (state == IndexerState.BACKTOINTAKE){
+            m_falconFirst.setControl(velocityControl.withVelocity(-IndexerConstants.kIndexerSpeed/2));
+            m_falconSecond.setControl(velocityControl.withVelocity(-IndexerConstants.kIndexerSpeed/2));
 
         }
     }
