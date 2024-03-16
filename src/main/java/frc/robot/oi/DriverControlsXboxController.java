@@ -34,10 +34,10 @@ public class DriverControlsXboxController implements DriverControls {
 
   @Override
   public double getDriveRotation() {
-    double val = m_controls.addDeadzoneScaled(m_controller.getRightX(), 0.03);
+    double val = m_controls.addDeadzoneScaled(m_controller.getRightX(), 0.06);
     return -Math.signum(val) * Math.pow(val, 4);
   }
-
+//burblesquirp
   @Override
   public Trigger resetFieldCentric(){
     return m_controller.povUp();
@@ -111,17 +111,20 @@ public class DriverControlsXboxController implements DriverControls {
     return m_controller.L1();
   }
 
-  @Override
-  public Trigger autoAlignToGamePiece(){
-    return m_controller.povDown();
-  }
+  // @Override
+  // public Trigger autoAlignToGamePiece(){
+  //   return m_controller.povDown();
+  // }
 
   @Override
   public Trigger testRumble() {
     return m_controller.cross();
   }
 
-
+  @Override
+  public Trigger ampBackTrigger(){
+    return m_controller.povDown();
+  }
 
 
 

@@ -100,4 +100,17 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
 
   public void setTurnPID(double p, double i, double d);
 
+
+  public default void runCharacterization(double turnSetpoint, double driveVoltage){
+    return;
+  }
+
+  public default SwerveModuleState getSetpointState(){
+    return new SwerveModuleState(0, new Rotation2d());
+  }
+
+  public default double getWheelRotations(){
+    return 0.0;
+  }
+
 }

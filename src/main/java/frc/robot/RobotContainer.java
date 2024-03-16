@@ -9,12 +9,14 @@ import java.util.List;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import com.ctre.phoenix6.unmanaged.Unmanaged;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -25,7 +27,9 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.Ports;
 import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.commands.autonomous.AutoFactory;
+import frc.robot.commands.drive.FeedForwardCharacterization;
 import frc.robot.commands.drive.TeleopControllerNoAugmentation;
+import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsXboxController;
 import frc.robot.oi.ManualController;
@@ -72,9 +76,9 @@ public class RobotContainer {
 
   public RobotContainer() {
     configureControllers();
-    configureBindings();
     configureSubsystems();
     configureCommands();
+    configureBindings();
   }
 
   public void configureControllers(){
@@ -221,6 +225,13 @@ public class RobotContainer {
         Logger.recordOutput("stow Trigger 5", Timer.getFPGATimestamp());
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
+      m_driverControls.ampBackTrigger().whileTrue(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kNoteBackToIntake);
+      })).onFalse(Commands.runOnce(()->{
+        m_drive.setProfile(DriveProfiles.kDefault);
+        Logger.recordOutput("stow Trigger 5", Timer.getFPGATimestamp());
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+      }));
       // .onFalse(Commands.runOnce(()->{
       //   autoDriveCommand.cancel();
       //   m_autoFactory.cancel();
@@ -247,6 +258,20 @@ public class RobotContainer {
     for (String path : paths) {
       m_autoChooser.addOption(path, m_autoFactory.getAutoCommand(path));
     }
+    m_autoChooser.addOption(
+      "Drive Wheel Radius Characterization",
+      m_drive
+          .orientModules(Drive.getCircleOrientations())
+          .andThen(
+              new WheelRadiusCharacterization(
+                  m_drive, WheelRadiusCharacterization.Direction.COUNTER_CLOCKWISE))
+          .withName("Drive Wheel Radius Characterization"));
+    m_autoChooser.addOption(
+        "Drive FF Characterization",
+        new FeedForwardCharacterization(
+                m_drive, m_drive::runCharacterization, m_drive::getCharacterizationVelocity)
+            .finallyDo(m_drive::endCharacterization));
+
   }
 
   public void configureAutonomous(){
@@ -284,7 +309,7 @@ public class RobotContainer {
     
     
     // m_shooter = new Shooter(new PivotIOSim(), new FlywheelIOSim());
-    // Unmanaged.setPhoenixDiagnosticsStartTime(-1);
+    Unmanaged.setPhoenixDiagnosticsStartTime(-1);
     m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new AprilTagVisionIONorthstar("northstar_0",""),new AprilTagVisionIONorthstar("northstar_1",""),new AprilTagVisionIONorthstar("northstar_2",""),new AprilTagVisionIONorthstar("northstar_3",""));
     if (Robot.isSimulation()) {
       SwerveModuleIO[] m_SwerveModuleIOs = {
@@ -393,6 +418,9 @@ public class RobotContainer {
     
   }
   private void configureBindings() {
+
+    
+          
     // Transform3d cameraToObject =  new Transform3d(new Translation3d(2,3,0), new Rotation3d());
     // Transform3d robotToCamera = new Transform3d(new Translation3d(0,0,1), new Rotation3d(Units.degreesToRadians(0),Units.degreesToRadians(30),Units.degreesToRadians(0)));
     // // advantagekit log
