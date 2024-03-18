@@ -40,4 +40,16 @@ public class DriverControlsDualFlightStick implements DriverControls {
     return m_rightJoystick.button(1);
   }
 
+  @Override
+  public Trigger wristUp() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'wristUp'");
+  }
+
+  @Override
+  public Trigger wristDown() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'wristDown'");
+  }
+
 }

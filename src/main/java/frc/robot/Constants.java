@@ -174,6 +174,11 @@ public final class Constants {
       public static final TunableNumber kClimbDownSpeed = new TunableNumber("Climber Down Speed", 0.3, "Climb");
     }
 
+    public static final class WristConstants {
+      public static final int kPort = 7;
+      public static final double kVoltage = 6.0;
+    }
+
     public static final class OIConstants {
       public static final int kDriverLeftDriveStickPort = 0;
       public static final int kDriverRightDriveStickPort = 1;

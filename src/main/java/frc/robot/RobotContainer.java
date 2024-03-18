@@ -20,6 +20,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.Setpoints;
 import frc.robot.Constants.Vision.ClimbConstants;
+import frc.robot.Constants.Vision.WristConstants;
 import frc.robot.commands.drive.TeleopControllerNoAugmentation;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsXboxController;
@@ -34,6 +35,9 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.rollers.RollerIOSim;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.pivot.PivotIOSim;
+import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIO;
+import frc.robot.subsystems.wrist.WristIONeo;
 import frc.robot.utils.ShooterMath;
 
 public class RobotContainer {
@@ -43,6 +47,7 @@ public class RobotContainer {
   Intake m_intake;
   Shooter m_shooter;
   Climb m_climber;
+  Wrist m_wrist;
 
   DriverControls m_driverControls;
   OperatorControls m_operatorControls;
@@ -67,6 +72,22 @@ public class RobotContainer {
     m_operatorControls.setClimbBottom().onTrue(m_climber.setDesiredHeightCommand(Setpoints.kClimberBottom));
     m_operatorControls.climbUp().whileTrue(m_climber.moveCommand(ClimbConstants.kClimbUpSpeed.get()));
     m_operatorControls.climbDown().whileTrue(m_climber.moveCommand(-ClimbConstants.kClimbDownSpeed.get()));
+
+    m_driverControls.wristUp().onTrue(
+      m_wrist.moveUpCommand()
+    );
+
+    m_driverControls.wristDown().onTrue(
+      m_wrist.moveDownCommand()
+    );
+
+    m_driverControls.wristDown().onFalse(
+      m_wrist.stopCommand()
+    );
+
+    m_driverControls.wristUp().onFalse(
+      m_wrist.stopCommand()
+    );
 
   }
 
@@ -101,6 +122,8 @@ public class RobotContainer {
               new Constraints(ClimbConstants.kMaxVelocity, ClimbConstants.kMaxAcceleration)),
           ClimbConstants.kMinHeight, ClimbConstants.kMaxHeight);
     }
+
+    m_wrist = new Wrist(new WristIONeo(WristConstants.kPort), WristConstants.kVoltage);
 
     m_robotState = RobotState.startInstance(m_drive, null, null, m_shooter, null, null, m_intake);
   }

@@ -37,4 +37,14 @@ public class DriverControlsXboxController implements DriverControls {
     return m_controller.button(1);
   }
 
+  @Override
+  public Trigger wristUp() {
+    return m_controller.povUp();
+  }
+
+  @Override
+  public Trigger wristDown() {
+    return m_controller.povDown();
+  }
+
 }
