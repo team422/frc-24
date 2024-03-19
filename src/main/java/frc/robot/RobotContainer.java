@@ -5,6 +5,8 @@
 package frc.robot;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -13,6 +15,7 @@ import com.ctre.phoenix6.unmanaged.Unmanaged;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -31,7 +34,6 @@ import frc.robot.commands.drive.FeedForwardCharacterization;
 import frc.robot.commands.drive.TeleopControllerNoAugmentation;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.oi.DriverControls;
-import frc.robot.oi.DriverControlsXboxController;
 import frc.robot.oi.DriverControlsXboxReal;
 import frc.robot.oi.ManualController;
 import frc.robot.subsystems.climb.Climb;
@@ -52,6 +54,7 @@ import frc.robot.subsystems.shooter.Shooter.ShooterIsIntaking;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOKraken;
 import frc.robot.subsystems.shooter.pivot.PivotIOFalcon;
 import frc.robot.utils.AllianceFlipUtil;
+import frc.robot.utils.NoteVisualizer;
 
 public class RobotContainer {
 
@@ -294,10 +297,9 @@ public class RobotContainer {
     }
 
     m_climb = new Climb(new ClimbIOTalon(Ports.climbLeader, Ports.climbFollower, Ports.servoPort));
-    m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) , new frc.robot.subsystems.intake.rollers.RollerIOSim());
     // m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim(), new frc.robot.subsystems.intake.rollers.RollerIOSim() );
     m_indexer = new Indexer(new frc.robot.subsystems.indexer.IndexerIOFalcon(Ports.indexerFirst,Ports.indexerSecond,Ports.beamBreakPort,Ports.beamBreakPort2));
-    m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
+    
     // m_shooter = new Shooter(new frc.robot.subsystems.shooter.pivot.PivotIOSim(), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
     // Logger.recordOutput("kShooterBackLeft", new Pose3d(FieldConstants.kShooterBackLeft, new Rotation3d(0, 0, 0)));
     // Logger.recordOutput("kShooterBackRight", new Pose3d(FieldConstants.kShooterBackRight, new Rotation3d(0, 0, 0)));
@@ -315,6 +317,8 @@ public class RobotContainer {
     Unmanaged.setPhoenixDiagnosticsStartTime(-1);
     m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new AprilTagVisionIONorthstar("northstar_0",""),new AprilTagVisionIONorthstar("northstar_1",""),new AprilTagVisionIONorthstar("northstar_2",""),new AprilTagVisionIONorthstar("northstar_3",""));
     if (Robot.isSimulation()) {
+      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() , new frc.robot.subsystems.intake.rollers.RollerIOSim());
+      m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
       SwerveModuleIO[] m_SwerveModuleIOs = {
         // new SwerveModuleIOMK4Talon(1,2,3),
         new SwerveModuleIOKraken(1,2,3,false),
@@ -337,6 +341,8 @@ public class RobotContainer {
       
     }
     else{
+      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) , new frc.robot.subsystems.intake.rollers.RollerIOSim());
+    m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
       // m_shooter = new Shooter(new PivotIO());
     //   SwerveModuleIO[] m_swerveModuleIOs = {
     //     new SwerveModuleIOMK4iSparkMax(Constants.Ports.leftFrontDrivingMotorPort, Ports.leftFrontTurningMotorPort,
@@ -390,11 +396,42 @@ public class RobotContainer {
   public void updateRobotState(){
     VirtualSubsystem.periodicAll(); 
     m_robotState.updateRobotState();
-    // m_robotState.calculateShooterAngle();
+    m_robotState.calculateShooterAngle();
     
     // m_TebInterfacer.update();
     m_robotState.getEstimatedPose();
+
+    if(Robot.isSimulation()){
+      updateNoteVisualizer();
+    }
     // System.out.println("Drive chassis speeds: "+m_drive.getChassisSpeeds());
+  }
+
+  public void updateNoteVisualizer(){
+    if (edu.wpi.first.wpilibj.RobotState.isAutonomous()){
+    List<Translation2d> presentNotes = NoteVisualizer.getAutoNotes().stream().filter(Objects::nonNull).toList();
+    System.out.println(presentNotes);
+    for (Translation2d translation : presentNotes){
+      if (translation.getDistance(m_robotState.getEstimatedPose().getTranslation()) < 0.5){
+        NoteVisualizer.takeAutoNote(NoteVisualizer.autoNotes.indexOf(translation));
+        NoteVisualizer.showAllNotes();
+      }
+    };
+    NoteVisualizer.showHeldNotes();
+  }
+  else {
+    // check if the robot is near a note
+    List<Translation2d> presentNotes = NoteVisualizer.getAllNotes();
+    for (Translation2d translation : presentNotes){
+      if (translation.getDistance(m_robotState.getEstimatedPose().getTranslation()) < 0.5){
+        NoteVisualizer.takeNote(translation);
+      }
+    };
+    NoteVisualizer.showAllNotes();
+    // check if note needs to be added
+    NoteVisualizer.checkWhetherToAddNote();
+
+  }
   }
 
   public AutoFactory getAutoFactory(){
@@ -437,6 +474,8 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
+    NoteVisualizer.resetAutoNotes();
+    NoteVisualizer.showAllNotes();
     return m_autoChooser.get();
     // return Commands.print("No autonomous command configured");
   }

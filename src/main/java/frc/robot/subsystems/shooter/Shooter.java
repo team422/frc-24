@@ -118,9 +118,9 @@ public class Shooter extends ProfiledSubsystem {
     }
 
     public void setPivotAngle(Rotation2d angle) {
-        if (Robot.isSimulation()) {
-            angle = angle.minus(ShooterPivotConstants.simOffset);
-        }
+        // if (Robot.isSimulation()) {
+        //     angle = angle.minus(ShooterPivotConstants.simOffset);
+        // }
         // System.out.println("Setting angle to: "+angle.getDegrees());
         m_desiredAngle = angle;
         
@@ -149,7 +149,7 @@ public class Shooter extends ProfiledSubsystem {
     public Transform3d getTransform() {
         // Rotation2d m_rotation = Rotation2d.fromDegrees(90).minus(Rotation2d.fromDegrees(m_inputs.curAngle));
         if (Robot.isSimulation()) {
-            return new Transform3d(-0.23+.287, 0, 0.4, new Rotation3d(0, -m_inputsPivot.curAngle, 0));
+            return new Transform3d(-0.23+.287, 0, 0.4, new Rotation3d(0, -Rotation2d.fromDegrees(m_inputsPivot.curAngle).getRadians()+ShooterPivotConstants.simOffset.getRadians(), 0));
         }
         return new Transform3d(-0.23+.287, 0, 0.4, new Rotation3d(0, m_inputsPivot.curAngle, 0));
         // return new Transform3d(-0, 0, 0, new Rotation3d(0, m_rotation.getRadians(), 0));

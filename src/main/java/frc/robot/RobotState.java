@@ -10,8 +10,6 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Matrix;
@@ -20,6 +18,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -34,7 +33,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.hardwareprofiler.ProfilingScheduling;
 import frc.lib.utils.SwerveTester;
 import frc.robot.Constants.DriveConstants;
@@ -57,9 +55,9 @@ import frc.robot.subsystems.northstarAprilTagVision.AprilTagVision;
 import frc.robot.subsystems.objectVision.ObjectDetectionCam;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.utils.AllianceFlipUtil;
+import frc.robot.utils.NoteVisualizer;
 import frc.robot.utils.ShooterMath;
 import frc.robot.utils.swerve.ModuleLimits;
-import frc.robot.subsystems.climb.Climb;
 
 
 public class RobotState {
@@ -140,6 +138,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         this.m_intake = intake;
         this.mAutoFactory = autoFactory;
         this.mDriveControls = mDriverControls;
+        NoteVisualizer.setRobotPoseSupplier(this::getEstimatedPose);
         m_shooterMath = new ShooterMath(new Translation3d(0,0,Units.inchesToMeters(16.496)));
         ProfilingScheduling.startInstance();
         for (int i = 0; i < 3; ++i) {
@@ -165,6 +164,10 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     public static RobotState getInstance() {
         
         return instance;
+    }
+
+    public Transform3d getShooterTransform(){
+      return m_shooter.getTransform();
     }
 
     public ModuleLimits getModuleLimits(){
@@ -411,6 +414,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     }
 
     public void updateRobotState() {
+      Logger.recordOutput("Current State Space", curAction);
         if(intakeStowTime != -1 && intakeStowTime < Timer.getFPGATimestamp()) {
             intakeStowTime = -1;
         }
@@ -498,7 +502,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
 
 
 
-          if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
+          if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .5 && actualSpeed.vyMetersPerSecond < .5 && actualSpeed.omegaRadiansPerSecond < .2 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
             m_indexer.setState(Indexer.IndexerState.SHOOTING);
           }
           // if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
@@ -612,6 +616,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
 
           if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
             m_indexer.setState(Indexer.IndexerState.SHOOTING);
+            
             // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
             // setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
           } else {
@@ -689,11 +694,11 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         }
 
         // update all subsystems
-        // Pose2d curPose = m_drive.getPose();
-        // Transform3d curTransformIntake = m_intake.getTransform();
-        // Logger.recordOutput("RobotState/IntakePose", curTransformIntake);
-        // Transform3d curTransformShooter = m_shooter.getTransform();
-        // Logger.recordOutput("RobotState/ShooterPose", curTransformShooter);
+        Pose2d curPose = m_drive.getPose();
+        Transform3d curTransformIntake = m_intake.getTransform();
+        Logger.recordOutput("RobotState/IntakePose", curTransformIntake);
+        Transform3d curTransformShooter = m_shooter.getTransform();
+        Logger.recordOutput("RobotState/ShooterPose", curTransformShooter);
 
 
     }

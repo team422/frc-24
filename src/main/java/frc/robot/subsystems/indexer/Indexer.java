@@ -3,6 +3,8 @@ package frc.robot.subsystems.indexer;
 import org.littletonrobotics.junction.Logger;
 
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
+import frc.robot.Robot;
+import frc.robot.utils.NoteVisualizer;
 
 public class Indexer extends ProfiledSubsystem {
     private IndexerIO io;
@@ -49,6 +51,11 @@ public class Indexer extends ProfiledSubsystem {
 
     public void setState(IndexerState state) {
         m_state = state;
+        if (m_state == IndexerState.SHOOTING){
+            if (Robot.isSimulation()){
+              NoteVisualizer.shoot().schedule();;
+            }
+        }
         if (m_state == IndexerState.INDEXING) {
             io.startIndexingPositionControl();
         }

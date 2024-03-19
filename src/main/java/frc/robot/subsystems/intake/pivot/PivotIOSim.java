@@ -19,7 +19,7 @@ public class PivotIOSim implements IntakePivotIO {
 
     public PivotIOSim() {
 
-        m_armSim = new SingleJointedArmSim(DCMotor.getNEO(1), 24.2391, SingleJointedArmSim.estimateMOI(0.21, 4), 0.21, Rotation2d.fromDegrees(-30).getRadians(), Rotation2d.fromDegrees(110).getRadians(),true, Rotation2d.fromDegrees(0).getDegrees());
+        m_armSim = new SingleJointedArmSim(DCMotor.getNEO(1), 24.2391, SingleJointedArmSim.estimateMOI(0.21, 4), 0.21, Rotation2d.fromDegrees(-30).getRadians(), Rotation2d.fromDegrees(110).getRadians(),false, Rotation2d.fromDegrees(-20).getDegrees());
 
         m_controller = new PIDController(8.7, 0, 0);
 
@@ -44,7 +44,7 @@ public class PivotIOSim implements IntakePivotIO {
         inputs.curSpeed = m_armSim.getVelocityRadPerSec();
         double output = m_controller.calculate(inputs.curAngle, m_desiredAngle.getRadians());
         inputs.voltage = output;
-        // System.out.println("Desired: "+ output);
+        System.out.println("Desired: "+ output);
         // System.out.println(inputs.curAngle);
         m_armSim.setInputVoltage(output);
         

@@ -1,0 +1,70 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.385117978722477,
+        "y": 4.374852047038654
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.0151861604274677,
+        "y": 4.757809075973545
+      },
+      "isLocked": false,
+      "linkedName": "end of first"
+    },
+    {
+      "anchor": {
+        "x": 2.582713195450901,
+        "y": 5.574121593249315
+      },
+      "prevControl": {
+        "x": 1.9248014920662198,
+        "y": 5.147338095687223
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "end of second"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.15,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "deployIntake"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.5,
+    "maxAcceleration": 2.5,
+    "maxAngularVelocity": 720.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -156.33139538320813,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "Six piece SOTM",
+  "previewStartingState": {
+    "rotation": 161.80926849657024,
+    "velocity": 0
+  },
+  "useDefaultConstraints": false
+}
