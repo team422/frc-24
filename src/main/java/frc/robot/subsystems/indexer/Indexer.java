@@ -5,7 +5,7 @@ import org.littletonrobotics.junction.Logger;
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
 
 public class Indexer extends ProfiledSubsystem {
-    private IndexerIO io;
+    public IndexerIO io;
     private IndexerIOInputsAutoLogged m_inputs;
 
     public enum IndexerState {

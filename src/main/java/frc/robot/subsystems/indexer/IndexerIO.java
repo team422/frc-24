@@ -30,7 +30,13 @@ public interface IndexerIO extends LoggedIO<IndexerIO.IndexerIOInputs> {
 
 
     public void setSpeed(double speed);
-    
 
+    public double getVoltage();
+
+    public void setInitalBeamBreak(boolean broken);
+
+    public void setFinalBeamBreak(boolean broken);
+
+    public void gamepiece();
     
 }

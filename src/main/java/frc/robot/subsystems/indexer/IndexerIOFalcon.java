@@ -13,10 +13,15 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.hal.SimDevice;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.DIOSim;
+import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
 import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.Constants.IndexerConstants;
@@ -32,6 +37,11 @@ public class IndexerIOFalcon implements IndexerIO {
     TalonFXConfigurator m_config;
     Slot0Configs m_slot0;
 
+    DCMotorSim m_motorSim;
+    // TODO: change
+    private final double simGearing = 1;
+    private final double simJkGMetersSquared = 1;
+
     double thresholdFirst = 0;
     double thresholdSecond = 0;
 
@@ -45,9 +55,21 @@ private final PositionTorqueCurrentFOC positionControl =
     DigitalInput m_initialBeamBreak;
     DigitalInput m_finalBeamBreak;
 
+    DIOSim m_initialBeamBreakSim;
+    DIOSim m_finalBeamBreakSim;
+
+    double m_timeout = -1;
+
     private final VelocityTorqueCurrentFOC velocityControl = new VelocityTorqueCurrentFOC(0.0);
         
+    static enum BeambreakSimState {
+        IDLE,
+        TRIGGERED,
+        PIECE_IN_PLACE,
+        SHOOTING
+    }
 
+    BeambreakSimState m_beamBreakSimState = BeambreakSimState.IDLE;
 
     public IndexerIOFalcon(int motorID,int motorID2, int initialBeamBreakID, int finalBeamBreakID) {
         m_falconFirst = new TalonFX(motorID);
@@ -81,6 +103,12 @@ private final PositionTorqueCurrentFOC positionControl =
 
         m_initialBeamBreak = new DigitalInput(initialBeamBreakID);
         m_finalBeamBreak = new DigitalInput(finalBeamBreakID);
+
+        if (RobotBase.isSimulation()) {
+            m_motorSim = new DCMotorSim(DCMotor.getKrakenX60(2), simGearing, simJkGMetersSquared);
+            m_initialBeamBreakSim = new DIOSim(initialBeamBreakID);
+            m_finalBeamBreakSim = new DIOSim(finalBeamBreakID);
+        }
     }
 
 
@@ -91,6 +119,31 @@ private final PositionTorqueCurrentFOC positionControl =
         inputs.beamBreakOneBroken = m_initialBeamBreak.get();
         inputs.outputCurrent = m_falconFirst.getSupplyCurrent().getValueAsDouble();
         inputs.beamBreakTwoBroken = m_finalBeamBreak.get();
+
+        if (RobotBase.isSimulation()) {
+            simulationPeriodic();
+        }
+        
+    }
+
+    public void simulationPeriodic() {
+        if (m_timeout > 0 && m_timeout < Timer.getFPGATimestamp()) {
+            if (m_beamBreakSimState == BeambreakSimState.TRIGGERED) {
+                m_finalBeamBreakSim.setValue(true);
+                m_beamBreakSimState = BeambreakSimState.PIECE_IN_PLACE;
+                m_timeout = Timer.getFPGATimestamp() + 0.7;
+            } else if (m_beamBreakSimState == BeambreakSimState.PIECE_IN_PLACE) {
+                m_initialBeamBreakSim.setValue(false);
+                m_beamBreakSimState = BeambreakSimState.SHOOTING;
+                m_timeout = Timer.getFPGATimestamp() + 0.7;
+            } else if (m_beamBreakSimState == BeambreakSimState.SHOOTING) {
+                m_finalBeamBreakSim.setValue(false);
+                m_beamBreakSimState = BeambreakSimState.IDLE;
+                m_timeout = -1;
+            }
+        }
+        m_motorSim.setInputVoltage(m_falconFirst.getMotorVoltage().getValueAsDouble());
+        m_motorSim.update(0.02);
     }
 
     @Override
@@ -190,5 +243,27 @@ private final PositionTorqueCurrentFOC positionControl =
     @Override
     public void setSpeed(double speed) {
         m_falconFirst.setControl(velocityControl.withVelocity(speed));
+    }
+
+    @Override
+    public double getVoltage() {
+        return m_falconFirst.getMotorVoltage().getValueAsDouble();
+    }
+
+    @Override
+    public void setInitalBeamBreak(boolean broken) {
+        m_initialBeamBreakSim.setValue(broken);
+    }
+
+    @Override
+    public void setFinalBeamBreak(boolean broken) {
+        m_finalBeamBreakSim.setValue(broken);
+    }
+
+    @Override
+    public void gamepiece() {
+        m_timeout = Timer.getFPGATimestamp() + 0.7;
+        m_beamBreakSimState = BeambreakSimState.TRIGGERED;
+        m_initialBeamBreakSim.setValue(true);
     }
 }

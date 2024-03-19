@@ -84,6 +84,8 @@ public final class Constants {
 
     public static final int shooterPivot = 39;
     public static final int shooterPivotFollower = 40;
+
+    public static final int ledPort = 5;
   }
 
 
@@ -296,6 +298,8 @@ public final class Constants {
     public static final double kFieldLengthMeters = Units.feetToMeters(54.27083);
     public static final double kFieldWidthMeters = Units.feetToMeters(26.2916);
     public static final Pose2d kOppositeField = new Pose2d(kFieldLengthMeters, kFieldWidthMeters,
+        Rotation2d.fromDegrees(180));
+    public static final Pose2d kRedAllianceOrigin = new Pose2d(kFieldLengthMeters, kFieldWidthMeters,
         Rotation2d.fromDegrees(180));
 
     public static final double kShooterBaseHeight = Units.inchesToMeters(79.129 + 1/8);// ONE INCH HAS BEEN ADDED BECAUSE VISUAL MODELS SHOW IT TO BE ONE INCH HIGHER, CHECK IN REAL LIFE @JAMES REMINDER
