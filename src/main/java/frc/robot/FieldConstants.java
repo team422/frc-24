@@ -12,6 +12,12 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.utils.AllianceFlipUtil;
 
 public class FieldConstants {
+
+  public static final class Source {
+    public static final Translation2d source = new Translation2d(15.696, 0.701);
+
+  }
+
   public static final Translation3d topRightSpeaker =
         new Translation3d(
             Units.inchesToMeters(0),

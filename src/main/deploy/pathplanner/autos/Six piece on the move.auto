@@ -1,0 +1,55 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.2980077691160283,
+      "y": 5.420154893618611
+    },
+    "rotation": 179.11933783622652
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Subwoofer to first stage"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Stage to middle"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Middle to third"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "third to center far left"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "fourth to fifth"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "fifth to sixth"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

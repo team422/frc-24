@@ -144,9 +144,6 @@
     }
   },
   "NetworkTables Info": {
-    "Clients": {
-      "open": true
-    },
     "DartClient_51939504@2": {
       "open": true
     },

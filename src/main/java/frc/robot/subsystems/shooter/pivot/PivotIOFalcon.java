@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.Robot;
 import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
@@ -70,8 +71,9 @@ public class PivotIOFalcon implements PivotIO {
 
     private ArmFeedforward armFF = new ArmFeedforward(0, 0, 0);
 
-    private DCMotorSim m_pivotSim = new DCMotorSim(DCMotor.getFalcon500Foc(2),ShooterPivotConstants.gearboxRatio, 0.05);
+    // private DCMotorSim m_pivotSim = new DCMotorSim(DCMotor.getFalcon500Foc(2),ShooterPivotConstants.gearboxRatio, 55.5);
     // FOR SIM ONLY
+    private SingleJointedArmSim m_armSim = new SingleJointedArmSim(DCMotor.getFalcon500Foc(2), ShooterPivotConstants.gearboxRatio,.02,.06,Rotation2d.fromDegrees(11).getRadians(),Rotation2d.fromDegrees(84).getRadians(),true,Rotation2d.fromDegrees(11).getRadians());
     private CANcoder m_canCoder;
 
 
@@ -157,6 +159,9 @@ public class PivotIOFalcon implements PivotIO {
 
         // System.out.println(angle);
         feedforward = armFF.calculate(m_desiredAngle.getRadians(),getCurrentVelocity());
+        if (Robot.isSimulation()){
+            feedforward = 0;
+        }
         leaderTalon.setControl(positionVoltageCycle.withPosition(m_desiredAngle.getRotations()).withFeedForward(feedforward).withUpdateFreqHz(0));
     }
 
@@ -186,7 +191,9 @@ public class PivotIOFalcon implements PivotIO {
 
             }, ShooterPivotConstants.kPivotP,ShooterPivotConstants.kPivotI,ShooterPivotConstants.kPivotD,ShooterPivotConstants.kUsingAmp,ShooterPivotConstants.kPivotkG,ShooterPivotConstants.kPivotkS,ShooterPivotConstants.kPivotkG,ShooterPivotConstants.kPivotkV,ShooterPivotConstants.kPivotkA);   
         }
+        if(!Robot.isSimulation()){
         leaderTalon.setPosition(getCurrentAngle().getRotations(), 0.0);
+        }
         
         inputs.firstMotorConnected =
             BaseStatusSignal.refreshAll(
@@ -226,16 +233,16 @@ public class PivotIOFalcon implements PivotIO {
 
 
     public void simulationPeriodic(){
-        TalonFXSimState lSimState = leaderTalon.getSimState();
-        // System.out.println(lSimState.getMotorVoltage());
-        m_pivotSim.setInputVoltage(lSimState.getMotorVoltage());
+        TalonFXSimState lSimState = followerTalon.getSimState();
+        System.out.println(lSimState.getMotorVoltage());
+        m_armSim.setInputVoltage(-lSimState.getMotorVoltage());
 
-        m_pivotSim.update(0.02);
+        m_armSim.update(0.02);
 
-        leaderTalon.getSimState().addRotorPosition(m_pivotSim.getAngularVelocityRPM()*0.02/60.0);
-        followerTalon.getSimState().addRotorPosition(m_pivotSim.getAngularVelocityRPM()*0.02/60.0);
+        leaderTalon.getSimState().setRawRotorPosition(-Rotation2d.fromRadians(m_armSim.getAngleRads()).getRotations()*ShooterPivotConstants.gearboxRatio);
+        followerTalon.getSimState().setRawRotorPosition(Rotation2d.fromRadians(m_armSim.getAngleRads()).getRotations()*ShooterPivotConstants.gearboxRatio);
 
-        m_canCoder.getSimState().setRawPosition(m_pivotSim.getAngularPositionRotations()/ShooterPivotConstants.gearboxRatio);
+        m_canCoder.getSimState().setRawPosition(Rotation2d.fromRadians(m_armSim.getAngleRads()).getRotations());
 
 
     }
@@ -251,7 +258,7 @@ public class PivotIOFalcon implements PivotIO {
     @Override
     public Rotation2d getCurrentAngle() {
         if(Robot.isSimulation()){
-            return Rotation2d.fromRotations(m_canCoder.getAbsolutePosition().getValueAsDouble());
+            return Rotation2d.fromRotations(leaderTalon.getPosition().getValueAsDouble());
         }
 
         return Rotation2d.fromDegrees(Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition()-absoluteEncoder.getPositionOffset()+0.5).getDegrees() % 180);

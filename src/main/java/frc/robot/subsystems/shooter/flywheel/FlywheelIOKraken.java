@@ -175,6 +175,7 @@ public class FlywheelIOKraken implements FlywheelIO {
         // m_krakenRight.setControl(new TorqueCurrentFOC(15));
         m_krakenRight.setControl(new VoltageOut(mFeedforward.calculate(metersPerSecondToRPM(speedRight)/60.0,((m_krakenRight.getRotorVelocity().getValueAsDouble()-metersPerSecondToRPM(speedRight)/60.0))*FlywheelConstants.kFlywheelAccel.get())+mController.calculate(metersPerSecondToRPM(speedRight)/60.0, m_krakenRight.getRotorVelocity().getValueAsDouble())));
         m_krakenLeft.setControl(new VoltageOut(mFeedforward.calculate(metersPerSecondToRPM(speedLeft)/60.0,((m_krakenLeft.getRotorVelocity().getValueAsDouble()-metersPerSecondToRPM(speedLeft)/60.0))*FlywheelConstants.kFlywheelAccel.get())+mControllerLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0, m_krakenLeft.getRotorVelocity().getValueAsDouble())));
+
     }
 
     

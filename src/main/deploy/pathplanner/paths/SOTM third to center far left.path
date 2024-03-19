@@ -1,0 +1,68 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.7662142632802422,
+        "y": 6.903366113717522
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.7662142632802422,
+        "y": 6.903366113717522
+      },
+      "isLocked": false,
+      "linkedName": "end of third"
+    },
+    {
+      "anchor": {
+        "x": 8.147882904987624,
+        "y": 7.385615629840329
+      },
+      "prevControl": {
+        "x": 7.149882874034261,
+        "y": 7.322402196006321
+      },
+      "nextControl": {
+        "x": 8.946063062162889,
+        "y": 7.436172450469901
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.495174048712068,
+        "y": 6.643376574896533
+      },
+      "prevControl": {
+        "x": 7.400808064407182,
+        "y": 6.985139890546326
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "shoot left wing"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.5,
+    "maxAcceleration": 4.5,
+    "maxAngularVelocity": 720.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -175.9221588165818,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "Six piece SOTM",
+  "previewStartingState": {
+    "rotation": -146.01138350944677,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

@@ -13,16 +13,21 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.simulation.DIOSim;
+import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.RobotState;
 import frc.robot.Constants.IndexerConstants;
 import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
 import frc.robot.RobotState.GamePieceLocation;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
+import frc.robot.utils.NoteVisualizer;
 
 public class IndexerIOFalcon implements IndexerIO {
 
@@ -153,6 +158,7 @@ private final PositionTorqueCurrentFOC positionControl =
                 RobotState.getInstance().setIndexer(IndexerState.IDLE);
                 
             }
+            
             if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
                 if(autoTimerShot < Timer.getFPGATimestamp()){
                     RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
@@ -190,5 +196,6 @@ private final PositionTorqueCurrentFOC positionControl =
     @Override
     public void setSpeed(double speed) {
         m_falconFirst.setControl(velocityControl.withVelocity(speed));
+
     }
 }
