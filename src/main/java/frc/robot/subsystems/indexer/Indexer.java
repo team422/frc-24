@@ -7,7 +7,7 @@ import frc.robot.Robot;
 import frc.robot.utils.NoteVisualizer;
 
 public class Indexer extends ProfiledSubsystem {
-    private IndexerIO io;
+    public IndexerIO io;
     private IndexerIOInputsAutoLogged m_inputs;
 
     public enum IndexerState {

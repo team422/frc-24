@@ -28,6 +28,7 @@ import frc.lib.utils.NetworkTablesTEBInterfacer;
 import frc.lib.utils.VirtualSubsystem;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.Ports;
+import frc.robot.Constants.Vision.AprilTagVisionConstants;
 import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.drive.FeedForwardCharacterization;
@@ -46,7 +47,9 @@ import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.led.Led;
 import frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar;
+import frc.robot.subsystems.northstarAprilTagVision.SimVisionSystem;
 import frc.robot.subsystems.objectVision.ObjectDetectionCam;
 import frc.robot.subsystems.objectVision.ObjectDetectionIODepth;
 import frc.robot.subsystems.shooter.Shooter;
@@ -55,6 +58,7 @@ import frc.robot.subsystems.shooter.flywheel.FlywheelIOKraken;
 import frc.robot.subsystems.shooter.pivot.PivotIOFalcon;
 import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.NoteVisualizer;
+import frc.robot.utils.GeomUtil;
 
 public class RobotContainer {
 
@@ -67,6 +71,8 @@ public class RobotContainer {
   NetworkTablesTEBInterfacer m_TebInterfacer;
   Climb m_climb;
   Indexer m_indexer;
+  Led m_led;
+  SimVisionSystem[] m_simVisionSystems;
   
   DriverControls m_driverControls;
   ManualController m_testingController;
@@ -133,6 +139,23 @@ public class RobotContainer {
         m_robotState.setDriveType(DriveProfiles.kDefault);
       }));
       
+      m_testingController.toggleBeamBreakOne().onTrue(
+        Commands.runOnce(() -> m_indexer.io.setInitalBeamBreak(true))
+      );
+      m_testingController.toggleBeamBreakOne().onFalse(
+        Commands.runOnce(() -> m_indexer.io.setInitalBeamBreak(false))
+      );
+      m_testingController.toggleBeamBreakTwo().onTrue(
+        Commands.runOnce(() -> m_indexer.io.setFinalBeamBreak(true))
+      );
+      m_testingController.toggleBeamBreakTwo().onFalse(
+        Commands.runOnce(() -> m_indexer.io.setFinalBeamBreak(false))
+      );
+
+      m_testingController.beambreakGamePiece().onTrue(
+        Commands.runOnce(() -> m_indexer.io.gamepiece())
+      );
+
 
 
 
@@ -288,6 +311,21 @@ public class RobotContainer {
   
   public void onDSConnected(){
     configureAutonomous();
+    if (Robot.isSimulation()) {
+      m_simVisionSystems = new SimVisionSystem[4];
+      for (int i = 0; i < 4; i++) {
+        m_simVisionSystems[i] = new SimVisionSystem(
+          "northstar_" + i,
+          100.0,
+          GeomUtil.toTransform3d(frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionConstants.cameraPoses[i]).inverse(),
+          6,
+          1600,
+          1200,
+          0.2
+        );
+      }
+    }
+    
   }
 
   public void configureSubsystems(){
@@ -304,7 +342,9 @@ public class RobotContainer {
     // Logger.recordOutput("kShooterBackRight", new Pose3d(FieldConstants.kShooterBackRight, new Rotation3d(0, 0, 0)));
     // Logger.recordOutput("kShooterFrontLeft", new Pose3d(FieldConstants.kShooterFrontLeft, new Rotation3d(0, 0, 0)));
     // Logger.recordOutput("kShooterFrontRight", new Pose3d(FieldConstants.kShooterFrontRight, new Rotation3d(0, 0, 0)));
+    m_led = new Led(Ports.ledPort, 20);
 
+    
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
 

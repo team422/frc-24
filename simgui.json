@@ -1,5 +1,10 @@
 {
   "HALProvider": {
+    "Addressable LEDs": {
+      "window": {
+        "visible": true
+      }
+    },
     "Other Devices": {
       "CANCoder (v6)[9]": {
         "header": {
@@ -68,7 +73,11 @@
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Auto Chooser": "String Chooser",
       "/SmartDashboard/AutoChooser": "String Chooser",
-      "/SmartDashboard/Field": "Field2d"
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/northstar_0 Sim Field": "Field2d",
+      "/SmartDashboard/northstar_1 Sim Field": "Field2d",
+      "/SmartDashboard/northstar_2 Sim Field": "Field2d",
+      "/SmartDashboard/northstar_3 Sim Field": "Field2d"
     },
     "windows": {
       "/SmartDashboard/Auto Chooser": {
