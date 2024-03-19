@@ -6,6 +6,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
@@ -62,17 +63,20 @@ public class FlywheelIOKraken implements FlywheelIO {
 
 
 
+
+
     public FlywheelIOKraken(int motorID1, int motorID2) {
         m_krakenLeft = new TalonFX(motorID1, "rio");
         m_krakenRight = new TalonFX(motorID2, "rio");
-      
+        
 
 
         TalonFXConfiguration config = new TalonFXConfiguration();
-        config.CurrentLimits.SupplyCurrentLimit = 50.0;
+        config.CurrentLimits.SupplyCurrentLimit = 65.0;
         config.CurrentLimits.StatorCurrentLimit = 150.0;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         config.Feedback.SensorToMechanismRatio = Constants.ShooterConstants.FlywheelConstants.kFlywheelGearRatio;
@@ -100,6 +104,7 @@ public class FlywheelIOKraken implements FlywheelIO {
         Velocity = m_krakenLeft.getVelocity();
         // VelocityLeft = m_krakenRight.getVelocity();
         AppliedVolts = m_krakenLeft.getMotorVoltage();
+        
         TorqueCurrent = m_krakenLeft.getTorqueCurrent();
         TempCelsius = m_krakenLeft.getDeviceTemp();
         PositionLeft = m_krakenRight.getPosition();
@@ -156,19 +161,20 @@ public class FlywheelIOKraken implements FlywheelIO {
     @Override
     public void setDesiredSpeedWithSpin(double speedLeft, double speedRight){
         // Logger.recordOutput("Speed Right PID ",mControllerLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0, m_krakenLeft.getRotorVelocity().getValueAsDouble()));
-        Logger.recordOutput("Speed Right Velocity", m_krakenLeft.getRotorVelocity().getValueAsDouble());
-        Logger.recordOutput("Speed Right desired", metersPerSecondToRPM(speedLeft)/60.0);
+        Logger.recordOutput("Speed Left Velocity", m_krakenLeft.getRotorVelocity().getValueAsDouble());
+        Logger.recordOutput("Speed Left desired", metersPerSecondToRPM(speedLeft)/60.0);
         Logger.recordOutput("Speed Feedforward Voltage",mFeedforward.calculate(metersPerSecondToRPM(speedLeft)/60.0));
         // Logger.recordOutput("Speed Left PID ",mControllerLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0, m_krakenRight.getRotorVelocity().getValueAsDouble()));
-        Logger.recordOutput("Speed Left Velocity", m_krakenRight.getRotorVelocity().getValueAsDouble());
-        Logger.recordOutput("Speed Left desired", metersPerSecondToRPM(speedRight)/60.0);
+        Logger.recordOutput("Speed Right Velocity", m_krakenRight.getAcceleration().getValueAsDouble());
+        Logger.recordOutput("Speed Right Acceleration", m_krakenRight.getAcceleration().getValueAsDouble());
+        Logger.recordOutput("Speed Right desired", metersPerSecondToRPM(speedRight)/60.0);
         Logger.recordOutput("Speed Feedforward Voltage",mFeedforward.calculate(metersPerSecondToRPM(speedLeft)/60.0));
 
         // m_krakenLeft.setControl(velocityControl.withVelocity(metersPerSecondToRPM(speedLeft)/60.0));
         // m_krakenRight.setControl(velocityControl.withVelocity((metersPerSecondToRPM(speedRight))/60.0));
         // m_krakenRight.setControl(new TorqueCurrentFOC(15));
-        m_krakenRight.setControl(new VoltageOut(mFeedforward.calculate(metersPerSecondToRPM(speedRight)/60.0)+mController.calculate(metersPerSecondToRPM(speedRight)/60.0, m_krakenRight.getRotorVelocity().getValueAsDouble())));
-        m_krakenLeft.setControl(new VoltageOut(mFeedforward.calculate(metersPerSecondToRPM(speedLeft)/60.0)+mControllerLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0, m_krakenLeft.getRotorVelocity().getValueAsDouble())));
+        m_krakenRight.setControl(new VoltageOut(mFeedforward.calculate(metersPerSecondToRPM(speedRight)/60.0,((m_krakenRight.getRotorVelocity().getValueAsDouble()-metersPerSecondToRPM(speedRight)/60.0))*FlywheelConstants.kFlywheelAccel.get())+mController.calculate(metersPerSecondToRPM(speedRight)/60.0, m_krakenRight.getRotorVelocity().getValueAsDouble())));
+        m_krakenLeft.setControl(new VoltageOut(mFeedforward.calculate(metersPerSecondToRPM(speedLeft)/60.0,((m_krakenLeft.getRotorVelocity().getValueAsDouble()-metersPerSecondToRPM(speedLeft)/60.0))*FlywheelConstants.kFlywheelAccel.get())+mControllerLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0, m_krakenLeft.getRotorVelocity().getValueAsDouble())));
     }
 
     
@@ -207,14 +213,14 @@ public class FlywheelIOKraken implements FlywheelIO {
             inputs.PositionRads = Units.rotationsToRadians(Position.getValueAsDouble());
             inputs.VelocityRpm = Velocity.getValueAsDouble() * 60.0;
             inputs.AppliedVolts = AppliedVolts.getValueAsDouble();
-            inputs.OutputCurrent = TorqueCurrent.getValueAsDouble();
+            inputs.OutputCurrent = m_krakenRight.getSupplyCurrent().getValueAsDouble();
             inputs.TempCelsius = TempCelsius.getValueAsDouble();
             inputs.PositionRadsLeft  = Units.rotationsToRadians(PositionLeft.getValueAsDouble());
             inputs.VelocityRpmLeft = VelocityLeft.getValueAsDouble() * 60.0;
             inputs.VelocityLeft = m_krakenLeft.getRotorVelocity().getValueAsDouble();
             inputs.Velocity = m_krakenRight.getRotorVelocity().getValueAsDouble();
             inputs.AppliedVoltsLeft = AppliedVolts.getValueAsDouble();
-            inputs.OutputCurrentLeft = TorqueCurrent.getValueAsDouble();
+            inputs.OutputCurrentLeft = m_krakenLeft.getSupplyCurrent().getValueAsDouble();
             inputs.TempCelsiusLeft = TempCelsius.getValueAsDouble();
             inputs.AppliedVoltsLeft = AppliedVoltsLeft.getValueAsDouble();
 
@@ -247,7 +253,7 @@ public class FlywheelIOKraken implements FlywheelIO {
   public boolean checkIfTolerance(double left, double right){
     Logger.recordOutput("Delta", m_krakenLeft.getRotorVelocity().getValueAsDouble() - left);
     Logger.recordOutput("Delta Right", m_krakenRight.getRotorVelocity().getValueAsDouble() - right);
-    return Math.abs(m_krakenLeft.getRotorVelocity().getValueAsDouble() - left) < 2.5 && Math.abs(m_krakenRight.getRotorVelocity().getValueAsDouble() -right) < 2.5;
+    return m_krakenLeft.getRotorVelocity().getValueAsDouble() - left > -2 && m_krakenRight.getRotorVelocity().getValueAsDouble() -right > -2;
 
   }
 }

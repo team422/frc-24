@@ -109,7 +109,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         m_turnEncoder = new CANcoder(cancoderId,"Drivetrain");
 
         driveConfig = new TalonFXConfiguration();
-        driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
+        driveConfig.CurrentLimits.SupplyCurrentLimit = 65.0;
         driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         driveConfig.CurrentLimits.StatorCurrentLimit = 150;
         driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -204,7 +204,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         // drivePositionQueue = null;
         // turnPositionQueue = null;
     turnPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(m_turnMotor, turnPosition);
-        BaseStatusSignal.setUpdateFrequencyForAll(50.0, drivePosition, turnPosition);
+        // BaseStatusSignal.setUpdateFrequencyForAll(50.0, drivePosition, turnPosition);
 
         m_driveMotor.optimizeBusUtilization(1.0);
     m_turnMotor.optimizeBusUtilization(1.0);
@@ -506,7 +506,11 @@ inputs.odometryTurnPositions =
     // m_driveMotor.setControl(
     //     driveVelocityVoltage
     //         .withVelocity(velocityRadsPerSec).withSlot(0));
-    m_driveMotor.setControl(new VoltageOut(mDriveController.calculate(driveVelocity.getValueAsDouble(), velocityMetersPerSec*2) + feedForward).withEnableFOC(true));
+    double pidVal = mDriveController.calculate(driveVelocity.getValueAsDouble(), velocityMetersPerSec);
+    if (velocityMetersPerSec < 1){
+        pidVal/=5;   
+    }
+    m_driveMotor.setControl(new VoltageOut(pidVal + feedForward).withEnableFOC(true));
     // double rotations = metersPerSecondToRotationsPerSecond(velocityMetersPerSec);
     // m_driveMotor.setControl(driveVelocityControl.withVelocity(rotations).withFeedForward(feedForward));
 
