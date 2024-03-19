@@ -46,4 +46,16 @@ public class ManualController {
         return m_controller.b();
     }
 
+    public Trigger toggleBeamBreakOne() {
+        return m_controller.povUp();
+    }
+
+    public Trigger toggleBeamBreakTwo() {
+        return m_controller.povRight();
+    }
+
+    public Trigger beambreakGamePiece() {
+        return m_controller.povDown();
+    }
+
 }
