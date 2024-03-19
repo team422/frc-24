@@ -25,6 +25,8 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.revrobotics.AbsoluteEncoder;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -65,6 +67,8 @@ public class PivotIOFalcon implements PivotIO {
     
 
     private Rotation2d m_desiredAngle;
+
+    private ArmFeedforward armFF = new ArmFeedforward(0, 0, 0);
 
     private DCMotorSim m_pivotSim = new DCMotorSim(DCMotor.getFalcon500Foc(2),ShooterPivotConstants.gearboxRatio, 0.05);
     // FOR SIM ONLY
@@ -152,6 +156,7 @@ public class PivotIOFalcon implements PivotIO {
         m_desiredAngle = angle;
 
         // System.out.println(angle);
+        feedforward = armFF.calculate(m_desiredAngle.getRadians(),getCurrentVelocity());
         leaderTalon.setControl(positionVoltageCycle.withPosition(m_desiredAngle.getRotations()).withFeedForward(feedforward).withUpdateFreqHz(0));
     }
 
@@ -166,8 +171,8 @@ public class PivotIOFalcon implements PivotIO {
                 controllerConfig.kS = ShooterPivotConstants.kPivotkS.get();
                 leaderTalon.getConfigurator().apply(controllerConfig);
                 followerTalon.getConfigurator().apply(controllerConfig);
-
-            }, ShooterPivotConstants.kPivotAmpP,ShooterPivotConstants.kPivotAmpI,ShooterPivotConstants.kPivotAmpD,ShooterPivotConstants.kUsingAmp,ShooterPivotConstants.kPivotkG);   
+                armFF = new ArmFeedforward(ShooterPivotConstants.kPivotkS.get(), ShooterPivotConstants.kPivotkG.get(), ShooterPivotConstants.kPivotkV.get());
+            }, ShooterPivotConstants.kPivotAmpP,ShooterPivotConstants.kPivotAmpI,ShooterPivotConstants.kPivotAmpD,ShooterPivotConstants.kUsingAmp,ShooterPivotConstants.kPivotkG,ShooterPivotConstants.kPivotkS,ShooterPivotConstants.kPivotkG,ShooterPivotConstants.kPivotkV,ShooterPivotConstants.kPivotkA);   
         }else{
             LoggedTunableNumber.ifChanged(hashCode(),()->{
                 controllerConfig.kP = ShooterPivotConstants.kPivotP.get();
@@ -175,10 +180,11 @@ public class PivotIOFalcon implements PivotIO {
                 controllerConfig.kD = ShooterPivotConstants.kPivotD.get();
                 controllerConfig.kG = ShooterPivotConstants.kPivotkG.get();
                 controllerConfig.kS = ShooterPivotConstants.kPivotkS.get();
+                armFF = new ArmFeedforward(ShooterPivotConstants.kPivotkS.get(), ShooterPivotConstants.kPivotkG.get(), ShooterPivotConstants.kPivotkV.get());
                 leaderTalon.getConfigurator().apply(controllerConfig);
                 followerTalon.getConfigurator().apply(controllerConfig);
 
-            }, ShooterPivotConstants.kPivotP,ShooterPivotConstants.kPivotI,ShooterPivotConstants.kPivotD,ShooterPivotConstants.kUsingAmp,ShooterPivotConstants.kPivotkG);   
+            }, ShooterPivotConstants.kPivotP,ShooterPivotConstants.kPivotI,ShooterPivotConstants.kPivotD,ShooterPivotConstants.kUsingAmp,ShooterPivotConstants.kPivotkG,ShooterPivotConstants.kPivotkS,ShooterPivotConstants.kPivotkG,ShooterPivotConstants.kPivotkV,ShooterPivotConstants.kPivotkA);   
         }
         leaderTalon.setPosition(getCurrentAngle().getRotations(), 0.0);
         

@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.advantagekit.LoggerUtil;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.subsystems.drive.Drive.DriveProfiles;
 
 /**
@@ -123,6 +124,7 @@ public class Robot extends LoggedRobot {
     }
     robotContainer.onEnabled();
     RobotState.getInstance().setDriveType(DriveProfiles.kDefault);
+    RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kStow);
   }
 
   /** This function is called periodically during operator control. */

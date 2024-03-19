@@ -294,7 +294,9 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
   public void addOdometryObservation(OdometryObservation observation) {
 
     Twist2d twist = DriveConstants.kDriveKinematics.toTwist2d(lastWheelPositions, observation.wheelPositions());
-    lastWheelPositions = observation.wheelPositions();
+    Logger.recordOutput("Wheel 1 position",observation.wheelPositions().positions[0].distanceMeters);
+    Logger.recordOutput("robot twist",twist);
+    lastWheelPositions = observation.wheelPositions().copy();
     // Check gyro connected
     if (observation.gyroAngle != null) {
       // Update dtheta for twist if gyro connected
@@ -305,6 +307,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     }
     // Add twist to odometry pose
     odometryPose = odometryPose.exp(twist);
+    // odometryPose = new Pose2d(odometryPose.getTranslation(),observation.gyroAngle());
     // Add pose to buffer at timestamp
     poseBuffer.addSample(observation.timestamp(), odometryPose);
     // Calculate diff from last odometry pose and add onto pose estimate
@@ -363,8 +366,9 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
             Logger.recordOutput("knows it shot", shooterStopTime);
           }else {
             shooterStopTime = Timer.getFPGATimestamp() + 1.0;
-            
+            Logger.recordOutput("knows it shot", shooterStopTime);
           }
+          
 
         }
     }
@@ -484,12 +488,25 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           m_shooter.setPivotAngle(mRotations.get(1));
           m_drive.setDriveTurnOverride(mRotations.get(0));
           // ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
-          // ArrayList<Double> speeds = (m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)));
-          // if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
-          //   System.out.println("SHOULD BE RUMBLING");
-            mDriveControls.setDriverRumble(0.2, RumbleType.kLeftRumble);
-          // }
+          ArrayList<Double> speeds = (m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)));
+          Logger.recordOutput("First",m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)));
+          Logger.recordOutput("Second", (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(3) )));
+          Logger.recordOutput("Third", (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg));
+          ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
+          Logger.recordOutput("Four", actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1);
 
+
+
+
+          if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
+            m_indexer.setState(Indexer.IndexerState.SHOOTING);
+          }
+          // if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
+          // //   System.out.println("SHOULD BE RUMBLING");
+          //   // mDriveControls.setDriverRumble(0.2, RumbleType.kLeftRumble);
+            
+          // }
+// 
 
         } else if (curAction == RobotCurrentAction.kShootWithAutoAlign){
           Pose2d predPose = getPredictedPose(0.4,0.4);
@@ -580,7 +597,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           ArrayList<Rotation2d> mRotations = m_shooterMath.setNextShootingPoseAndVelocity(predPose,robotVelocity,finalTarget);
           ArrayList <Double> speeds = m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget));
           m_shooter.setPivotAngle(mRotations.get(1));
-          m_drive.drive(new ChassisSpeeds(0, 0, 0));
+          // m_drive.drive(new ChassisSpeeds(0, 0, 0));
           // m_shooter.setFlywheelSpeedWithSpin(speeds.get(0),speeds.get(1));
           m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(0),m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(1));
           m_drive.setDriveTurnOverride(mRotations.get(0));
