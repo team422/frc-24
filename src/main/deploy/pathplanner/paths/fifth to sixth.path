@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.396368181829501,
-        "y": 5.929444588668589
+        "x": 6.324972274396305,
+        "y": 5.8471363427101855
       },
       "isLocked": false,
       "linkedName": "shoot left wing"
@@ -36,8 +36,8 @@
         "y": 4.686982018725067
       },
       "prevControl": {
-        "x": 3.3255972319236307,
-        "y": 4.686982018725067
+        "x": 5.668550416733509,
+        "y": 4.110280451235245
       },
       "nextControl": null,
       "isLocked": false,
@@ -49,7 +49,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 5.5,
-    "maxAcceleration": 4.5,
+    "maxAcceleration": 4.3,
     "maxAngularVelocity": 720.0,
     "maxAngularAcceleration": 720.0
   },

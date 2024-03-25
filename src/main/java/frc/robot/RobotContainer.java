@@ -6,7 +6,6 @@ package frc.robot;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -28,14 +27,13 @@ import frc.lib.utils.NetworkTablesTEBInterfacer;
 import frc.lib.utils.VirtualSubsystem;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.Ports;
-import frc.robot.Constants.Vision.AprilTagVisionConstants;
 import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.drive.FeedForwardCharacterization;
 import frc.robot.commands.drive.TeleopControllerNoAugmentation;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.oi.DriverControls;
-import frc.robot.oi.DriverControlsXboxReal;
+import frc.robot.oi.DriverControlsXboxController;
 import frc.robot.oi.ManualController;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.ClimbIOTalon;
@@ -58,6 +56,7 @@ import frc.robot.subsystems.shooter.flywheel.FlywheelIOKraken;
 import frc.robot.subsystems.shooter.pivot.PivotIOFalcon;
 import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.GeomUtil;
+import frc.robot.utils.NoteVisualizer;
 
 public class RobotContainer {
 
@@ -92,9 +91,9 @@ public class RobotContainer {
   }
 
   public void configureControllers(){
-    // m_driverControls = new DriverControlsXboxController(4);
-    m_driverControls = new DriverControlsXboxReal(4);
-    m_testingController = new ManualController(3);
+    m_driverControls = new DriverControlsXboxController(3);
+    // m_driverControls = new DriverControlsXboxReal(4);
+    m_testingController = new ManualController(4);
     
   }
 
@@ -102,15 +101,7 @@ public class RobotContainer {
     // m_drive.setDefaultCommand();
     
     m_driverControls.resetFieldCentric().onTrue(Commands.runOnce(()->m_drive.resetPose(new Pose2d(m_robotState.getEstimatedPose().getTranslation(),AllianceFlipUtil.apply(Rotation2d.fromDegrees(180))))));
-      m_driverControls.setClimberServoClose().onTrue(Commands.runOnce(()->{
-        // System.out.println("Setting climber servo to close");
-        m_climb.setServoPosition(0);}));
-
-      m_driverControls.setClimberServoOpen().onTrue(Commands.runOnce(()->{
-        // System.out.println("Setting climber servo to open");
-        m_climb.setServoPosition(0.25);
-      }));
-
+  
       m_driverControls.finalShoot().onTrue(Commands.runOnce(()->{
         System.out.println("NOW SHOOT");
         m_indexer.setState(IndexerState.SHOOTING);
@@ -198,6 +189,7 @@ public class RobotContainer {
       })).onFalse(Commands.runOnce(()->{
           if(m_robotState.curAction != RobotCurrentAction.kRevAndAlign){
             m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+            m_indexer.setState(IndexerState.IDLE);
           }else{
             m_robotState.stowAndStopIntake();
           }
@@ -356,7 +348,7 @@ public class RobotContainer {
     Unmanaged.setPhoenixDiagnosticsStartTime(-1);
     m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new AprilTagVisionIONorthstar("northstar_0",""),new AprilTagVisionIONorthstar("northstar_1",""),new AprilTagVisionIONorthstar("northstar_2",""),new AprilTagVisionIONorthstar("northstar_3",""));
     if (Robot.isSimulation()) {
-      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() , new frc.robot.subsystems.intake.rollers.RollerIOSim());
+      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim() );
       m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
       SwerveModuleIO[] m_SwerveModuleIOs = {
         // new SwerveModuleIOMK4Talon(1,2,3),
@@ -380,7 +372,7 @@ public class RobotContainer {
       
     }
     else{
-      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) , new frc.robot.subsystems.intake.rollers.RollerIOSim());
+      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() , new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort));
     m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
       // m_shooter = new Shooter(new PivotIO());
     //   SwerveModuleIO[] m_swerveModuleIOs = {

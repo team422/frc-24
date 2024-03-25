@@ -44,17 +44,6 @@ public class DriverControlsXboxController implements DriverControls {
   }
 
 
-
-  @Override
-  public Trigger setClimberServoClose() {
-    return m_controller.povRight();
-  }
-
-  @Override
-  public Trigger setClimberServoOpen() {
-    return m_controller.povLeft();
-  }
-
   
 
   
@@ -111,10 +100,10 @@ public class DriverControlsXboxController implements DriverControls {
     return m_controller.L1();
   }
 
-  // @Override
-  // public Trigger autoAlignToGamePiece(){
-  //   return m_controller.povDown();
-  // }
+  @Override
+  public Trigger autoAlignToGamePiece(){
+    return m_controller.povLeft();
+  }
 
   @Override
   public Trigger testRumble() {

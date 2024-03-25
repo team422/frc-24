@@ -43,16 +43,6 @@ public class DriverControlsXboxReal implements DriverControls {
 
 
 
-  @Override
-  public Trigger setClimberServoClose() {
-    return m_controller.povRight();
-  }
-
-  @Override
-  public Trigger setClimberServoOpen() {
-    return m_controller.povLeft();
-  }
-
   
 
   
@@ -88,14 +78,14 @@ public class DriverControlsXboxReal implements DriverControls {
     m_controller.getHID().setRumble(side, rumble);
   }
 
-  // @Override
-  // public Trigger autoIntake(){
-  //   return m_controller.b();
-  // }
   @Override
   public Trigger autoIntake(){
-    return new Trigger(()->false);
+    return m_controller.povLeft();
   }
+  // @Override
+  // public Trigger autoIntake(){
+  //   return new Trigger(()->false);
+  // }
 
   @Override
   public Trigger intakeVomit(){

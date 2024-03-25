@@ -151,7 +151,7 @@ public class Shooter extends ProfiledSubsystem {
         if (Robot.isSimulation()) {
             return new Transform3d(-0.23+.287, 0, 0.4, new Rotation3d(0, -Rotation2d.fromDegrees(m_inputsPivot.curAngle).getRadians()+ShooterPivotConstants.simOffset.getRadians(), 0));
         }
-        return new Transform3d(-0.23+.287, 0, 0.4, new Rotation3d(0, m_inputsPivot.curAngle, 0));
+        return new Transform3d(-0.23+.287, 0, 0.4, new Rotation3d(0, Rotation2d.fromDegrees(m_inputsPivot.curAngle).getRadians(), 0));
         // return new Transform3d(-0, 0, 0, new Rotation3d(0, m_rotation.getRadians(), 0));
     }
 

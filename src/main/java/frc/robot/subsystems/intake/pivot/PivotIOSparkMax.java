@@ -37,6 +37,7 @@ public class PivotIOSparkMax implements IntakePivotIO {
         m_desiredAngle = Rotation2d.fromRadians(m_encoder.getPosition());
 
         m_motor.setSmartCurrentLimit(45);
+        
         m_controller = m_motor.getPIDController();
         m_controller.setFeedbackDevice(m_encoder);
         m_controller.setP(IntakeConstants.kIntakeP.get(), 0);
@@ -59,6 +60,11 @@ public class PivotIOSparkMax implements IntakePivotIO {
         inputs.voltage = m_motor.getAppliedOutput();
         inputs.desiredAngle = m_desiredAngle.getDegrees();
         inputs.desiredVoltage = m_motor.get();
+        if(inputs.curAngle < 0 && inputs.desiredAngle < 0 ){
+            m_motor.setSecondaryCurrentLimit(10);
+        }else {
+            m_motor.setSecondaryCurrentLimit(80);
+        }
 
     }
 
