@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0151861604274677,
-        "y": 4.757809075973545
+        "x": 1.4637327895979322,
+        "y": 4.714259739487617
       },
       "isLocked": false,
       "linkedName": "end of first"
     },
     {
       "anchor": {
-        "x": 2.582713195450901,
-        "y": 5.574121593249315
+        "x": 2.385117978722477,
+        "y": 5.51952656141832
       },
       "prevControl": {
-        "x": 1.9248014920662198,
-        "y": 5.147338095687223
+        "x": 1.7054711974007277,
+        "y": 5.251500190500382
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,7 +33,7 @@
   "eventMarkers": [
     {
       "name": "New Event Marker",
-      "waypointRelativePos": 0.15,
+      "waypointRelativePos": 0.5,
       "command": {
         "type": "parallel",
         "data": {
@@ -42,6 +42,23 @@
               "type": "named",
               "data": {
                 "name": "deployIntake"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "AutoSOTM"
               }
             }
           ]
@@ -57,13 +74,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -156.33139538320813,
+    "rotation": -176.95808288092505,
     "rotateFast": false
   },
   "reversed": false,
   "folder": "Six piece SOTM",
   "previewStartingState": {
-    "rotation": 161.80926849657024,
+    "rotation": 150.3824697424943,
     "velocity": 0
   },
   "useDefaultConstraints": false

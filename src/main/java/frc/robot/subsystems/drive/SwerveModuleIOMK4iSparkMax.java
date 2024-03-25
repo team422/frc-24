@@ -58,9 +58,9 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     public static final LoggedTunableNumber kDriveP = Constants.ModuleConstants.kDriveP;
     public static final LoggedTunableNumber kDriveI = Constants.ModuleConstants.kDriveI;
     public static final LoggedTunableNumber kDriveD = Constants.ModuleConstants.kDriveD;
-    public static final LoggedTunableNumber kTurningP = Constants.ModuleConstants.kTurningP;
-    public static final LoggedTunableNumber kTurningI = Constants.ModuleConstants.kTurningI;
-    public static final LoggedTunableNumber kTurningD = Constants.ModuleConstants.kTurningD;
+    public static final LoggedTunableNumber kTurningP = Constants.ModuleConstants.FLkTurningP;
+    public static final LoggedTunableNumber kTurningI = Constants.ModuleConstants.FLkTurningI;
+    public static final LoggedTunableNumber kTurningD = Constants.ModuleConstants.FLkTurningD;
     // public static final LoggedTunableNumber kDriveFF = RobotContainer.robotConstants.kDriveFF;
 
   }

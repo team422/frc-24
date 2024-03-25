@@ -14,37 +14,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Subwoofer to first stage"
+            "pathName": "SOTM Subwoofer to first stage"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Stage to middle"
+            "pathName": "SOTM Stage to middle"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Middle to third"
+            "pathName": "STOM Middle to third"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "third to center far left"
+            "pathName": "SOTM third to center far left"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "fourth to fifth"
+            "pathName": "SOTM fourth to fifth"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "fifth to sixth"
+            "pathName": "SOTM fifth to sixth"
           }
         }
       ]

@@ -36,6 +36,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -229,7 +230,7 @@ private SwerveSetpoint currentSetpoint =
       ff = new SimpleMotorFeedforward(ModuleConstants.kffkS.get(), ModuleConstants.kffkV.get(), 0);
       for (SwerveModuleIO module : m_modules) {
         module.setDrivePID(ModuleConstants.kDriveP.get(), ModuleConstants.kDriveI.get(), ModuleConstants.kDriveD.get());
-        module.setTurnPID(ModuleConstants.kTurningP.get(), ModuleConstants.kTurningI.get(), ModuleConstants.kTurningD.get());
+        module.setTurnPID(ModuleConstants.FLkTurningP.get(), ModuleConstants.FLkTurningI.get(), ModuleConstants.FLkTurningD.get());
       }
       // m_DrivePoseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_gyro.getAngle(), getSwerveModulePositions(), startPose);
       
@@ -238,8 +239,8 @@ private SwerveSetpoint currentSetpoint =
     this.m_driveController = new PIDController(ModuleConstants.kDriveP.get(), ModuleConstants.kDriveI.get(),
         ModuleConstants.kDriveD.get());
     if (Robot.isReal()) {
-      this.m_turnController = new PIDController(ModuleConstants.kTurningP.get(), ModuleConstants.kTurningI.get(),
-          ModuleConstants.kTurningD.get());
+      this.m_turnController = new PIDController(ModuleConstants.FLkTurningP.get(), ModuleConstants.FLkTurningI.get(),
+          ModuleConstants.FLkTurningD.get());
     } else {
       this.m_turnController = new PIDController(ModuleConstants.kTurningPSim.get(), ModuleConstants.kTurningISim.get(),
           ModuleConstants.kTurningDSim.get());
@@ -340,6 +341,7 @@ private SwerveSetpoint currentSetpoint =
     if (m_desChassisSpeeds == null) {
       return;
     }
+    m_desChassisSpeeds = ChassisSpeeds.discretize(m_desChassisSpeeds, 0.05);
     ModuleLimits currentModuleLimits = RobotState.getInstance().getModuleLimits();
     currentSetpoint =
         setpointGenerator.generateSetpoint(
@@ -349,12 +351,12 @@ private SwerveSetpoint currentSetpoint =
       // SwerveModuleState[] moduleStates = currentSetpoint.moduleStates();
       // Logger.recordOutput("Drive/DesiredSpeedsSetpoint", currentSetpoint.moduleStates() );
 
-  // SwerveDriveKinematics.desaturateWheelSpeeds(
-  //       moduleStates,
-  //       m_desChassisSpeeds,
-  //       DriveConstants.kMaxSpeedMetersPerSecond,
-  //       DriveConstants.kMaxSpeedMetersPerSecond,
-  //       DriveConstants.kMaxAngularSpeedRadiansPerSecond);
+  SwerveDriveKinematics.desaturateWheelSpeeds(
+        moduleStates,
+        m_desChassisSpeeds,
+        DriveConstants.kMaxSpeedMetersPerSecond,
+        DriveConstants.kMaxSpeedMetersPerSecond,
+        DriveConstants.kMaxAngularSpeedRadiansPerSecond);
 
     
     
@@ -752,6 +754,13 @@ private SwerveSetpoint currentSetpoint =
     m_autoAlignController.setP(DriveConstants.AutoAlignP.get());
     m_autoAlignController.setD(DriveConstants.AutoAlignD.get());
   },DriveConstants.AutoAlignP,DriveConstants.AutoAlignD);
+  LoggedTunableNumber.ifChanged(hashCode(), ()->{
+
+    m_modules[0].setTurnPID(ModuleConstants.FLkTurningP.get(), ModuleConstants.FLkTurningI.get(), ModuleConstants.FLkTurningD.get());
+    m_modules[1].setTurnPID(ModuleConstants.FRkTurningP.get(), ModuleConstants.FRkTurningI.get(), ModuleConstants.FRkTurningD.get());
+    m_modules[2].setTurnPID(ModuleConstants.BLkTurningP.get(), ModuleConstants.BLkTurningI.get(), ModuleConstants.BLkTurningD.get());
+    m_modules[3].setTurnPID(ModuleConstants.BRkTurningP.get(), ModuleConstants.BRkTurningI.get(), ModuleConstants.BRkTurningD.get());
+},ModuleConstants.FLkTurningP,ModuleConstants.FLkTurningI, ModuleConstants.FLkTurningD,ModuleConstants.FRkTurningP,ModuleConstants.FRkTurningI, ModuleConstants.FRkTurningD,ModuleConstants.BLkTurningP,ModuleConstants.BLkTurningI, ModuleConstants.BLkTurningD,ModuleConstants.BRkTurningP,ModuleConstants.BRkTurningI, ModuleConstants.BRkTurningD);
     
 odometryLock.lock();
     // Read timestamps from odometry thread and fake sim timestamps
@@ -785,7 +794,7 @@ odometryLock.lock();
             .orElse(0);
     
       minOdometryUpdates = Math.min(m_gyroInputs.odometryYawPositions.length, minOdometryUpdates);
-    minOdometryUpdates = Math.min(1,minOdometryUpdates);
+    // minOdometryUpdates = Math.min(1,minOdometryUpdates);
     // Pass odometry data to robot state
     SwerveModulePosition[][] positions = new SwerveModulePosition[4][];
     for (int i = 0 ; i < 4;i++){
@@ -795,6 +804,7 @@ odometryLock.lock();
     }
 
     Logger.recordOutput("Min odo updates", minOdometryUpdates);
+    Logger.recordOutput("Drive type", m_profiles.getCurrentProfile().name());
     for (int i = 0; i < minOdometryUpdates; i++) {
       
       int odometryIndex = i;
@@ -802,11 +812,17 @@ odometryLock.lock();
       // Get all four swerve module positions at that odometry update
       // and store in SwerveDriveWheelPositions object
 
-      SwerveDriveWheelPositions wheelPositions =  getWheelPosititons();
-      // new SwerveDriveWheelPositions(
-      //       Arrays.stream(m_moduleNumbers)
-      //           .mapToObj(module -> positions[module][odometryIndex])
-      //           .toArray(SwerveModulePosition[]::new));
+      SwerveDriveWheelPositions wheelPositions =  
+      new SwerveDriveWheelPositions(
+            Arrays.stream(m_moduleNumbers)
+                .mapToObj(module -> getModulePositions(module)[odometryIndex])
+                .toArray(SwerveModulePosition[]::new));
+      // getWheelPosititons();
+      // RobotState.getInstance()
+      //       .addOdometryObservation(
+      //           new RobotState.OdometryObservation(
+      //               wheelPositions, yaw, odometryTimestampInputs.timestamps[i]));
+
         // Filtering based on delta wheel positions
         // getWheelPosititons();
       boolean includeMeasurement = true;
@@ -840,6 +856,7 @@ odometryLock.lock();
         lastTime = odometryTimestampInputs.timestamps[i];
       }
     }   
+    
     ChassisSpeeds robotRelativeVelocity = getChassisSpeeds();
     robotRelativeVelocity.omegaRadiansPerSecond = m_gyroInputs.yawVelocityRadPerSec;
     RobotState.getInstance().addVelocityData(new Twist2d(robotRelativeVelocity.vxMetersPerSecond, robotRelativeVelocity.vyMetersPerSecond, robotRelativeVelocity.omegaRadiansPerSecond));
@@ -857,6 +874,7 @@ odometryLock.lock();
       defaultPeriodic();
     }
     else if (m_profiles.getCurrentProfile() == DriveProfiles.kAutoPiecePickup){
+      
       m_desChassisSpeeds = m_driveToPieceSpeeds;
 
       defaultPeriodic();
@@ -1123,11 +1141,14 @@ odometryLock.lock();
       // System.out.println(moduleStates[i].speedMetersPerSecond/ModuleConstants.kWheelDiameterMeters);
       // System.out.println(ff.calculate((moduleStates[i].speedMetersPerSecond)/(ModuleConstants.kWheelDiameterMeters*Math.PI)));
       if(edu.wpi.first.wpilibj.RobotState.isTeleop()){
+      // speed gets multiplied by angular error
+      moduleStates[i].speedMetersPerSecond = moduleStates[i].speedMetersPerSecond * Math.cos(moduleStates[i].angle.getRadians()-getModuleStates()[i].angle.getRadians());
       m_modules[i].runDriveVelocitySetpoint(moduleStates[i].speedMetersPerSecond,ff.calculate(moduleStates[i].speedMetersPerSecond,(moduleStates[i].speedMetersPerSecond-getModuleStates()[i].speedMetersPerSecond)*DriveConstants.driveAccel.get()));
       }else{
         m_modules[i].runDriveVelocitySetpoint(moduleStates[i].speedMetersPerSecond,ff.calculate(moduleStates[i].speedMetersPerSecond,(moduleStates[i].speedMetersPerSecond-getModuleStates()[i].speedMetersPerSecond)*DriveConstants.driveAccel.get()));
         // m_modules[i].runDriveVelocitySetpoint(moduleStates[i].speedMetersPerSecond,ff.calculate(moduleStates[i].speedMetersPerSecond,4.3));
       }
+      Logger.recordOutput("Desired module turn"+i, Units.radiansToRotations(moduleStates[i].angle.getRotations()));
       m_modules[i].runTurnPositionSetpoint(moduleStates[i].angle.getRadians());
     }
   }

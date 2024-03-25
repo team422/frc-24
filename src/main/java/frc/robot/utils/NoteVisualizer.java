@@ -102,7 +102,9 @@ public class NoteVisualizer {
   }
 
   public static void takeNote(Translation2d note) {
+    autoNotes.remove(note);
     fieldNotes.remove(note);
+
     hasNote = true;
   }
 

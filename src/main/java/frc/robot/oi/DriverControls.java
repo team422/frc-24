@@ -17,10 +17,6 @@ public interface DriverControls {
 
 
 
-  public Trigger setClimberServoClose();
-
-  public Trigger setClimberServoOpen();
-
   public default Trigger ampBackTrigger(){
     return new Trigger(()->false);
   };

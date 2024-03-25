@@ -1,5 +1,6 @@
 package frc.robot.subsystems.objectVision;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.Timer;
+import frc.lib.utils.GeomUtil;
 import frc.lib.utils.VirtualSubsystem;
 import frc.robot.Robot;
 import frc.robot.Constants.FieldConstants;
@@ -26,6 +28,8 @@ public class ObjectDetectionCam extends VirtualSubsystem {
   private final Map<Integer, Double> lastFrameTimes = new HashMap<>();
 
   private ArrayList<Pose3d> positions = new ArrayList<Pose3d>();
+
+  private Integer loses = 0;
 
 
 
@@ -55,7 +59,8 @@ public class ObjectDetectionCam extends VirtualSubsystem {
             lastFrameTimes.put(i, Timer.getFPGATimestamp());
             ArrayList<Transform3d> noteTransforms = new ArrayList<Transform3d>();
             var values = inputs[i].objects;
-            if (values.length == 0 || values[0].length == 1) {
+            Logger.recordOutput("Number of values", values.length);
+            if (values.length == 0) {
                 continue;
               }
                 for (int j = 0; j < values.length; j++) {
@@ -70,6 +75,16 @@ public class ObjectDetectionCam extends VirtualSubsystem {
                         Double[] objectArray = {object[k], object[k+1], object[k+2], object[k+3], object[k+4], object[k+5], object[k+6]};
                         objectList.add(objectArray);
                     }
+                    if(positions.size() > objectList.size()){
+                      if(loses > 25){
+                        positions.clear();
+                      } else {
+                        loses +=1;
+                      }
+                    }else{
+                      loses = 0;
+                    }
+                    
                     for (Double[] objectArray : objectList) {
                         double x = objectArray[0];
                         double y = objectArray[1];
@@ -87,28 +102,29 @@ public class ObjectDetectionCam extends VirtualSubsystem {
 
                         // add current position to positions array
                         Pose3d currentPose = new Pose3d(frc.robot.RobotState.getInstance().getEstimatedPose());
-
-                        positions.clear();
+                        currentPose = currentPose.transformBy(GeomUtil.pose3dToTransform3d(ObjectDetectionVisionConstants.cameraPoses[i]));
 
                         
-                        Pose3d fPose = new Pose3d(currentPose.plus(noteTranslation).getTranslation(),currentPose.plus(noteTranslation).getRotation().plus(new Rotation3d(0,0,Math.PI)));
+
+                        
+                        Pose3d fPose = new Pose3d(currentPose.plus(noteTranslation).getTranslation(),currentPose.plus(noteTranslation).getRotation().plus(new Rotation3d(0,0,0)));
                         positions.add(fPose);
                     }
                 }
 
                 // log the positions
-                Logger.recordOutput("ObjectDetectionVision/Inst" , positions.get(0));
+                Logger.recordOutput("ObjectDetectionVision/Inst" , positions.toArray(Pose3d[]::new));
           }
 
 
-          if (Robot.isSimulation()){
-            HashMap<String,Pose2d> val = frc.robot.FieldConstants.getGamePieces();
-            for (Map.Entry<String, Pose2d> entry : val.entrySet()) {
-                String key = entry.getKey();
-                Pose2d value = entry.getValue();
-                positions.add(new Pose3d(value.getTranslation().getX(), value.getTranslation().getY(), 0.0, new Rotation3d(0.0,0.0,value.getRotation().getRadians()))); 
-            }
-          }
+          // if (Robot.isSimulation()){
+          //   HashMap<String,Pose2d> val = frc.robot.FieldConstants.getGamePieces();
+          //   for (Map.Entry<String, Pose2d> entry : val.entrySet()) {
+          //       String key = entry.getKey();
+          //       Pose2d value = entry.getValue();
+          //       positions.add(new Pose3d(value.getTranslation().getX(), value.getTranslation().getY(), 0.0, new Rotation3d(0.0,0.0,value.getRotation().getRadians()))); 
+          //   }
+          // }
 
 
 

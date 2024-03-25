@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 8.127731439286407,
-        "y": 4.0447480764753205
+        "x": 8.007258138443973,
+        "y": 4.150335422300747
       },
       "prevControl": {
-        "x": 8.013854053634883,
-        "y": 4.631783234729154
+        "x": 7.893380752792449,
+        "y": 4.737370580554581
       },
       "nextControl": {
-        "x": 8.24160882493793,
-        "y": 3.457712918221487
+        "x": 8.121135524095497,
+        "y": 3.563300264046914
       },
       "isLocked": false,
       "linkedName": null
@@ -36,26 +36,67 @@
         "y": 4.686982018725067
       },
       "prevControl": {
-        "x": 3.3255972319236307,
-        "y": 4.686982018725067
+        "x": 4.991308225569882,
+        "y": 4.461238094504376
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 151.43122826496437,
+      "rotateFast": false
+    }
+  ],
   "constraintZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.2,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "deployIntake"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 1.4,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "AutoSOTM"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.5,
-    "maxAcceleration": 4.5,
+    "maxAcceleration": 4.3,
     "maxAngularVelocity": 720.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 149.87165137233524,
+    "rotation": 165.93707444700524,
     "rotateFast": false
   },
   "reversed": false,

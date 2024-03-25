@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 8.147882904987624,
-        "y": 7.385615629840329
+        "x": 7.959155916779971,
+        "y": 7.40485651850593
       },
       "prevControl": {
-        "x": 7.149882874034261,
-        "y": 7.322402196006321
+        "x": 6.9602600133062955,
+        "y": 7.451834960620388
       },
       "nextControl": {
-        "x": 8.946063062162889,
-        "y": 7.436172450469901
+        "x": 8.253786973260222,
+        "y": 7.390999911442226
       },
       "isLocked": false,
       "linkedName": null
@@ -46,23 +46,75 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.15,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "deployIntake"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 1.5,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "AutoSOTM"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.0,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "AutoSOTM"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.5,
-    "maxAcceleration": 4.5,
+    "maxAcceleration": 4.3,
     "maxAngularVelocity": 720.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -175.9221588165818,
+    "rotation": -160.98628740427347,
     "rotateFast": false
   },
   "reversed": false,
   "folder": "Six piece SOTM",
   "previewStartingState": {
     "rotation": -146.01138350944677,
-    "velocity": 0
+    "velocity": 0.4
   },
   "useDefaultConstraints": true
 }

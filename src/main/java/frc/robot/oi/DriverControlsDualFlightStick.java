@@ -46,17 +46,6 @@ public class DriverControlsDualFlightStick implements DriverControls {
 
 
   @Override
-  public Trigger setClimberServoClose() {
-    return m_leftJoystick.button(1);
-  }
-
-  @Override
-  public Trigger setClimberServoOpen() {
-    return m_leftJoystick.button(2);
-  }
-
-
-  @Override
   public Trigger goToIntakePosition(){
     return m_leftJoystick.button(1);
   }
