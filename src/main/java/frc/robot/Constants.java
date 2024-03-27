@@ -175,7 +175,7 @@ public final class Constants {
     }
 
     public static final class WristConstants {
-      public static final int kPort = 7;
+      public static final int kPort = 3;
       public static final double kVoltage = 6.0;
     }
 

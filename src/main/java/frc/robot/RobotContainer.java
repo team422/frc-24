@@ -42,11 +42,11 @@ import frc.robot.utils.ShooterMath;
 
 public class RobotContainer {
 
-  RobotState m_robotState;
-  Drive m_drive;
-  Intake m_intake;
-  Shooter m_shooter;
-  Climb m_climber;
+  // RobotState m_robotState;
+  // Drive m_drive;
+  // Intake m_intake;
+  // Shooter m_shooter;
+  // Climb m_climber;
   Wrist m_wrist;
 
   DriverControls m_driverControls;
@@ -60,18 +60,18 @@ public class RobotContainer {
   }
 
   public void configureCommands() {
-    m_drive.setDefaultCommand(new TeleopControllerNoAugmentation(m_drive, () -> m_driverControls.getDriveForward(),
-        () -> m_driverControls.getDriveLeft(), () -> m_driverControls.getDriveRotation(),
-        DriveConstants.controllerDeadzone));
-    m_driverControls.setShooter45().onTrue(Commands.runOnce(() -> {
-      System.out.println("Setting shooter to 45");
-      m_shooter.setPivotAngle(Rotation2d.fromDegrees(45));
-    }));
+    // m_drive.setDefaultCommand(new TeleopControllerNoAugmentation(m_drive, () -> m_driverControls.getDriveForward(),
+    //     () -> m_driverControls.getDriveLeft(), () -> m_driverControls.getDriveRotation(),
+    //     DriveConstants.controllerDeadzone));
+    // m_driverControls.setShooter45().onTrue(Commands.runOnce(() -> {
+    //   System.out.println("Setting shooter to 45");
+    //   m_shooter.setPivotAngle(Rotation2d.fromDegrees(45));
+    // }));
 
-    m_operatorControls.setClimbTop().onTrue(m_climber.setDesiredHeightCommand(Setpoints.kClimberTop));
-    m_operatorControls.setClimbBottom().onTrue(m_climber.setDesiredHeightCommand(Setpoints.kClimberBottom));
-    m_operatorControls.climbUp().whileTrue(m_climber.moveCommand(ClimbConstants.kClimbUpSpeed.get()));
-    m_operatorControls.climbDown().whileTrue(m_climber.moveCommand(-ClimbConstants.kClimbDownSpeed.get()));
+    // m_operatorControls.setClimbTop().onTrue(m_climber.setDesiredHeightCommand(Setpoints.kClimberTop));
+    // m_operatorControls.setClimbBottom().onTrue(m_climber.setDesiredHeightCommand(Setpoints.kClimberBottom));
+    // m_operatorControls.climbUp().whileTrue(m_climber.moveCommand(ClimbConstants.kClimbUpSpeed.get()));
+    // m_operatorControls.climbDown().whileTrue(m_climber.moveCommand(-ClimbConstants.kClimbDownSpeed.get()));
 
     m_driverControls.wristUp().onTrue(
       m_wrist.moveUpCommand()
@@ -94,8 +94,8 @@ public class RobotContainer {
   public void configureSubsystems() {
     if (Robot.isSimulation()) {
       DriverStation.silenceJoystickConnectionWarning(true);
-      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim(),
-                            new RollerIOSim(), IntakeConstants.kIntakeVoltage);
+      // m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim(),
+      //                       new RollerIOSim(), IntakeConstants.kIntakeVoltage);
     }
     // Logger.recordOutput("kShooterBackLeft", new Pose3d(FieldConstants.kShooterBackLeft, new Rotation3d(0, 0, 0)));
     // Logger.recordOutput("kShooterBackRight", new Pose3d(FieldConstants.kShooterBackRight, new Rotation3d(0, 0, 0)));
@@ -105,32 +105,32 @@ public class RobotContainer {
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
 
-    m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()), new Pose2d(),
-        new SwerveModuleIOSim(),
-        new SwerveModuleIOSim(),
-        new SwerveModuleIOSim(),
-        new SwerveModuleIOSim());
+    // m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d()), new Pose2d(),
+    //     new SwerveModuleIOSim(),
+    //     new SwerveModuleIOSim(),
+    //     new SwerveModuleIOSim(),
+    //     new SwerveModuleIOSim());
+
+    // if (Robot.isSimulation()) {
+    //   m_shooter = new Shooter(new PivotIOSim());
+    // }
 
     if (Robot.isSimulation()) {
-      m_shooter = new Shooter(new PivotIOSim());
-    }
-
-    if (Robot.isSimulation()) {
-      m_climber = new Climb(new ClimbIOSim(),
-          new ProfiledPIDController(ClimbConstants.kClimbP.get(), ClimbConstants.kClimbI.get(),
-              ClimbConstants.kClimbD.get(),
-              new Constraints(ClimbConstants.kMaxVelocity, ClimbConstants.kMaxAcceleration)),
-          ClimbConstants.kMinHeight, ClimbConstants.kMaxHeight);
+      // m_climber = new Climb(new ClimbIOSim(),
+      //     new ProfiledPIDController(ClimbConstants.kClimbP.get(), ClimbConstants.kClimbI.get(),
+      //         ClimbConstants.kClimbD.get(),
+      //         new Constraints(ClimbConstants.kMaxVelocity, ClimbConstants.kMaxAcceleration)),
+      //     ClimbConstants.kMinHeight, ClimbConstants.kMaxHeight);
     }
 
     m_wrist = new Wrist(new WristIONeo(WristConstants.kPort), WristConstants.kVoltage);
 
-    m_robotState = RobotState.startInstance(m_drive, null, null, m_shooter, null, null, m_intake);
+    // m_robotState = RobotState.startInstance(m_drive, null, null, m_shooter, null, null, m_intake);
   }
 
   public void updateRobotState() {
-    m_robotState.updateRobotState();
-    m_robotState.calculateShooterAngle();
+    // m_robotState.updateRobotState();
+    // m_robotState.calculateShooterAngle();
   }
 
   public void onDisabled() {

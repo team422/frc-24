@@ -43,7 +43,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Robot;
-import frc.robot.RobotState;
+// import frc.robot.RobotState;
 import frc.robot.subsystems.drive.gyro.GyroIO;
 import frc.robot.subsystems.drive.gyro.GyroInputsAutoLogged;
 
@@ -289,7 +289,7 @@ public class Drive extends ProfiledSubsystem {
   }
 
   public void moduleAndAccuracyTesting() {
-    m_swerveTester = RobotState.getInstance().getSwerveTester();
+    // m_swerveTester = RobotState.getInstance().getSwerveTester();
     m_swerveTester.runTest();
     if (m_creatingAprilTagFieldLayout) {
       handleCreatingAprilTagFieldLayout();
@@ -325,7 +325,7 @@ public class Drive extends ProfiledSubsystem {
       m_aprilTagFieldCreationStage = AprilTagFieldCreationStage.kSpinningToFind;
     }
     if (m_aprilTagFieldCreationStage == AprilTagFieldCreationStage.kSpinningToFind) {
-      ArrayList<AprilTag> curTags = RobotState.getInstance().getAprilTagsInView();
+      ArrayList<AprilTag> curTags = new ArrayList<AprilTag>();
       for (AprilTag tag : curTags) {
         if (m_tags.indexOf(tag.ID) == -1) {
           m_tags.add(tag.ID);
@@ -395,7 +395,7 @@ public class Drive extends ProfiledSubsystem {
     }
 
     AprilTagFieldLayout newFieldLayout = new AprilTagFieldLayout(newTags, maxX, maxY);
-    RobotState.getInstance().setAprilTagMap(newFieldLayout);
+    // RobotState.getInstance().setAprilTagMap(newFieldLayout);
     m_createdAprilTagFieldLayout = true;
 
   }
