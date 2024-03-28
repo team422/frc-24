@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib.utils.EricNubControls;
+import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.RobotState;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -24,8 +25,8 @@ public class TeleopControllerNoAugmentation extends Command {
   double curYSpeed;
   double curZRotation;
   
-  PIDController mTurnController;
-  double headingPIDActiveTime;
+  PIDController mTurnController = new PIDController(1,0,0);
+  double headingPIDActiveTime = -1;
   double headingTarget;
   double deadzone;
   ChassisSpeeds speeds;
@@ -46,6 +47,9 @@ public class TeleopControllerNoAugmentation extends Command {
   }
   @Override
   public void execute() {
+    LoggedTunableNumber.ifChanged(hashCode(),()->{
+      mTurnController.setPID(DriveConstants.kHeadingP.get(),DriveConstants.kHeadingI.get(),DriveConstants.kHeadingD.get());
+    },DriveConstants.kHeadingP,DriveConstants.kHeadingI,DriveConstants.kHeadingD  );
     curXSpeed = xSpeed.get();
     curYSpeed = ySpeed.get();
     curZRotation = zRotation.get();
@@ -58,25 +62,32 @@ public class TeleopControllerNoAugmentation extends Command {
             curXSpeed *= -1;
             curYSpeed *= -1;
     }
-    speeds = ChassisSpeeds.fromFieldRelativeSpeeds(curXSpeed, curYSpeed, curZRotation,
-        m_drive.getPose().getRotation());
+    
     // System.out.println(speeds);
     Logger.recordOutput("Heading pid active",false);
-    if(headingPIDActiveTime > Timer.getFPGATimestamp()){
-      if(curZRotation > 0){
-        headingPIDActiveTime = Timer.getFPGATimestamp() + 1;
-      }
-      if(Units.radiansToDegrees(headingTarget - m_drive.getPose().getRotation().getRadians()) > 25){
-        headingTarget = m_drive.getPose().getRotation().getRadians();
+    Logger.recordOutput("current controller z rotation",curZRotation);
+    // if(headingPIDActiveTime < Timer.getFPGATimestamp()){
+
+    //   if(curZRotation != 0){
+    //     headingPIDActiveTime = Timer.getFPGATimestamp() + 1;
+    //     headingTarget = m_drive.getPose().getRotation().getRadians();
+    //   }
+    //   if(Units.radiansToDegrees(headingTarget - m_drive.getPose().getRotation().getRadians()) > 25){
+    //     headingTarget = m_drive.getPose().getRotation().getRadians();
         
-      }
-      else if(curZRotation == 0){
-        curZRotation = mTurnController.calculate(m_drive.getPose().getRotation().getRadians(), headingTarget);
-        Logger.recordOutput("Heading pid active",true);
-      } 
-    }else {
-      headingTarget = m_drive.getPose().getRotation().getRadians();
-    }
+    //   }
+    //   else if(curZRotation == 0){
+    //     curZRotation = mTurnController.calculate(m_drive.getPose().getRotation().getRadians(), headingTarget);
+    //     Logger.recordOutput("Heading pid active",true);
+    //   } 
+    // }else {
+    //   headingTarget = m_drive.getPose().getRotation().getRadians();
+    // }
+    Logger.recordOutput("current heading target",headingTarget);
+    Logger.recordOutput("current curZRotation",curZRotation);
+
+    speeds = ChassisSpeeds.fromFieldRelativeSpeeds(curXSpeed, curYSpeed, curZRotation,
+        m_drive.getPose().getRotation());
     m_drive.drive(speeds);
   }
 }

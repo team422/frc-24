@@ -33,7 +33,7 @@ import frc.robot.commands.drive.FeedForwardCharacterization;
 import frc.robot.commands.drive.TeleopControllerNoAugmentation;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.oi.DriverControls;
-import frc.robot.oi.DriverControlsXboxController;
+import frc.robot.oi.DriverControlsXboxReal;
 import frc.robot.oi.ManualController;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.ClimbIOTalon;
@@ -45,6 +45,7 @@ import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.pivot.PivotIOSim;
 import frc.robot.subsystems.led.Led;
 import frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar;
 import frc.robot.subsystems.northstarAprilTagVision.SimVisionSystem;
@@ -53,6 +54,7 @@ import frc.robot.subsystems.objectVision.ObjectDetectionIODepth;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterIsIntaking;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOKraken;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.shooter.pivot.PivotIOFalcon;
 import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.GeomUtil;
@@ -91,8 +93,8 @@ public class RobotContainer {
   }
 
   public void configureControllers(){
-    m_driverControls = new DriverControlsXboxController(3);
-    // m_driverControls = new DriverControlsXboxReal(4);
+    // m_driverControls = new DriverControlsXboxController(3);
+    m_driverControls = new DriverControlsXboxReal(3);
     m_testingController = new ManualController(4);
     
   }
@@ -346,7 +348,7 @@ public class RobotContainer {
     
     // m_shooter = new Shooter(new PivotIOSim(), new FlywheelIOSim());
     Unmanaged.setPhoenixDiagnosticsStartTime(-1);
-    m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new AprilTagVisionIONorthstar("northstar_0",""),new AprilTagVisionIONorthstar("northstar_1",""),new AprilTagVisionIONorthstar("northstar_2",""),new AprilTagVisionIONorthstar("northstar_3",""));
+    // m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new AprilTagVisionIONorthstar("northstar_0",""),new AprilTagVisionIONorthstar("northstar_1",""),new AprilTagVisionIONorthstar("northstar_2",""),new AprilTagVisionIONorthstar("northstar_3",""));
     if (Robot.isSimulation()) {
       m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim() );
       m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
@@ -372,9 +374,9 @@ public class RobotContainer {
       
     }
     else{
-      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() , new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort));
-    m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
-      // m_shooter = new Shooter(new PivotIO());
+      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() , new frc.robot.subsystems.intake.rollers.RollerIOSim());
+    // m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
+      m_shooter = new Shooter(new frc.robot.subsystems.shooter.pivot.PivotIOSim(), new FlywheelIOSim());
     //   SwerveModuleIO[] m_swerveModuleIOs = {
     //     new SwerveModuleIOMK4iSparkMax(Constants.Ports.leftFrontDrivingMotorPort, Ports.leftFrontTurningMotorPort,
     //         Ports.leftFrontCanCoderPort),
