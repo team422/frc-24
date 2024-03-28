@@ -127,7 +127,7 @@ public class Drive extends ProfiledSubsystem {
   }
 
   public enum DriveProfiles {
-    kDefault, kTuning, kTesting, kFFdrive, kFFPIDDrive, kModuleAndAccuracyTesting, kTrajectoryFollowing, kAutoAlign, kShootWithTrajectory,kAutoPiecePickup,kAutoShoot,WHEEL_RADIUS_CHARACTERIZATION,CHARACTERIZATION
+    kDefault, kTuning, kTesting, kFFdrive, kFFPIDDrive, kModuleAndAccuracyTesting, kTrajectoryFollowing, kAutoAlign, kShootWithTrajectory,kAutoPiecePickup,kAutoShoot,WHEEL_RADIUS_CHARACTERIZATION,CHARACTERIZATION,WHEEL_RADIUS_CHARACTERIZATION_ORIENTATION
   }
 
   // Profiling variables
@@ -276,6 +276,7 @@ private SwerveSetpoint currentSetpoint =
       // System.out.println("Everything is null");
       return;
     }
+    m_desChassisSpeeds = ChassisSpeeds.discretize(m_desChassisSpeeds, 0.05);
     double[] m_voltageDrive = new double[4];
     double[] m_voltageTurn = new double[4];
     SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(m_desChassisSpeeds);
@@ -341,30 +342,31 @@ private SwerveSetpoint currentSetpoint =
     if (m_desChassisSpeeds == null) {
       return;
     }
-    m_desChassisSpeeds = ChassisSpeeds.discretize(m_desChassisSpeeds, 0.05);
-    ModuleLimits currentModuleLimits = RobotState.getInstance().getModuleLimits();
-    currentSetpoint =
-        setpointGenerator.generateSetpoint(
-            currentModuleLimits, currentSetpoint, m_desChassisSpeeds, Constants.loopPeriodSecs);
-      ChassisSpeeds finalSpeeds = currentSetpoint.chassisSpeeds();
+    
+    // ModuleLimits currentModuleLimits = RobotState.getInstance().getModuleLimits();
+    // currentSetpoint =
+    //     setpointGenerator.generateSetpoint(
+    //         currentModuleLimits, currentSetpoint, m_desChassisSpeeds, Constants.loopPeriodSecs);
+    //   ChassisSpeeds finalSpeeds = currentSetpoint.chassisSpeeds();
       SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(m_desChassisSpeeds);
       // SwerveModuleState[] moduleStates = currentSetpoint.moduleStates();
       // Logger.recordOutput("Drive/DesiredSpeedsSetpoint", currentSetpoint.moduleStates() );
 
-  SwerveDriveKinematics.desaturateWheelSpeeds(
-        moduleStates,
-        m_desChassisSpeeds,
-        DriveConstants.kMaxSpeedMetersPerSecond,
-        DriveConstants.kMaxSpeedMetersPerSecond,
-        DriveConstants.kMaxAngularSpeedRadiansPerSecond);
-
+  // SwerveDriveKinematics.desaturateWheelSpeeds(
+  //       moduleStates,
+  //       m_desChassisSpeeds,
+  //       DriveConstants.kMaxSpeedMetersPerSecond,
+  //       DriveConstants.kMaxSpeedMetersPerSecond,
+  //       DriveConstants.kMaxAngularSpeedRadiansPerSecond);
+        // m_desChassisSpeeds = ChassisSpeeds.discretize(m_desChassisSpeeds, 0.02);
     
     
 
-
+    if(m_profiles.getCurrentProfile() != DriveProfiles.WHEEL_RADIUS_CHARACTERIZATION_ORIENTATION){
     for (int i = 0; i < moduleStates.length; i++) {
       moduleStates[i] = SwerveModuleState.optimize(moduleStates[i], m_modules[i].getAngle());
     }
+  }
     SwerveModuleState[] straightStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(m_desChassisSpeeds);
     Logger.recordOutput("Drive/DesiredSpeeds",straightStates);
     Logger.recordOutput("Drive/DesiredSpeedsOptimized",moduleStates);
@@ -794,7 +796,7 @@ odometryLock.lock();
             .orElse(0);
     
       minOdometryUpdates = Math.min(m_gyroInputs.odometryYawPositions.length, minOdometryUpdates);
-    // minOdometryUpdates = Math.min(1,minOdometryUpdates);
+    minOdometryUpdates = Math.min(5,minOdometryUpdates);
     // Pass odometry data to robot state
     SwerveModulePosition[][] positions = new SwerveModulePosition[4][];
     for (int i = 0 ; i < 4;i++){
@@ -891,6 +893,9 @@ odometryLock.lock();
         
       }
 
+    } else if(m_profiles.getCurrentProfile() == DriveProfiles.WHEEL_RADIUS_CHARACTERIZATION_ORIENTATION){
+      m_desChassisSpeeds = new ChassisSpeeds(0, 0, 1);
+      defaultPeriodic();
     }
     else{
       defaultPeriodic();
@@ -1217,9 +1222,13 @@ odometryLock.lock();
   }
 
   public static Rotation2d[] getCircleOrientations() {
-    return Arrays.stream(DriveConstants.kModuleTranslations)
-        .map(translation -> translation.getAngle().plus(new Rotation2d(Math.PI / 2.0)))
-        .toArray(Rotation2d[]::new);
+    Rotation2d[] orientations = new Rotation2d[4];
+    ChassisSpeeds turn = new ChassisSpeeds(0, 0, 1);
+    SwerveModuleState[] movements = DriveConstants.kDriveKinematics.toSwerveModuleStates(turn);
+    for(int i = 0; i<movements.length; i++){
+      orientations[i] = movements[i].angle;
+    }
+    return orientations;
   }
 
   public double[] getWheelRadiusCharacterizationPosition() {
@@ -1237,22 +1246,13 @@ odometryLock.lock();
 
 
   public Command orientModules(Rotation2d[] orientations) {
-    return run(() -> {
-        setProfile(DriveProfiles.WHEEL_RADIUS_CHARACTERIZATION);
-        characterizationInput = 0;
-          for (int i = 0; i < orientations.length; i++) {
-            m_modules[i].setTurnPositionSetpoint(orientations[i].getRadians());
-          }
-        })
-        .until(
-            () ->
-                Arrays.stream(m_modules)
-                    .allMatch(
-                        module ->
-                            EqualsUtil.epsilonEquals(
-                                Rotation2d.fromRadians(MathUtil.angleModulus(module.getAngle().getRadians())).getDegrees(),
-                                module.getSetpointState().angle.getDegrees(),
-                                2.0)))
+    return runOnce(() -> {
+        setProfile(DriveProfiles.WHEEL_RADIUS_CHARACTERIZATION_ORIENTATION);
+        characterizationInput = .1;
+          // for (int i = 0; i < orientations.length; i++) {
+          //   m_modules[i].runTurnPositionSetpoint(orientations[i].getRadians());
+          // }
+        }).andThen(Commands.waitSeconds(2))
         .beforeStarting(() -> modulesOrienting = true)
         .finallyDo(() -> modulesOrienting = false)
         .withName("Orient Modules");

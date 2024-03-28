@@ -137,6 +137,8 @@ public final class Constants {
 
       public static final double kMaxSpeed = 100;
       public static final double kIdleSpeed = 21;
+      public static final double kIdleSpeedClose = 12;
+      public static final double kIdleSpeedFar = 21;
       public static final LoggedTunableNumber kFlywheelSpeedLeft = new LoggedTunableNumber("Flywheel Speed Left", 0.0, "Shooter");
       public static final LoggedTunableNumber kFlywheelSpeedRight = new LoggedTunableNumber("Flywheel Speed Right", 0.0, "Shooter");
       public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 3.800000, "Amp");
@@ -208,7 +210,7 @@ public final class Constants {
     public static final Integer kId = 1;
     public static final Integer kOdometryFrequency = 250;
     public static final double kMaxSpeedMetersPerSecond = 5.8;
-    public static final double kMaxAngularSpeedRadiansPerSecond = 1.25 * Math.PI;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 1.75 * Math.PI;
     public static final LoggedTunableNumber driveAccel = new LoggedTunableNumber("drive accel",.3,"Drive");
     public static final double controllerDeadzone = 0.04;
     public static final double kShootToleranceDeg = 5;
@@ -242,9 +244,17 @@ public final class Constants {
     public static final PathConstraints kDriveToPieceSpeed = new PathConstraints(5.5,22.5,5,5);
     public static final LoggedTunableNumber AutoAlignP = new LoggedTunableNumber("Auto Align P", 4.5, "Drive");
     public static final LoggedTunableNumber AutoAlignD = new LoggedTunableNumber("Auto Align D", 0.05, "Drive");
+    public static final LoggedTunableNumber kHeadingP = new LoggedTunableNumber("kHeadingP", 1.000 , "Drive");
+    public static final LoggedTunableNumber kHeadingI = new LoggedTunableNumber("kHeadingI", 0.000 , "Drive");
+    public static final LoggedTunableNumber kHeadingD = new LoggedTunableNumber("kHeadingD", 0.030000 , "Drive");
   }
 
   public static final class ModuleConstants {
+
+    public static final LoggedTunableNumber currentAngleToGoTo = new LoggedTunableNumber("Angle to set wheels to", 0,"drive");
+    public static final LoggedTunableNumber turnStatic = new LoggedTunableNumber("drive ff", -0.200000,"drive");
+
+
     public static final LoggedTunableNumber kDriveP = new LoggedTunableNumber("Drive wP", 3.000000, "Drive");
     public static final LoggedTunableNumber kDriveI = new LoggedTunableNumber("Drive I", 0.0, "Drive");
     public static final LoggedTunableNumber kDriveD = new LoggedTunableNumber("Drive D", 0.00, "Drive");
@@ -271,7 +281,10 @@ public final class Constants {
     public static final LoggedTunableNumber BRkTurningI = new LoggedTunableNumber("BR Turning I", 3.00, "Drive");
     public static final LoggedTunableNumber BRkTurningD = new LoggedTunableNumber("BR Turning D", 0.0003 , "Drive");
      
+
     
+
+
 
     public static final LoggedTunableNumber kDriveKS = new LoggedTunableNumber("Drive KS", 0.29785, "Drive");
     public static final LoggedTunableNumber kDriveKV = new LoggedTunableNumber("Drive KV", 2.08931, "Drive");
@@ -287,7 +300,7 @@ public final class Constants {
     public static final LoggedTunableNumber kStartAccelSim = new LoggedTunableNumber("Start Accel Sim", 4.5, "Drive");
     public static final LoggedTunableNumber kAccelDropoffSim = new LoggedTunableNumber("Accel Dropoff Sim", -1, "Drive");
 
-    public static final double kWheelDiameterMeters = Units.inchesToMeters(4); // 0.09398; // 3.7 in
+    public static final double kWheelDiameterMeters = Units.inchesToMeters(1.945*2); // 0.09398; // 3.7 in
 
     public static final double kDriveGearRatio = 5.35714286; // OLD 6.75
     public static final double kDriveConversionFactor = ((kDriveGearRatio/ ((Units.inchesToMeters(4) * Math.PI) )));
@@ -322,6 +335,7 @@ public final class Constants {
     public static final double kShooterBaseLength = Units.inchesToMeters(217.9585);
     public static final Rotation2d kShooterAngle = Rotation2d.fromDegrees(14);
     public static final Translation3d kShooterCenter = new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(217.9585), Units.inchesToMeters(84));
+    public static final Translation2d kshooterBase = new Translation2d(Units.inchesToMeters(0), Units.inchesToMeters(217.9585));
     public static final Translation3d kShooterLeftCenter = kShooterCenter.minus(new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(41.375)/4, 0));
     public static final Translation3d kShooterRightCenter = kShooterCenter.plus(new Translation3d(Units.inchesToMeters(0), Units.inchesToMeters(41.375)/4, 0));
     public static final double kShooterWidth = Units.inchesToMeters(41.375);

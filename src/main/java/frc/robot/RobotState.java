@@ -584,8 +584,11 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           // }
 
          else if (curAction == RobotCurrentAction.kPathPlanner){
-          
-          m_shooter.setFlywheelSpeedWithSpin(ShooterConstants.FlywheelConstants.kIdleSpeed,ShooterConstants.FlywheelConstants.kIdleSpeed);
+          if(getEstimatedPose().getTranslation().getDistance(FieldConstants.kshooterBase) < 3){ 
+            m_shooter.setFlywheelSpeedWithSpin(ShooterConstants.FlywheelConstants.kIdleSpeedClose,ShooterConstants.FlywheelConstants.kIdleSpeedClose);
+          } else {
+            m_shooter.setFlywheelSpeedWithSpin(ShooterConstants.FlywheelConstants.kIdleSpeedFar,ShooterConstants.FlywheelConstants.kIdleSpeedFar);
+          }
           m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
           m_indexer.setState(Indexer.IndexerState.INTAKING);
 

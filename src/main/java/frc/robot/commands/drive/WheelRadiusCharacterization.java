@@ -16,6 +16,7 @@ import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.RobotState;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.Drive.DriveProfiles;
 
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
@@ -57,7 +58,7 @@ public class WheelRadiusCharacterization extends Command {
     accumGyroYawRads = 0.0;
 
     startWheelPositions = drive.getWheelRadiusCharacterizationPosition();
-
+    drive.setProfile(DriveProfiles.WHEEL_RADIUS_CHARACTERIZATION);
     omegaLimiter.reset(0);
   }
 

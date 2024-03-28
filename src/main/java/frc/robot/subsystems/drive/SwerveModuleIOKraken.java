@@ -30,7 +30,9 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -39,6 +41,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.lib.utils.LoggedTunableNumber;
+import frc.lib.utils.TunableNumber;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Robot;
@@ -86,6 +89,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
     private final PIDController mDriveController;
 
     private PIDController mTurnController;
+    private ArmFeedforward mTurnControllerFF;
 
     private final VelocityVoltage driveVelocityVoltage = new VelocityVoltage(0.0);
 
@@ -145,15 +149,16 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         m_turnEncoder.getConfigurator().apply(canCfg);
         // setTurnPID(.3, 0, 0);
         if(Robot.isSimulation()){
-        turnConfig.Feedback.SensorToMechanismRatio = 1;
+        // turnConfig.Feedback.SensorToMechanismRatio = 1;
         // turnConfig.Feedback.RotorToSensorRatio = 150/7;
         }else {
             // turnConfig.Feedback.SensorToMechanismRatio = 1;
-            // turnConfig.Feedback.SensorToMechanismRatio = 150/7;
-            turnConfig.Feedback.RotorToSensorRatio = 1 ;
+            turnConfig.Feedback.SensorToMechanismRatio = 1;
+            turnConfig.Feedback.RotorToSensorRatio = 7/150 ;
         }
         turnConfig.Feedback.FeedbackRemoteSensorID = m_turnEncoder.getDeviceID();
-        turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        turnConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
         
         // mDriveController = new PIDController(m, turnPort, cancoderId)
@@ -280,7 +285,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
 
         inputs.driveDistanceMeters = getDriveDistanceMeters();
         inputs.driveVelocityMetersPerSecond = getDriveVelocityMetersPerSecond();
-        inputs.turnAngleRads = turnPosition.getValueAsDouble();
+        inputs.turnAngleRads = Units.radiansToDegrees(turnPosition.getValueAsDouble());
         inputs.turnRadsPerSecond = getTurnVelocityRadsPerSecond();
         inputs.angleDegrees = getAngle().getDegrees();
         inputs.desiredAngleDegrees = Rotation2d.fromRadians(angleRadsSet).getDegrees();
@@ -360,6 +365,7 @@ inputs.odometryTurnPositions =
 
     @Override
     public Rotation2d getAngle() {
+        // return Rotation2d.fromRadians(turnPosition.getValueAsDouble());
         return Rotation2d.fromRadians(MathUtil.angleModulus(turnAbsolutePosition.get().getRadians()));
     }
 
@@ -390,8 +396,8 @@ inputs.odometryTurnPositions =
 
     @Override
     public void setVoltage(double voltageDrive, double voltageTurn) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setVoltage'");
+        m_driveMotor.setControl(new VoltageOut(voltageDrive));
+        m_turnMotor.setControl(new VoltageOut(voltageTurn));
     }
 
 
@@ -511,9 +517,9 @@ inputs.odometryTurnPositions =
     if (velocityMetersPerSec < 1){
         pidVal/=5;   
     }
-    // m_driveMotor.setControl(new VoltageOut(pidVal + feedForward).withEnableFOC(true));
+    m_driveMotor.setControl(new VoltageOut(pidVal + feedForward).withEnableFOC(true));
     double rotations = metersPerSecondToRotationsPerSecond(velocityMetersPerSec);
-    m_driveMotor.setControl(driveVelocityControl.withVelocity(rotations).withFeedForward(feedForward));
+    // m_driveMotor.setControl(driveVelocityControl.withVelocity(rotations).withFeedForward(feedForward + pidVal));
 
   }
 
@@ -537,13 +543,25 @@ inputs.odometryTurnPositions =
     // System.out.println("running turn position setpoint" + angleRads);
     angleRadsSet = angleRads;
     if (Robot.isReal()){
+        // angleRads = Units.degreesToRadians(ModuleConstants.currentAngleToGoTo.get());
+        double turnFF = ModuleConstants.turnStatic.get();
+        if(getAngle().getRadians()  - MathUtil.angleModulus(angleRads)  < 0){
+            turnFF *=-1;
+        }
+
+        // Logger.recordOutput("ff des angle",getAngle().getRadians());
+        // Logger.recordOutput("ff actual angle",MathUtil.angleModulus(angleRads));
+        // Logger.recordOutput("ff val",turnFF);
+
+
         
-        // m_turnMotor.setControl(positionControl.withPosition(Units.radiansToRotations(angleRads)));
-        m_turnMotor.setControl(new VoltageOut(-mTurnController.calculate(getAngle().getRadians(), angleRads)).withEnableFOC(true));
+
+        m_turnMotor.setControl(positionControl.withPosition(Units.radiansToRotations(angleRads)).withEnableFOC(true).withFeedForward(turnFF));
+        // m_turnMotor.setControl(new VoltageOut(-mTurnController.calculate(getAngle().getRadians(x ), angleRads)).withEnableFOC(true));
         // m_turnMotor.setControl(new VoltageOut(3).withEnableFOC(true));
     } else {
         // m_turnMotor.setControl(positionControl.withPosition(Units.radiansToRotations(angleRads)));
-        m_turnMotor.setControl(new VoltageOut(mTurnController.calculate(turnAbsolutePosition.get().getRadians() % (Math.PI *2), angleRads)).withEnableFOC(true));
+        m_turnMotor.setControl(new VoltageOut(-mTurnController.calculate(turnAbsolutePosition.get().getRadians() % (Math.PI *2), angleRads)).withEnableFOC(true));
     }
 
   }
