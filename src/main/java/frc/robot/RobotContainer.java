@@ -464,7 +464,7 @@ public class RobotContainer {
     double start = HALUtil.getFPGATime();
     VirtualSubsystem.periodicAll(); 
     m_robotState.updateRobotState();
-    m_robotState.calculateShooterAngle();
+    // m_robotState.calculateShooterAngle();
     
     // m_TebInterfacer.update();
     m_robotState.getEstimatedPose();

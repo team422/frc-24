@@ -86,4 +86,8 @@ public class Intake extends ProfiledSubsystem {
         return new Transform3d(-0.515+.287, 0, 0.233, new Rotation3d(0, m_pivotInputs.curAngle, 0));
         // return new Transform3d(-0, 0, 0, new Rotation3d(0, m_rotation.getRadians(), 0));
     }
+
+    public Rotation2d getAngle() {
+        return m_rotation;
+    }
 }

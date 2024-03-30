@@ -212,63 +212,65 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     // if (edu.wpi.first.wpilibj.RobotState.isAutonomous()){
     //   return ;
     // }
-    try {
-      if (poseBuffer.getInternalBuffer().lastKey() - poseBufferSizeSeconds
-          > observation.timestamp()) {
-        return;
-      }
-    } catch (NoSuchElementException ex) {
-      return;
-    }
-    // Get odometry based pose at timestamp
-    var sample = poseBuffer.getSample(observation.timestamp());
-    if (sample.isEmpty()) {
-      // exit if not there
-      System.out.println("Sample is empty");
-      return;
-    }
+    // try {
+    //   if (poseBuffer.getInternalBuffer().lastKey() - poseBufferSizeSeconds
+    //       > observation.timestamp()) {
+    //     return;
+    //   }
+    // } catch (NoSuchElementException ex) {
+    //   return;
+    // }
+    // // Get odometry based pose at timestamp
+    // var sample = poseBuffer.getSample(observation.timestamp());
+    // if (sample.isEmpty()) {
+    //   // exit if not there
+    //   System.out.println("Sample is empty");
+    //   return;
+    // }
 
     
     
 
-    // sample --> odometryPose transform and backwards of that
-    var sampleToOdometryTransform = new Transform2d(sample.get(), odometryPose);
-    var odometryToSampleTransform = new Transform2d(odometryPose, sample.get());
-    // get old estimate by applying odometryToSample Transform
-    Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
+    // // sample --> odometryPose transform and backwards of that
+    // var sampleToOdometryTransform = new Transform2d(getEstimatedPose(), odometryPose);
+    // var odometryToSampleTransform = new Transform2d(odometryPose, getEstimatedPose());
+    // // // get old estimate by applying odometryToSample Transform
+    // Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
 
-    // Calculate 3 x 3 vision matrix
-    var r = new double[3];
-    for (int i = 0; i < 3; ++i) {
-      r[i] = observation.stdDevs().get(i, 0) * observation.stdDevs().get(i, 0);
-    }
-    // Solve for closed form Kalman gain for continuous Kalman filter with A = 0
-    // and C = I. See wpimath/algorithms.md.
-    Matrix<N3, N3> visionK = new Matrix<>(Nat.N3(), Nat.N3());
-    for (int row = 0; row < 3; ++row) {
-      double stdDev = qStdDevs.get(row, 0);
-      if (stdDev == 0.0) {
-        visionK.set(row, row, 0.0);
-      } else {
-        visionK.set(row, row, stdDev / (stdDev + Math.sqrt(stdDev * r[row])));
-      }
-    }
+    // // Calculate 3 x 3 vision matrix
+    // var r = new double[3];
+    // for (int i = 0; i < 3; ++i) {
+    //   r[i] = observation.stdDevs().get(i, 0) * observation.stdDevs().get(i, 0);
+    // }
+    // // Solve for closed form Kalman gain for continuous Kalman filter with A = 0
+    // // and C = I. See wpimath/algorithms.md.
+    // Matrix<N3, N3> visionK = new Matrix<>(Nat.N3(), Nat.N3());
+    // for (int row = 0; row < 3; ++row) {
+    //   double stdDev = qStdDevs.get(row, 0);
+    //   if (stdDev == 0.0) {
+    //     visionK.set(row, row, 0.0);
+    //   } else {
+    //     visionK.set(row, row, stdDev / (stdDev + Math.sqrt(stdDev * r[row])));
+    //   }
+    // }
     // difference between estimate and vision pose
-    Transform2d transform = new Transform2d(estimateAtTime, observation.visionPose());
-    // scale transform by visionK
-    var kTimesTransform =
-        visionK.times(
-            VecBuilder.fill(
-                transform.getX(), transform.getY(), transform.getRotation().getRadians()));
-    Transform2d scaledTransform =
-        new Transform2d(
-            kTimesTransform.get(0, 0),
-            kTimesTransform.get(1, 0),
-            Rotation2d.fromRadians(kTimesTransform.get(2, 0)));
+    m_drive.addVisionMeasurement(observation.visionPose(), observation.timestamp(),observation.stdDevs());
+    
+    // Transform2d transform = new Transform2d(estimateAtTime, observation.visionPose());
+    // // scale transform by visionK
+    // var kTimesTransform =
+    //     visionK.times(
+    //         VecBuilder.fill(
+    //             transform.getX(), transform.getY(), transform.getRotation().getRadians()));
+    // Transform2d scaledTransform =
+    //     new Transform2d(
+    //         kTimesTransform.get(0, 0),
+    //         kTimesTransform.get(1, 0),
+    //         Rotation2d.fromRadians(kTimesTransform.get(2, 0)));
 
-    // Recalculate current estimate by applying scaled transform to old estimate
-    // then replaying odometry data
-    estimatedPose = estimateAtTime.plus(scaledTransform).plus(sampleToOdometryTransform);
+    // // Recalculate current estimate by applying scaled transform to old estimate
+    // // then replaying odometry data
+    // estimatedPose = estimateAtTime.plus(scaledTransform).plus(sampleToOdometryTransform);
   }
 
   public void goToShootPositionAndRev(){
@@ -815,10 +817,10 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     }
     @AutoLogOutput(key = "RobotState/EstimatedPose")
     public Pose2d getEstimatedPose() {
-      return estimatedPose;
+      return m_drive.getPose();
     }
     @AutoLogOutput(key = "RobotState/OdometryPose")
   public Pose2d getOdometryPose() {
-    return odometryPose;
+    return m_drive.getPose();
   }
 }

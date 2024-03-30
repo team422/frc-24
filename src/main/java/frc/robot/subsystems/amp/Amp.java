@@ -25,6 +25,7 @@ public class Amp extends ProfiledSubsystem {
     public Amp(AmpIO ampIO) {
         m_ampIO = ampIO;
         ampRotation2d = ampIO.getPosition();
+        m_inputsPivot = new AmpIOInputsAutoLogged();
     }
 
     
