@@ -26,15 +26,17 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules);
-        // if (Utils.isSimulation()) {
-        //     startSimThread();
-        // }
+        if (Utils.isSimulation()) {
+            startSimThread();
+        }
     }
+
+
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
-        // if (Utils.isSimulation()) {
-        //     startSimThread();
-        // }
+        if (Utils.isSimulation()) {
+            startSimThread();
+        }
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {

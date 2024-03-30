@@ -92,14 +92,7 @@ public class Intake extends ProfiledSubsystem {
         // return new Transform3d(-0, 0, 0, new Rotation3d(0, m_rotation.getRadians(), 0));
     }
 
-    public Command startIntakeAtVoltage(double voltage) {
-        return runEnd(
-            () -> setRollerVoltage(voltage),
-            () -> setRollerVoltage(0)
-        );
-    }
-
-    public Command intakeCommand() {
-        return startIntakeAtVoltage(m_intakeVoltage);
+    public Rotation2d getAngle() {
+        return m_rotation;
     }
 }

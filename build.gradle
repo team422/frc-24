@@ -30,7 +30,7 @@ deploy {
                   gcType = 'Other'
                   jvmArgs << '-XX:+UseG1GC'
                 jvmArgs.add("-XX:+UseG1GC")
-                jvmArgs.add("-XX:MaxGCPauseMillis=1")
+                jvmArgs.add("-XX:MaxGCPauseMillis=20")
                 jvmArgs.add("-XX:GCTimeRatio=1")
                 }
 

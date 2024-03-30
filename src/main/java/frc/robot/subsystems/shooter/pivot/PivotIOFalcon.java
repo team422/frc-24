@@ -153,6 +153,7 @@ public class PivotIOFalcon implements PivotIO {
         // Optimize bus utilization
         leaderTalon.optimizeBusUtilization(1.0);
         followerTalon.optimizeBusUtilization(1.0);
+        leaderTalon.setPosition(getCurrentAngle().getRotations(), 0.002);
 
         
 
@@ -167,8 +168,8 @@ public class PivotIOFalcon implements PivotIO {
         if (Robot.isSimulation()){
             feedforward = 0;
         }
-        leaderTalon.setControl(positionVoltageCycle.withPosition(m_desiredAngle.getRotations()).withFeedForward(feedforward).withUpdateFreqHz(0));
-        // leaderTalon.setControl(new VoltageOut(mPositionController.calculate(getCurrentAngle().getRadians(), m_desiredAngle.getRadians())+feedforward).withEnableFOC(true));
+        // leaderTalon.setControl(positionVoltageCycle.withPosition(m_desiredAngle.getRotations()).withFeedForward(feedforward).withUpdateFreqHz(0));
+        leaderTalon.setControl(new VoltageOut(mPositionController.calculate(getCurrentAngle().getRadians(), m_desiredAngle.getRadians())+feedforward).withEnableFOC(true));
     }
 
     @Override

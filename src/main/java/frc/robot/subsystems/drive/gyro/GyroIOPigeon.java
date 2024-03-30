@@ -12,7 +12,7 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.subsystems.drive.PhoenixOdometryThread;
+// import frc.robot.subsystems.drive.PhoenixOdometryThread;
 // import frc.robot.subsystems.drive.PhoenixOdometryThread;
 import frc.robot.subsystems.drive.SparkMaxOdometryThread;
 
@@ -21,7 +21,7 @@ public class GyroIOPigeon implements GyroIO {
   Pigeon2Configurator m_gyroConfig;
   private final double[] yprDegrees = new double[3];
   private final double[] xyzDps = new double[3];
-  private final Queue<Double> yawPositionQueue;
+  // private final Queue<Double> yawPositionQueue;
   private final StatusSignal<Double> yaw;
   private final StatusSignal<Double> yawVelocity;
 
@@ -44,12 +44,12 @@ public class GyroIOPigeon implements GyroIO {
     // m_gyro.configMountPose(0, 30, 0);
 
 if (phoenixDrive) {
-      yawPositionQueue =
-          PhoenixOdometryThread.getInstance().registerSignal(m_gyro, m_gyro.getYaw());
+      // yawPositionQueue =
+          // PhoenixOdometryThread.getInstance().registerSignal(m_gyro, m_gyro.getYaw());
     } else {
-      yawPositionQueue =
-          SparkMaxOdometryThread.getInstance()
-              .registerSignal(() -> m_gyro.getYaw().getValueAsDouble());
+      // yawPositionQueue =
+      //     SparkMaxOdometryThread.getInstance()
+      //         .registerSignal(() -> m_gyro.getYaw().getValueAsDouble());
     }
   }
 
@@ -83,9 +83,9 @@ if (phoenixDrive) {
 
     inputs.yawPosition = Rotation2d.fromDegrees(yaw.getValueAsDouble());
 
-    inputs.odometryYawPositions =
-        yawPositionQueue.stream().map(Rotation2d::fromDegrees).toArray(Rotation2d[]::new);
-    yawPositionQueue.clear();
+    // inputs.odometryYawPositions =
+    //     yawPositionQueue.stream().map(Rotation2d::fromDegrees).toArray(Rotation2d[]::new);
+    // yawPositionQueue.clear();
 
   }
 
