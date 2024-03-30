@@ -2,6 +2,7 @@ package frc.robot.subsystems.led;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
@@ -29,15 +30,19 @@ public class Led extends ProfiledSubsystem {
 
     @Override
     public void periodic() {
+        double start = HALUtil.getFPGATime();
         Logger.recordOutput("LED/State", m_state.toString());
         Logger.recordOutput("LED/Color", m_LEDStripBuffer.getLED(0).toString());
+        Logger.recordOutput("LoggedRobot/LEDPeriodic", (HALUtil.getFPGATime()-start)/1000);
     }
 
     public void setSolidColor(Color color) {
+        double start = HALUtil.getFPGATime();
         for (int i = 0; i < m_LEDStripBuffer.getLength(); i++) {
             m_LEDStripBuffer.setLED(i, color);
         }
         m_LEDStrip.setData(m_LEDStripBuffer);
+        Logger.recordOutput("LoggedRobot/LEDTime", (HALUtil.getFPGATime()-start)/1000);
     }
 
     public void updateState(LedState state) {

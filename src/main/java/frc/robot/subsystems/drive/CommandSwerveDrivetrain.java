@@ -5,9 +5,11 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,22 +26,50 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules);
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
+        // if (Utils.isSimulation()) {
+        //     startSimThread();
+        // }
     }
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
-        if (Utils.isSimulation()) {
-            startSimThread();
-        }
+        // if (Utils.isSimulation()) {
+        //     startSimThread();
+        // }
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
+
         return run(() -> this.setControl(requestSupplier.get()));
     }
+    public void applyRequest(SwerveRequest request) {
+
+         this.setControl(request);
+    }
+
+    public SwerveModule[] getModules() {
+        return Modules;
+
+    }
+
+    public SwerveModuleState[] getTargetStates(){
+        SwerveModuleState[] m_modules = new SwerveModuleState[4];
+        for(int i = 0; i<=3; i++){
+            m_modules[i] = Modules[i].getTargetState();
+        }
+        return m_modules;
+    }
+
+    public SwerveModuleState[] getModuleStates(){
+        SwerveModuleState[] m_modules = new SwerveModuleState[4];
+        for(int i = 0; i<=3; i++){
+            m_modules[i] = Modules[i].getCurrentState();
+        }
+        return m_modules;
+    }
+
 
     private void startSimThread() {
+
         m_lastSimTime = Utils.getCurrentTimeSeconds();
 
         /* Run simulation at a faster rate so PID gains behave more reasonably */

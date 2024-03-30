@@ -14,8 +14,12 @@ import java.util.stream.IntStream;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveControlRequestParameters;
+
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -27,6 +31,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.geometry.Twist3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -37,6 +42,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -67,6 +73,10 @@ import frc.robot.utils.swerve.SwerveSetpoint;
 import frc.robot.utils.swerve.SwerveSetpointGenerator;
 
 public class Drive extends ProfiledSubsystem {
+
+
+  private final CommandSwerveDrivetrain m_CommandSwerveDrivetrain;
+
   private final SwerveModuleIO[] m_modules;
   private final SwerveModuleInputsAutoLogged[] m_inputs;
 
@@ -190,7 +200,8 @@ private SwerveSetpoint currentSetpoint =
 
 
   /** Creates a new Drive. */
-  public Drive(GyroIO gyro, Pose2d startPose, SwerveModuleIO... modules) {
+  public Drive(GyroIO gyro, Pose2d startPose,CommandSwerveDrivetrain commandSwerveDrivetrain, SwerveModuleIO... modules) {
+    m_CommandSwerveDrivetrain = commandSwerveDrivetrain;
     m_modules = modules;
     m_gyro = gyro;
     m_gyroInputs = new GyroInputsAutoLogged();
@@ -359,7 +370,20 @@ private SwerveSetpoint currentSetpoint =
   //       DriveConstants.kMaxSpeedMetersPerSecond,
   //       DriveConstants.kMaxAngularSpeedRadiansPerSecond);
         // m_desChassisSpeeds = ChassisSpeeds.discretize(m_desChassisSpeeds, 0.02);
-    
+
+        // SwerveControlRequestParameters controlRequest = new SwerveControlRequestParameters(DriveConstants.kDriveKinematics,getChassisSpeeds(),getPose(),Timer.getFPGATimestamp(),DriveConstants.kModuleTranslations, new Rotation2d(),0.02);
+        //         public SwerveDriveKinematics kinematics;
+        // public ChassisSpeeds currentChassisSpeed;
+        // public Pose2d currentPose;
+        // public double timestamp;
+        // public Translation2d[] swervePositions;
+        // public Rotation2d operatorForwardDirection;
+        // public double updatePeriod;
+        // SwerveRequest request = new SwerveRequest();
+        m_desChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(m_desChassisSpeeds,getPose().getRotation());
+        SwerveRequest request = new SwerveRequest.FieldCentric().withVelocityX(m_desChassisSpeeds.vxMetersPerSecond).withVelocityY(m_desChassisSpeeds.vyMetersPerSecond).withRotationalRate(m_desChassisSpeeds.omegaRadiansPerSecond);
+        // m_CommandSwerveDrivetrain.applyRequest(request);
+        
     
 
     if(m_profiles.getCurrentProfile() != DriveProfiles.WHEEL_RADIUS_CHARACTERIZATION_ORIENTATION){
@@ -369,14 +393,16 @@ private SwerveSetpoint currentSetpoint =
   }
     SwerveModuleState[] straightStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(m_desChassisSpeeds);
     Logger.recordOutput("Drive/DesiredSpeeds",straightStates);
-    Logger.recordOutput("Drive/DesiredSpeedsOptimized",moduleStates);
+    Logger.recordOutput("Drive/DesiredSpeedsOptimized",m_CommandSwerveDrivetrain.getTargetStates());
+    Logger.recordOutput("Drive/currentSpeeds",m_CommandSwerveDrivetrain.getModuleStates());
+    Logger.recordOutput("Drive/CTREPos",m_CommandSwerveDrivetrain.getState().Pose);
 
 
     // Logger.getInstance().recordOutput("Drive/DesiredModuleStates", moduleStates);
     // Double[] tractionControlStates = calculateTractionLoss(getModuleStates(), getChassisSpeeds(), moduleStates,
     //     m_desChassisSpeeds);
 
-    setModuleStates(moduleStates);
+    // setModuleStates(moduleStates);
 
   }
 
@@ -748,6 +774,7 @@ private SwerveSetpoint currentSetpoint =
   }
   @Override
   public void periodic() {
+    double start = HALUtil.getFPGATime();
     // m_DrivePoseEstimator.update(m_gyro.getAngle(), getSwerveModulePositions());
     LoggedTunableNumber.ifChanged(hashCode(), ()->{
       ff = new SimpleMotorFeedforward(ModuleConstants.kffkS.get(),ModuleConstants.kffkV.get(),ModuleConstants.kffkA.get());
@@ -857,6 +884,7 @@ odometryLock.lock();
                     wheelPositions, yaw, odometryTimestampInputs.timestamps[i]));
         lastTime = odometryTimestampInputs.timestamps[i];
       }
+      Logger.recordOutput("LoggedRobot/Drive", (HALUtil.getFPGATime()-start)/1000);
     }   
     
     ChassisSpeeds robotRelativeVelocity = getChassisSpeeds();
@@ -1033,6 +1061,7 @@ odometryLock.lock();
     // m_poseEstimator.resetPosition(m_gyro.getAngle(), getSwerveModulePositions(), pose);
     // poseEstimator.resetPose(pose);
     RobotState.getInstance().resetPose(pose);
+    m_CommandSwerveDrivetrain.seedFieldRelative(pose);
     m_hasResetOdometry = true;
   }
 

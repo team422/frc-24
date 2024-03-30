@@ -58,4 +58,8 @@ public class ManualController {
         return m_controller.povDown();
     }
 
+    public Trigger zeroAmp() {
+        return m_controller.povLeft();
+    }
+
 }

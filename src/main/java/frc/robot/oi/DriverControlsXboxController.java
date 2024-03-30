@@ -72,7 +72,7 @@ public class DriverControlsXboxController implements DriverControls {
 
   @Override
   public Trigger ampAutoLineup(){
-    return m_controller.L1();
+    return m_controller.L3();
   }
 
   @Override
