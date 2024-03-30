@@ -107,10 +107,14 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
     double angleRadsSet = 0;
 
 
-    public SwerveModuleIOKraken(int drivePort, int turnPort, int cancoderId, boolean turnMotorInverted) {
-        m_driveMotor = new TalonFX(drivePort, "Drivetrain");
-        m_turnMotor = new TalonFX(turnPort, "Drivetrain");
-        m_turnEncoder = new CANcoder(cancoderId,"Drivetrain");
+    public SwerveModuleIOKraken(TalonFX drivePort, TalonFX turnPort, CANcoder cancoderId, boolean turnMotorInverted) {
+        // m_driveMotor = new TalonFX(drivePort, "Drivetrain");
+        // m_turnMotor = new TalonFX(turnPort, "Drivetrain");
+        // m_turnEncoder = new CANcoder(cancoderId,"Drivetrain");
+
+        m_driveMotor = drivePort;
+        m_turnMotor = turnPort;
+        m_turnEncoder = cancoderId;
 
         driveConfig = new TalonFXConfiguration();
         driveConfig.CurrentLimits.SupplyCurrentLimit = 65.0;
@@ -163,14 +167,14 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         
         // mDriveController = new PIDController(m, turnPort, cancoderId)
         
-        for (int i = 0; i < 4; i++) {
-            boolean error = m_driveMotor.getConfigurator().apply(driveConfig, 0.1) == StatusCode.OK;
-            setDriveBrakeMode(true);
-            error = error && (m_turnMotor.getConfigurator().apply(turnConfig, 0.1) == StatusCode.OK);
-            setTurnBrakeMode(true);
+        // for (int i = 0; i < 4; i++) {
+        //     boolean error = m_driveMotor.getConfigurator().apply(driveConfig, 0.1) == StatusCode.OK;
+        //     setDriveBrakeMode(true);
+        //     error = error && (m_turnMotor.getConfigurator().apply(turnConfig, 0.1) == StatusCode.OK);
+        //     setTurnBrakeMode(true);
             
-            if (!error) break;
-        }
+        //     if (!error) break;
+        // }
         // setDrivePID(ModuleConstants.kDriveP.get(), ModuleConstants.kDriveI.get(), ModuleConstants.kDriveD.get());
         mDriveController = new PIDController(0.3,0,0);
         mTurnController = new PIDController(0.3, 0.0, 0.1);
@@ -533,7 +537,7 @@ inputs.odometryTurnPositions =
         driveFeedbackConfig.kI = kI;
         driveFeedbackConfig.kD = kD;
      
-        m_driveMotor.getConfigurator().apply(driveFeedbackConfig,0.1);
+        // m_driveMotor.getConfigurator().apply(driveFeedbackConfig,0.1);
 
         mDriveController.setPID(kP, kI, kD);
     }
@@ -575,7 +579,7 @@ inputs.odometryTurnPositions =
         turnFeedbackConfig.kP = kP;
     turnFeedbackConfig.kI = kI;
     turnFeedbackConfig.kD = kD;
-    m_turnMotor.getConfigurator().apply(turnFeedbackConfig, 0.1);
+    // m_turnMotor.getConfigurator().apply(turnFeedbackConfig, 0.1);
 
     mTurnController.setPID(kP, kI, kD);
     // mTurnController.setIZone(3);

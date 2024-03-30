@@ -85,6 +85,8 @@ public final class Constants {
     public static final int shooterPivotFollower = 40;
 
     public static final int ledPort = 9;
+
+    public static final int ampMotor = 51;
   }
 
 
@@ -102,6 +104,7 @@ public final class Constants {
     public static final Rotation2d kIntakeMaxAngle = Rotation2d.fromDegrees(115);
     public static final Rotation2d kIntakeMinAngle = Rotation2d.fromDegrees(10);
     public static final Rotation2d kIntakeHomeAngle = Rotation2d.fromDegrees(29);
+    public static final Rotation2d kAmpAngle = Rotation2d.fromDegrees(100);
 
     // public static final double kIntakePivotManualControl = 0;
     public static final LoggedTunableNumber kIntakePivotManualControl = new LoggedTunableNumber("Intake Pivot Manual Control", 0.5, "Intake Manual");
@@ -162,6 +165,11 @@ public final class Constants {
       public static final LoggedTunableNumber kPivotkA = new LoggedTunableNumber("Pivot KA", 0.0, "Shooter");
       public static final LoggedTunableNumber kPivotkG = new LoggedTunableNumber("Pivot KG", 0.110000, "Shooter"); 
       public static final LoggedTunableNumber kUsingAmp = new LoggedTunableNumber("Pivot using amp", 0, "Shooter"); 
+
+      public static final LoggedTunableNumber kPivotPDirect = new LoggedTunableNumber("Pivot P Direct", 1.0, "Shooter");
+      public static final LoggedTunableNumber kPivotIDirect = new LoggedTunableNumber("Pivot I Direct", 0.0, "Shooter");
+      public static final LoggedTunableNumber kPivotDDirect = new LoggedTunableNumber("Pivot D Direct", 0.0, "Shooter");
+
       public static final double kOffset = Rotation2d.fromDegrees(181.7-13+52+6+123).getRotations();
 
       public static final LoggedTunableNumber kHockeyPuck = new LoggedTunableNumber("hockey puck", 53.0,"Hockey Puck");
@@ -205,6 +213,14 @@ public final class Constants {
       public static final Rotation2d simOffset = Rotation2d.fromDegrees(35);
 
     }
+  }
+
+
+  public static final class AmpConstants {
+    public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Amp Shot", 55.0, "Amp");
+    public static final LoggedTunableNumber kAmpP = new LoggedTunableNumber("Amp P", 0.1, "Amp");
+    public static final LoggedTunableNumber kAmpI = new LoggedTunableNumber("Amp I", 0.0, "Amp");
+    public static final LoggedTunableNumber kAmpD = new LoggedTunableNumber("Amp D", 0.0, "Amp");
   }
 
   public static final class DriveConstants {

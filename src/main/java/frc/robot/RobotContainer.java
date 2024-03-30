@@ -7,11 +7,14 @@ package frc.robot;
 import java.util.List;
 import java.util.Objects;
 
+import javax.sound.sampled.AudioFormat;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.ctre.phoenix6.unmanaged.Unmanaged;
 
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -35,26 +38,28 @@ import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsXboxReal;
 import frc.robot.oi.ManualController;
+import frc.robot.subsystems.amp.Amp;
+import frc.robot.subsystems.amp.AmpIOFalcon;
+import frc.robot.subsystems.amp.Amp.AmpState;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.ClimbIOTalon;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DriveProfiles;
 import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.subsystems.drive.SwerveModuleIOKraken;
+import frc.robot.subsystems.drive.generatedConstants.TunerConstants;
 import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.pivot.PivotIOSim;
 import frc.robot.subsystems.led.Led;
-import frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar;
 import frc.robot.subsystems.northstarAprilTagVision.SimVisionSystem;
 import frc.robot.subsystems.objectVision.ObjectDetectionCam;
 import frc.robot.subsystems.objectVision.ObjectDetectionIODepth;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterIsIntaking;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOKraken;
-import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.shooter.pivot.PivotIOFalcon;
 import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.GeomUtil;
@@ -80,6 +85,8 @@ public class RobotContainer {
   ObjectDetectionCam m_objectDetectionCams;
 
   Command autoDriveCommand;
+
+  Amp m_amp;
 
 
   private LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
@@ -213,18 +220,22 @@ public class RobotContainer {
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
 
-      // m_driverControls.ampAutoLineup().whileTrue(Commands.runOnce(()->{
-      //   m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpLineup);
+      m_driverControls.ampAutoLineup().whileTrue(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpLineup);
         
-      //   // autoDriveCommand = m_autoFactory.trajectoryGenerateToPosition(FieldConstants.kAmpBlue,DriveConstants.kAutoAlignToAmpSpeed ,DriverStation.getAlliance().equals(Alliance.Red));
-      //   // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
+        // autoDriveCommand = m_autoFactory.trajectoryGenerateToPosition(FieldConstants.kAmpBlue,DriveConstants.kAutoAlignToAmpSpeed ,DriverStation.getAlliance().equals(Alliance.Red));
+        // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
         
-      //   // autoDriveCommand.andThen(Commands.runOnce(()->{
-      //   //   m_drive.setProfile(DriveProfiles.kDefault);
-      //   // })).schedule();
+        // autoDriveCommand.andThen(Commands.runOnce(()->{
+        //   m_drive.setProfile(DriveProfiles.kDefault);
+        // })).schedule();
 
 
-      // }));
+      })).onFalse(Commands.runOnce(()->{
+        Logger.recordOutput("stow Trigger 13", Timer.getFPGATimestamp());
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+      
+      }));
 
       m_driverControls.autoAlignToGamePiece().whileTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kGamePieceLock);
@@ -348,16 +359,26 @@ public class RobotContainer {
     
     // m_shooter = new Shooter(new PivotIOSim(), new FlywheelIOSim());
     Unmanaged.setPhoenixDiagnosticsStartTime(-1);
-    // m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new AprilTagVisionIONorthstar("northstar_0",""),new AprilTagVisionIONorthstar("northstar_1",""),new AprilTagVisionIONorthstar("northstar_2",""),new AprilTagVisionIONorthstar("northstar_3",""));
+    m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_0",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_1",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_2",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_3",""));
     if (Robot.isSimulation()) {
       m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim() );
       m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
+      CommandSwerveDrivetrain m_CommandSwerveDrivetrain = new CommandSwerveDrivetrain(TunerConstants.DrivetrainConstants,0.005, TunerConstants.FrontLeft, TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);
       SwerveModuleIO[] m_SwerveModuleIOs = {
+        new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(0).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(0).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(0).getCANcoder(), false),
+          // new SwerveModuleIOSim(),
+          new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(1).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(1).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(1).getCANcoder(), false),
+          // new SwerveModuleIOKraken(7, 8, 9, false),
+          // new SwerveModuleIOSim(),
+          new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(2).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(2).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(2).getCANcoder(), false),
+          // new SwerveModuleIOKraken(4,5, 6, false),
+          // new SwerveModuleIOSim(),
+          new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(3).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(3).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(3).getCANcoder(), false),
         // new SwerveModuleIOMK4Talon(1,2,3),
-        new SwerveModuleIOKraken(1,2,3,false),
-        new SwerveModuleIOKraken(4,5, 6, false),
-        new SwerveModuleIOKraken(7, 8, 9, false),
-        new SwerveModuleIOKraken(10, 11, 12, false),
+        // new SwerveModuleIOKraken(1,2,3,false),
+        // new SwerveModuleIOKraken(4,5, 6, false),
+        // new SwerveModuleIOKraken(7, 8, 9, false),
+        // new SwerveModuleIOKraken(10, 11, 12, false),
         // new SwerveModuleIOSim(),
         // new SwerveModuleIOMK4Talon(4,5,6),
         // new SwerveModuleIOSim(),
@@ -365,18 +386,20 @@ public class RobotContainer {
         // new SwerveModuleIOSim(),
         // new SwerveModuleIOMK4Talon(10,11,12),
       };
-      m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d(),true), new Pose2d(),m_SwerveModuleIOs );
+      m_drive = new Drive(new GyroIOPigeon(22, new Rotation2d(),true), new Pose2d(),m_CommandSwerveDrivetrain,m_SwerveModuleIOs );
           // new SwerveModuleIOSim(), new SwerveModuleIOSim(), new SwerveModuleIOSim(), new SwerveModuleIOSim());
       // new SwerveModuleIOMK4Talon(1,2,3),
       //     new SwerveModuleIOMK4Talon(4,5,6),
       //     new SwerveModuleIOMK4Talon(7,8,9),
       //     new SwerveModuleIOMK4Talon(10,11,12));
+      m_amp = new Amp(new AmpIOFalcon(Ports.ampMotor));
       
     }
     else{
-      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() , new frc.robot.subsystems.intake.rollers.RollerIOSim());
-    // m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
-      m_shooter = new Shooter(new frc.robot.subsystems.shooter.pivot.PivotIOSim(), new FlywheelIOSim());
+      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) , new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort));
+    m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
+    m_amp = new Amp(new AmpIOFalcon(Ports.ampMotor));
+      // m_shooter = new Shooter(new frc.robot.subsystems.shooter.pivot.PivotIOSim(), new FlywheelIOSim());
     //   SwerveModuleIO[] m_swerveModuleIOs = {
     //     new SwerveModuleIOMK4iSparkMax(Constants.Ports.leftFrontDrivingMotorPort, Ports.leftFrontTurningMotorPort,
     //         Ports.leftFrontCanCoderPort),
@@ -403,30 +426,43 @@ public class RobotContainer {
         //   // new SwerveModuleIOSim(),
         //   // new SwerveModuleIOMK4Talon(10,11,12),
         // };
+        CommandSwerveDrivetrain m_CommandSwerveDrivetrain = new CommandSwerveDrivetrain(TunerConstants.DrivetrainConstants, TunerConstants.FrontLeft, TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);
         SwerveModuleIO[] m_SwerveModuleIOs = {
           // new SwerveModuleIOMK4Talon(1,2,3),
-          new SwerveModuleIOKraken(10, 11, 12, false),
+          new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(0).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(0).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(0).getCANcoder(), false),
           // new SwerveModuleIOSim(),
-          new SwerveModuleIOKraken(7, 8, 9, false),
+          new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(1).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(1).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(1).getCANcoder(), false),
+          // new SwerveModuleIOKraken(7, 8, 9, false),
           // new SwerveModuleIOSim(),
-          new SwerveModuleIOKraken(4,5, 6, false),
+          new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(2).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(2).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(2).getCANcoder(), false),
+          // new SwerveModuleIOKraken(4,5, 6, false),
           // new SwerveModuleIOSim(),
-          new SwerveModuleIOKraken(1,2,3,false),
+          new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(3).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(3).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(3).getCANcoder(), false),
+          // new SwerveModuleIOKraken(1,2,3,false),
           // new SwerveModuleIOMK4Talon(4,5,6),
           // new SwerveModuleIOMK4Talon(7,8,9),
           // new SwerveModuleIOMK4Talon(10,11,12),
         };
-        m_drive = new Drive(new GyroIOPigeon(22,new Rotation2d(),true),new Pose2d(),m_SwerveModuleIOs);
-      // m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new AprilTagVisionIONorthstar("northstar_0",frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionConstants.cameraIds[0]));
+        // SwerveModuleIO[] m_SwerveModuleIOs = {
+        //   new SwerveModuleIOKraken(new TalonFX(1),new TalonFX(2),new CANcoder(6),false),
+        //   new SwerveModuleIOKraken(new TalonFX(3),new TalonFX(4),new CANcoder(5),false), 
+        //   new SwerveModuleIOKraken(new TalonFX(7),new TalonFX(8),new CANcoder(9),false),
+        //   new SwerveModuleIOKraken(new TalonFX(10),new TalonFX(11),new CANcoder(12),false)
+
+        // };
+        m_drive = new Drive(new GyroIOPigeon(22,new Rotation2d(),true),new Pose2d(),m_CommandSwerveDrivetrain,m_SwerveModuleIOs);
+      // m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_0",frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionConstants.cameraIds[0]));
     }
 
     m_objectDetectionCams = new ObjectDetectionCam(new ObjectDetectionIODepth(""));
     
-    m_robotState = RobotState.startInstance(m_drive, m_climb, m_indexer,m_shooter, m_objectDetectionCams, m_aprilTagVision, m_intake,this::getAutoFactory,m_driverControls);
+    m_robotState = RobotState.startInstance(m_drive, m_climb, m_indexer,m_shooter, m_objectDetectionCams, m_aprilTagVision, m_intake,this::getAutoFactory,m_driverControls,m_amp);
     // m_TebInterfacer = new NetworkTablesTEBInterfacer("teb");
   }
 
   public void updateRobotState(){
+
+    double start = HALUtil.getFPGATime();
     VirtualSubsystem.periodicAll(); 
     m_robotState.updateRobotState();
     m_robotState.calculateShooterAngle();
@@ -437,6 +473,7 @@ public class RobotContainer {
     if(Robot.isSimulation()){
       updateNoteVisualizer();
     }
+    Logger.recordOutput("LoggedRobot/RobotState", (HALUtil.getFPGATime()-start)/1000);
     // System.out.println("Drive chassis speeds: "+m_drive.getChassisSpeeds());
   }
 
@@ -480,10 +517,14 @@ public class RobotContainer {
   }
 
   public void onEnabled(){
-    m_robotState.updateTestScheduler();
+    // m_robotState.updateTestScheduler();
     if(edu.wpi.first.wpilibj.RobotState.isTeleop()){
       m_drive.setProfile(DriveProfiles.kDefault);
-      
+      Commands.runOnce(()->{
+        m_amp.m_state = AmpState.Zeroing;
+      }).andThen(Commands.waitSeconds(1)).andThen(()->{
+        m_amp.m_state = AmpState.PositionFollowing;
+      }).schedule();
       m_drive.drive(new ChassisSpeeds(0,0,0));
       new TeleopControllerNoAugmentation(m_drive,()->m_driverControls.getDriveForward(),()->m_driverControls.getDriveLeft() , ()-> m_driverControls.getDriveRotation(), DriveConstants.controllerDeadzone).schedule();
 

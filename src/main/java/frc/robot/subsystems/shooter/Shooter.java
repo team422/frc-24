@@ -3,6 +3,7 @@ package frc.robot.subsystems.shooter;
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -75,6 +76,7 @@ public class Shooter extends ProfiledSubsystem {
 
     @Override
     public void periodic() {
+        double start = HALUtil.getFPGATime();
         LoggedTunableNumber.ifChanged(hashCode(), (()->{
             new ArmFeedforward(ShooterPivotConstants.kPivotkS.get(),ShooterPivotConstants.kPivotkG.get(), ShooterPivotConstants.kPivotkV.get(), ShooterPivotConstants.kPivotkA.get());
         }), ShooterPivotConstants.kPivotkS,ShooterPivotConstants.kPivotkG, ShooterPivotConstants.kPivotkV, ShooterPivotConstants.kPivotkA);
@@ -84,21 +86,21 @@ public class Shooter extends ProfiledSubsystem {
         
         Logger.processInputs("Shooter Pivot", m_inputsPivot);
         Logger.processInputs("Shooter Flywheel", m_inputsFlywheel); 
-        State curState = new TrapezoidProfile.State(m_pivotIO.getCurrentAngle().getRadians(), m_pivotIO.getCurrentVelocity());
-        setpointState =
-          motionProfile.calculate(
-              Constants.loopPeriodSecs,
-              curState,
-              new TrapezoidProfile.State(
-                  MathUtil.clamp(
-                      m_desiredAngle.getRadians(),
-                      ShooterPivotConstants.minAngle.getRadians(),
-                      ShooterPivotConstants.maxAngle.getRadians()),
-                  0.0));
+        // State curState = new TrapezoidProfile.State(m_pivotIO.getCurrentAngle().getRadians(), m_pivotIO.getCurrentVelocity());
+        // setpointState =
+        //   motionProfile.calculate(
+        //       Constants.loopPeriodSecs,
+        //       curState,
+        //       new TrapezoidProfile.State(
+        //           MathUtil.clamp(
+        //               m_desiredAngle.getRadians(),
+        //               ShooterPivotConstants.minAngle.getRadians(),
+        //               ShooterPivotConstants.maxAngle.getRadians()),
+        //           0.0));
 
-        // m_pivotIO.setDesiredAngle(angle);
-        Logger.recordOutput("ShooterFF",ff.calculate(setpointState.position, setpointState.velocity));
-        Logger.recordOutput("ShooterPosition",setpointState.position);
+        // // m_pivotIO.setDesiredAngle(angle);
+        // Logger.recordOutput("ShooterFF",ff.calculate(setpointState.position, setpointState.velocity));
+        // Logger.recordOutput("ShooterPosition",setpointState.position);
             if(isIntaking == ShooterIsIntaking.intaking) {
                 m_pivotIO.runSetpoint(ShooterPivotConstants.homeAngle, 0);
                 
@@ -115,6 +117,7 @@ public class Shooter extends ProfiledSubsystem {
             else{
                 m_pivotIO.runSetpoint(m_desiredAngle, 0);
             }
+            Logger.recordOutput("LoggedRobot/ShooterPeriodic", (HALUtil.getFPGATime()-start)/1000);
     }
 
     public void setPivotAngle(Rotation2d angle) {

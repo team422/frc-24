@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -44,7 +45,7 @@ public class Intake extends ProfiledSubsystem {
 
     @Override
     public void periodic() {
-
+        double start = HALUtil.getFPGATime();
         LoggedTunableNumber.ifChanged(
       hashCode(), () -> {
         m_PivotIO.setPID(IntakeConstants.kIntakeP.get(),IntakeConstants.kIntakeI.get(),IntakeConstants.kIntakeD.get());
@@ -63,6 +64,7 @@ public class Intake extends ProfiledSubsystem {
             m_PivotIO.setDesiredAngle(m_rotation);
         }
         }
+        Logger.recordOutput("LoggedRobot/IntakePeriodic", (HALUtil.getFPGATime()-start)/1000);
     }
 
     public void setRollerVoltage(double voltage) {

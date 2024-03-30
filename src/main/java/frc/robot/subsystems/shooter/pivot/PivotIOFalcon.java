@@ -26,6 +26,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.revrobotics.AbsoluteEncoder;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -53,6 +54,10 @@ public class PivotIOFalcon implements PivotIO {
     private final List<StatusSignal<Double>> armOutputCurrent;
     private final List<StatusSignal<Double>> armTorqueCurrent;
     private final List<StatusSignal<Double>> armTempCelsius;
+
+    private int counter = 0;
+
+    private PIDController mPositionController = new PIDController(0,0,0);
 
     // Control
     private Slot0Configs controllerConfig;
@@ -163,37 +168,43 @@ public class PivotIOFalcon implements PivotIO {
             feedforward = 0;
         }
         leaderTalon.setControl(positionVoltageCycle.withPosition(m_desiredAngle.getRotations()).withFeedForward(feedforward).withUpdateFreqHz(0));
+        // leaderTalon.setControl(new VoltageOut(mPositionController.calculate(getCurrentAngle().getRadians(), m_desiredAngle.getRadians())+feedforward).withEnableFOC(true));
     }
 
     @Override
     public void updateInputs(PivotIOInputs inputs) {
-        if(frc.robot.RobotState.getInstance().curAction.equals(RobotCurrentAction.kAmpLineup)){
-            LoggedTunableNumber.ifChanged(hashCode(),()->{
-                controllerConfig.kP = ShooterPivotConstants.kPivotAmpP.get();
-                controllerConfig.kI = ShooterPivotConstants.kPivotAmpI.get();
-                controllerConfig.kD = ShooterPivotConstants.kPivotAmpD.get();
-                controllerConfig.kG = ShooterPivotConstants.kPivotkG.get();
-                controllerConfig.kS = ShooterPivotConstants.kPivotkS.get();
-                leaderTalon.getConfigurator().apply(controllerConfig);
-                followerTalon.getConfigurator().apply(controllerConfig);
-                armFF = new ArmFeedforward(ShooterPivotConstants.kPivotkS.get(), ShooterPivotConstants.kPivotkG.get(), ShooterPivotConstants.kPivotkV.get());
-            }, ShooterPivotConstants.kPivotAmpP,ShooterPivotConstants.kPivotAmpI,ShooterPivotConstants.kPivotAmpD,ShooterPivotConstants.kUsingAmp,ShooterPivotConstants.kPivotkG,ShooterPivotConstants.kPivotkS,ShooterPivotConstants.kPivotkG,ShooterPivotConstants.kPivotkV,ShooterPivotConstants.kPivotkA);   
-        }else{
-            LoggedTunableNumber.ifChanged(hashCode(),()->{
-                controllerConfig.kP = ShooterPivotConstants.kPivotP.get();
-                controllerConfig.kI = ShooterPivotConstants.kPivotI.get();
-                controllerConfig.kD = ShooterPivotConstants.kPivotD.get();
-                controllerConfig.kG = ShooterPivotConstants.kPivotkG.get();
-                controllerConfig.kS = ShooterPivotConstants.kPivotkS.get();
-                armFF = new ArmFeedforward(ShooterPivotConstants.kPivotkS.get(), ShooterPivotConstants.kPivotkG.get(), ShooterPivotConstants.kPivotkV.get());
-                leaderTalon.getConfigurator().apply(controllerConfig);
-                followerTalon.getConfigurator().apply(controllerConfig);
+        LoggedTunableNumber.ifChanged(hashCode(),()->{
+            mPositionController.setP(ShooterPivotConstants.kPivotPDirect.get());
+            mPositionController.setI(ShooterPivotConstants.kPivotIDirect.get());
+            mPositionController.setD(ShooterPivotConstants.kPivotDDirect.get());
+        }, ShooterPivotConstants.kPivotPDirect,ShooterPivotConstants.kPivotIDirect,ShooterPivotConstants.kPivotDDirect);
 
-            }, ShooterPivotConstants.kPivotP,ShooterPivotConstants.kPivotI,ShooterPivotConstants.kPivotD,ShooterPivotConstants.kUsingAmp,ShooterPivotConstants.kPivotkG,ShooterPivotConstants.kPivotkS,ShooterPivotConstants.kPivotkG,ShooterPivotConstants.kPivotkV,ShooterPivotConstants.kPivotkA);   
+        LoggedTunableNumber.ifChanged(hashCode(),()->{
+            controllerConfig.kP = ShooterPivotConstants.kPivotP.get();
+            controllerConfig.kI = ShooterPivotConstants.kPivotI.get();
+            controllerConfig.kD = ShooterPivotConstants.kPivotD.get();
+            controllerConfig.kG = ShooterPivotConstants.kPivotkG.get();
+            controllerConfig.kS = ShooterPivotConstants.kPivotkS.get();
+            armFF = new ArmFeedforward(ShooterPivotConstants.kPivotkS.get(), ShooterPivotConstants.kPivotkG.get(), ShooterPivotConstants.kPivotkV.get());
+            leaderTalon.getConfigurator().apply(controllerConfig);
+            followerTalon.getConfigurator().apply(controllerConfig);
+
+        }, ShooterPivotConstants.kPivotP,ShooterPivotConstants.kPivotI,ShooterPivotConstants.kPivotD,ShooterPivotConstants.kUsingAmp,ShooterPivotConstants.kPivotkG,ShooterPivotConstants.kPivotkS,ShooterPivotConstants.kPivotkG,ShooterPivotConstants.kPivotkV,ShooterPivotConstants.kPivotkA);   
+
+        RobotCurrentAction curAction = frc.robot.RobotState.getInstance().curAction;
+        if(curAction.equals(RobotCurrentAction.kRevAndAlign) || curAction.equals(RobotCurrentAction.kAutoShoot) || curAction.equals(RobotCurrentAction.kAutoSOTM) || curAction.equals(RobotCurrentAction.kAmpShoot) ){
+            if(!Robot.isSimulation()){
+            counter +=1;
+            if(counter % 10 == 0){
+                leaderTalon.setPosition(getCurrentAngle().getRotations(), 0.002);
+                counter = 0;
+            }
+            
         }
-        if(!Robot.isSimulation()){
-        leaderTalon.setPosition(getCurrentAngle().getRotations(), 0.0);
-        }
+    }
+        // if(!Robot.isSimulation()){
+        //     leaderTalon.setPosition(getCurrentAngle().getRotations(), 0.002);
+        // }
         
         inputs.firstMotorConnected =
             BaseStatusSignal.refreshAll(
