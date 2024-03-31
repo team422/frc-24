@@ -168,6 +168,10 @@ public class ShooterMath {
 
     }
 
+    public Rotation2d getAngleFromTable(double distance) {
+        return Rotation2d.fromDegrees(m_distanceAngle.get(distance));
+    }
+
 
 
     // // for right now, we are going to assume the note moves linearly

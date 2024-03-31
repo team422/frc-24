@@ -448,7 +448,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           stowAndStopIntake();
           stowShooter();
 
-          if(m_amp.getPivotAngle().getDegrees() > 5){
+          if(m_amp.getPivotAngle().getDegrees() > 5) {
             m_shooter.setPivotAngle(m_shooter.getPivotAngle());
             if (stowAmpTimer == null){
               stowAmpTimer = new Timer();
@@ -459,9 +459,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
             if (stowAmpTimer.get() > .1){
               m_amp.setPivotAngle(Rotation2d.fromDegrees(0));
               m_intake.setPivotAngle(IntakeConstants.kAmpAngle.minus(Rotation2d.fromDegrees(10)));
-              
-
-          }
+            }
 
 
             
@@ -474,6 +472,19 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
             //   m_amp.setPivotAngle(Rotation2d.fromDegrees(0));
             //   m_intake.setPivotAngle(IntakeConstants.kAmpAngle.minus(Rotation2d.fromDegrees(10)));
             // }
+          }
+          else {
+            Pose2d predPose = getPredictedPose(0.07,0.07);
+            Translation3d finalTarget = AllianceFlipUtil.apply(frc.robot.FieldConstants.centerSpeakerOpening);
+            double distanceToShooter = m_shooterMath.getDistanceFromTarget(predPose,finalTarget);
+
+            if (distanceToShooter < 0) { // Threshold for lower speed
+              m_shooter.setFlywheelSpeedWithSpin(ShooterConstants.FlywheelConstants.kIdleSpeedClose, ShooterConstants.FlywheelConstants.kIdleSpeedClose);
+              m_shooter.setPivotAngle(m_shooterMath.getAngleFromTable(distanceToShooter));
+            } else if (distanceToShooter < 0) { // Threshold for higher speed
+              m_shooter.setFlywheelSpeedWithSpin(ShooterConstants.FlywheelConstants.kIdleSpeedFar, ShooterConstants.FlywheelConstants.kIdleSpeedFar);
+              m_shooter.setPivotAngle(m_shooterMath.getAngleFromTable(distanceToShooter));
+            }
           }
           if(stowAmpTimer !=null){
           if(stowAmpTimer.get() > 3){
@@ -609,8 +620,12 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           m_shooter.setPivotAngle(Rotation2d.fromDegrees(ShooterPivotConstants.kAmpShot.get()));
           m_shooter.setFlywheelSpeedWithSpin(FlywheelConstants.kAmpSpeed.get(), FlywheelConstants.kAmpSpeed.get());          
         } else if (curAction == RobotCurrentAction.kIntakeWithShooter) {
+          m_intake.setPivotAngle(IntakeConstants.kIntakeMinAngle);
+          m_intake.setIntakeSpeed(-IntakeConstants.intakeSpeed/3);
+
           m_shooter.setPivotAngle(Rotation2d.fromDegrees(ShooterPivotConstants.kShooterIntakeAngle.get()));
           m_shooter.setFlywheelSpeedWithSpin(FlywheelConstants.kFlywheelReverseShooter.get(), FlywheelConstants.kFlywheelReverseShooter.get());
+
           m_indexer.setState(IndexerState.BACKTOINTAKE);
         }
 
@@ -842,6 +857,10 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         
 
         // m_shooterMath.setNextShootingPoseAndVelocity(m_drive.getPose(), , new Translation3d(0,0,0));
+    }
+
+    public boolean isInShootingRange() {
+      return false;
     }
 
 // under construction
