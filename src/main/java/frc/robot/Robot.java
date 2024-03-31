@@ -22,6 +22,7 @@ import frc.lib.advantagekit.LoggerUtil;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.subsystems.drive.Drive.DriveProfiles;
+import frc.robot.utils.LoggerWrapper;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -77,6 +78,7 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
     Logger.recordOutput("LoggedRobot/CommandScheduler", (HALUtil.getFPGATime()-start)/1000);
     robotContainer.updateRobotState();
+    LoggerWrapper.incrementCycle();
   }
 
   /** This function is called once when the robot is disabled. */
