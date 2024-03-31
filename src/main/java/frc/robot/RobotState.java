@@ -474,9 +474,9 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
             // }
           }
           else {
-            Pose2d predPose = getPredictedPose(0.07,0.07);
+            Pose2d pose = getEstimatedPose();
             Translation3d finalTarget = AllianceFlipUtil.apply(frc.robot.FieldConstants.centerSpeakerOpening);
-            double distanceToShooter = m_shooterMath.getDistanceFromTarget(predPose,finalTarget);
+            double distanceToShooter = m_shooterMath.getDistanceFromTarget(pose,finalTarget);
 
             if (distanceToShooter < 0) { // Threshold for lower speed
               m_shooter.setFlywheelSpeedWithSpin(ShooterConstants.FlywheelConstants.kIdleSpeedClose, ShooterConstants.FlywheelConstants.kIdleSpeedClose);
