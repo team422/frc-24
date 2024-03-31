@@ -84,7 +84,7 @@ public class RobotState {
     private DriverControls mDriveControls;
 
     public enum RobotCurrentAction {
-      kStow,kIntake,kShootFender,kRevAndAlign, kShootWithAutoAlign,kAmpLineup,kAmpShoot, kAutoIntake, kAutoShoot, kPathPlanner,kVomit,kTune,kHockeyPuck,kGamePieceLock,kAutoFender,kNoteBackToIntake,kAutoSOTM
+      kStow,kIntake,kShootFender,kRevAndAlign, kShootWithAutoAlign,kAmpLineup,kAmpShoot, kAutoIntake, kAutoShoot, kPathPlanner,kVomit,kTune,kHockeyPuck,kGamePieceLock,kAutoFender,kNoteBackToIntake,kAutoSOTM,kIntakeWithShooter
     }
 
     public RobotCurrentAction curAction = RobotCurrentAction.kStow;
@@ -589,8 +589,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           m_drive.setDriveTurnOverride(mRotations.get(0));
           ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
           
-        }
-         else if (curAction == RobotCurrentAction.kAmpLineup){
+        } else if (curAction == RobotCurrentAction.kAmpLineup){
           
           if(stowAmpTimer == null){
             stowAmpTimer = new Timer();
@@ -609,7 +608,11 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           // }
           m_shooter.setPivotAngle(Rotation2d.fromDegrees(ShooterPivotConstants.kAmpShot.get()));
           m_shooter.setFlywheelSpeedWithSpin(FlywheelConstants.kAmpSpeed.get(), FlywheelConstants.kAmpSpeed.get());          
-        }  
+        } else if (curAction == RobotCurrentAction.kIntakeWithShooter) {
+          m_shooter.setPivotAngle(Rotation2d.fromDegrees(ShooterPivotConstants.kShooterIntakeAngle.get()));
+          m_shooter.setFlywheelSpeedWithSpin(FlywheelConstants.kFlywheelReverseShooter.get(), FlywheelConstants.kFlywheelReverseShooter.get());
+          m_indexer.setState(IndexerState.BACKTOINTAKE);
+        }
 
           
 

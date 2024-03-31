@@ -69,6 +69,10 @@ public interface DriverControls {
     return new Trigger(() -> false);
   }
 
+  public default Trigger intakeWithShooter() {
+    return new Trigger(() -> false);
+  }
+
  
 
 }

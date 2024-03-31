@@ -144,8 +144,9 @@ public final class Constants {
       public static final double kIdleSpeedFar = 21;
       public static final LoggedTunableNumber kFlywheelSpeedLeft = new LoggedTunableNumber("Flywheel Speed Left", 0.0, "Shooter");
       public static final LoggedTunableNumber kFlywheelSpeedRight = new LoggedTunableNumber("Flywheel Speed Right", 0.0, "Shooter");
-      public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 15.00000, "Amp");
-      public static final LoggedTunableNumber kFlywheelHockeyPuck = new LoggedTunableNumber("Flywheel hockey puck speed", 11, "Hockey Puck");
+      public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 15.0, "Amp");
+      public static final LoggedTunableNumber kFlywheelHockeyPuck = new LoggedTunableNumber("Flywheel hockey puck speed", 11.0, "Hockey Puck");
+      public static final LoggedTunableNumber kFlywheelReverseShooter = new LoggedTunableNumber("Flywheel reverse speed", -9.0, "Shooter Intake");
     }
 
     public static final class ShooterPivotConstants {
@@ -172,7 +173,7 @@ public final class Constants {
       public static final double kOffset = Rotation2d.fromDegrees(181.7-13+52+6+123).getRotations();
 
       public static final LoggedTunableNumber kHockeyPuck = new LoggedTunableNumber("hockey puck", 53.0,"Hockey Puck");
-
+      public static final LoggedTunableNumber kShooterIntakeAngle = new LoggedTunableNumber("Shooter Intake Angle", 53.0, "Shooter Intake");
       public static final LoggedTunableNumber kShooterAngle = new LoggedTunableNumber("Shooter Angle", 0.0, "Shooter");
       // public static final double kOffset = Rotation2d.fromDegrees(0).getRotations();
 

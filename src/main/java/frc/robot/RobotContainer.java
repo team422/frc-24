@@ -277,6 +277,12 @@ public class RobotContainer {
       //   m_drive.setProfile(DriveProfiles.kDefault);
       // }));
 
+      m_driverControls.intakeWithShooter().whileTrue(Commands.runOnce(() -> {
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kIntakeWithShooter);
+      })).onFalse(Commands.runOnce(() -> {
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+      }));
+
 
       m_driverControls.testRumble().whileTrue(Commands.runEnd(
         () -> m_driverControls.setDriverRumble(0.2, RumbleType.kLeftRumble),
