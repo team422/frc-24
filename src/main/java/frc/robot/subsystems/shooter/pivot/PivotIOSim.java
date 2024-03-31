@@ -25,6 +25,10 @@ public class PivotIOSim implements PivotIO {
     }
 
     @Override
+    public void clearI(){
+        m_Controller.setIntegratorRange(-0.3,0.3);
+    }
+    @Override
     public void runSetpoint(Rotation2d angle, double feedforward) {
         m_desiredAngle = angle;
     }

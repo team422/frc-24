@@ -84,7 +84,7 @@ public class RobotState {
     private DriverControls mDriveControls;
 
     public enum RobotCurrentAction {
-      kStow,kIntake,kShootFender,kRevAndAlign, kShootWithAutoAlign,kAmpLineup,kAmpShoot, kAutoIntake, kAutoShoot, kPathPlanner,kVomit,kTune,kHockeyPuck,kGamePieceLock,kAutoFender,kNoteBackToIntake,kAutoSOTM
+      kStow,kIntake,kShootFender,kRevAndAlign, kShootWithAutoAlign,kAmpLineup,kAmpShoot, kAutoIntake, kAutoShoot, kPathPlanner,kVomit,kTune,kHockeyPuck,kGamePieceLock,kAutoFender,kNoteBackToIntake,kAutoSOTM,kDailedShot
     }
 
     public RobotCurrentAction curAction = RobotCurrentAction.kStow;
@@ -133,6 +133,9 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         private Pose2d estimatedPose = new Pose2d();
     public Pose2d currentTarget = new Pose2d();
     public LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<Command>("Auto Chooser");
+
+    public Command m_driveToAmp = null;
+    public Command m_driveToDailedShot = null;
 
     private RobotState(Drive drive, Climb climb, Indexer indexer, Shooter shooter, ObjectDetectionCam objectDetectionCams, AprilTagVision aprilTagVisions, Intake intake, Supplier<AutoFactory> autoFactory,DriverControls mDriverControls, Amp amp) {
         this.m_drive = drive;
@@ -192,6 +195,9 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
 
     public void addVelocityData(Twist2d robotVelocity) {
       this.robotVelocity = robotVelocity;
+      Logger.recordOutput("RobotVelocity/Velocty x", robotVelocity.dx);
+      Logger.recordOutput("RobotVelocity/Velocty y", robotVelocity.dy);
+      Logger.recordOutput("RobotVelocity/Velocty Theta", robotVelocity.dtheta);
     }
 
     public void setDriveType(DriveProfiles profile){
@@ -256,7 +262,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     // }
     // difference between estimate and vision pose
     m_drive.addVisionMeasurement(observation.visionPose(), observation.timestamp(),observation.stdDevs());
-    
+    System.out.println(observation.stdDevs());
     // Transform2d transform = new Transform2d(estimateAtTime, observation.visionPose());
     // // scale transform by visionK
     // var kTimesTransform =
@@ -508,7 +514,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           m_shooter.setPivotAngle(ShooterPivotConstants.kFenderAngle);
           m_shooter.setFlywheelSpeedWithSpin(9,9); // 9
           // m_indexer.setState(Indexer.IndexerState.SHOOTING);
-          if (m_shooter.isWithinToleranceWithSpin(m_shooterMath.getShooterMetersPerSecond(2).get(0), m_shooterMath.getShooterMetersPerSecond(2).get(1)) && m_shooter.isPivotWithinTolerance(ShooterPivotConstants.kFenderAngle,Rotation2d.fromDegrees(5))) {
+          if (m_shooter.isWithinToleranceWithSpin(m_shooterMath.getShooterMetersPerSecond(2).get(0), m_shooterMath.getShooterMetersPerSecond(2).get(1),m_shooterMath.calculateAcceptableDropoff(2)) && m_shooter.isPivotWithinTolerance(ShooterPivotConstants.kFenderAngle,Rotation2d.fromDegrees(5))) {
             m_indexer.setState(Indexer.IndexerState.SHOOTING);
 
           } 
@@ -523,22 +529,26 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           
           m_drive.setProfile(DriveProfiles.kAutoAlign);
 
-
-          m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(0),m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(1));
+          double shootingDistance = m_shooterMath.getDistanceFromTarget(predPose, finalTarget);
+          m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(0),m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(1));
           m_shooter.setPivotAngle(mRotations.get(1));
           m_drive.setDriveTurnOverride(mRotations.get(0));
           // ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
-          ArrayList<Double> speeds = (m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)));
-          Logger.recordOutput("First",m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)));
-          Logger.recordOutput("Second", (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(3) )));
-          Logger.recordOutput("Third", (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg));
+          ArrayList<Double> speeds = (m_shooterMath.getShooterMetersPerSecond(shootingDistance));
+
           ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
-          Logger.recordOutput("Four", actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1);
-
-
-
-
-          if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .2 && actualSpeed.vyMetersPerSecond < .5 && actualSpeed.omegaRadiansPerSecond < .2 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
+          ArrayList<Double> wheelyAmounts = m_drive.getWheelyAmounts();
+          boolean flywheelInTolerance = m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1),m_shooterMath.calculateAcceptableDropoff(shootingDistance));
+          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1)));
+          boolean headingWithinTolerance = (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < m_shooterMath.calculateShootingHeadingTolerance(shootingDistance));
+          boolean speedWithinTolerance = (Math.abs(actualSpeed.vxMetersPerSecond) < 1. && Math.abs(actualSpeed.vyMetersPerSecond) < 1. && Math.abs(actualSpeed.omegaRadiansPerSecond) < .2);
+          boolean RollAndYawPerSecondIsSlow = (Math.abs(wheelyAmounts.get(0)) < .05 && Math.abs(wheelyAmounts.get(1)) < .05);
+          
+          Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
+          Logger.recordOutput("ReadyToShoot/PivotWithinTolerance", pivotInTolerance);
+          Logger.recordOutput("ReadyToShoot/HeadingInTolerance", headingWithinTolerance);
+          Logger.recordOutput("ReadyToShoot/SpeedWithinTolerance", speedWithinTolerance);
+          if (headingWithinTolerance && pivotInTolerance && speedWithinTolerance && flywheelInTolerance) {
             m_indexer.setState(Indexer.IndexerState.SHOOTING);
           }
           // if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
@@ -548,7 +558,46 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           // }
 // 
 
-        } else if (curAction == RobotCurrentAction.kShootWithAutoAlign){
+        }
+        else if (curAction == RobotCurrentAction.kDailedShot){
+          Pose2d predPose = frc.robot.FieldConstants.kDailedShot;
+
+          Translation3d finalTarget = AllianceFlipUtil.apply(frc.robot.FieldConstants.centerSpeakerOpening);
+
+          ArrayList<Rotation2d> mRotations = m_shooterMath.setNextShootingPoseAndVelocity(predPose,robotVelocity,finalTarget);
+          // double speed = m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,FieldConstants.kShooterCenter));
+          
+          m_drive.setProfile(DriveProfiles.kAutoPiecePickup);
+
+          double shootingDistance = m_shooterMath.getDistanceFromTarget(predPose, finalTarget);
+          m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(0),m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(1));
+          m_shooter.setPivotAngle(mRotations.get(1));
+          m_drive.setDriveTurnOverride(mRotations.get(0));
+          // ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
+          ArrayList<Double> speeds = (m_shooterMath.getShooterMetersPerSecond(shootingDistance));
+
+          ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
+          boolean flywheelInTolerance = m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1),m_shooterMath.calculateAcceptableDropoff(shootingDistance));
+          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1)));
+          boolean headingWithinTolerance = (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg);
+          boolean speedWithinTolerance = (actualSpeed.vxMetersPerSecond < .5 && actualSpeed.vyMetersPerSecond < .5 && actualSpeed.omegaRadiansPerSecond < .2);
+          
+          Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
+          Logger.recordOutput("ReadyToShoot/PivotWithinTolerance", pivotInTolerance);
+          Logger.recordOutput("ReadyToShoot/HeadingInTolerance", headingWithinTolerance);
+          Logger.recordOutput("ReadyToShoot/SpeedWithinTolerance", speedWithinTolerance);
+          if (headingWithinTolerance && pivotInTolerance && speedWithinTolerance && flywheelInTolerance) {
+            m_indexer.setState(Indexer.IndexerState.SHOOTING);
+          }
+          // if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
+          // //   System.out.println("SHOULD BE RUMBLING");
+          //   // mDriveControls.setDriverRumble(0.2, RumbleType.kLeftRumble);
+            
+          // }
+// 
+
+        }
+         else if (curAction == RobotCurrentAction.kShootWithAutoAlign){
           Pose2d predPose = getPredictedPose(0.4,0.4);
           Translation3d finalTarget = AllianceFlipUtil.apply(frc.robot.FieldConstants.centerSpeakerOpening);
           ArrayList<Rotation2d> mRotations = m_shooterMath.setNextShootingPoseAndVelocity(predPose,robotVelocity,finalTarget);
@@ -601,9 +650,9 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
             m_amp.setPivotAngle(Rotation2d.fromDegrees(AmpConstants.kAmpShot.get()));
           }
           
-          PathfindHolonomic path = mAutoFactory.get().generateTrajectoryToPose(AllianceFlipUtil.apply(frc.robot.FieldConstants.kAmpBlue),DriveConstants.kAutoAlignToAmpSpeed, false, instance);
-          path.schedule();
-          m_drive.setProfile(DriveProfiles.kAutoPiecePickup);
+          // PathfindHolonomic path = mAutoFactory.get().generateTrajectoryToPose(AllianceFlipUtil.apply(frc.robot.FieldConstants.kDailedShot),DriveConstants.kAutoAlignToAmpSpeed, false, instance);
+          // path.schedule();
+          // m_drive.setProfile(DriveProfiles.kAutoPiecePickup);
           // if(m_intake.getAngle().getDegrees() < IntakeConstants.kAmpAngle.getDegrees()){
           
           // }
@@ -643,7 +692,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           m_indexer.setState(Indexer.IndexerState.INTAKING);
 
 
-        }else if (curAction == RobotCurrentAction.kAutoShoot){
+        } else if (curAction == RobotCurrentAction.kAutoShoot){
           // first we stop 
           // then we shoot
           // then we set to kPathPlanner
@@ -652,33 +701,30 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           Pose2d predPose = getPredictedPose(0.3, 0.3);
           Translation3d finalTarget = AllianceFlipUtil.apply(frc.robot.FieldConstants.centerSpeakerOpening);
           ArrayList<Rotation2d> mRotations = m_shooterMath.setNextShootingPoseAndVelocity(predPose,robotVelocity,finalTarget);
-          ArrayList <Double> speeds = m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget));
+          double shootingDistance = m_shooterMath.getDistanceFromTarget(predPose,finalTarget);
+          ArrayList <Double> speeds = m_shooterMath.getShooterMetersPerSecond(shootingDistance);
           m_shooter.setPivotAngle(mRotations.get(1));
           // m_drive.drive(new ChassisSpeeds(0, 0, 0));
           // m_shooter.setFlywheelSpeedWithSpin(speeds.get(0),speeds.get(1));
-          m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(0),m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(1));
+          m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(0),m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(1));
           m_drive.setDriveTurnOverride(mRotations.get(0));
-          Logger.recordOutput("First",m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)));
-          Logger.recordOutput("Second", (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(3) )));
-          Logger.recordOutput("Third", (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg));
-          ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
-          Logger.recordOutput("Four", actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1);
-
-
-
-
-          if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
-            m_indexer.setState(Indexer.IndexerState.SHOOTING);
-            
-            // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
-            // setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
-          } else {
-            // m_indexer.setState(Indexer.IndexerState.INDEXING);
-          }
-
-
-
           
+          
+          ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
+          
+
+          boolean flywheelInTolerance = m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1),m_shooterMath.calculateAcceptableDropoff(shootingDistance));
+          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(m_shooterMath.calculateShootingPivotTolerance(shootingDistance))));
+          boolean headingWithinTolerance = (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < m_shooterMath.calculateShootingHeadingTolerance(shootingDistance));
+          boolean speedWithinTolerance = (actualSpeed.vxMetersPerSecond < .5 && actualSpeed.vyMetersPerSecond < .5 && actualSpeed.omegaRadiansPerSecond < .2);
+          
+          Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
+          Logger.recordOutput("ReadyToShoot/PivotWithinTolerance", pivotInTolerance);
+          Logger.recordOutput("ReadyToShoot/HeadingInTolerance", headingWithinTolerance);
+          Logger.recordOutput("ReadyToShoot/SpeedWithinTolerance", speedWithinTolerance);
+          if (headingWithinTolerance && pivotInTolerance && speedWithinTolerance && flywheelInTolerance) {
+            m_indexer.setState(Indexer.IndexerState.SHOOTING);
+          }
         }
          else if(curAction == RobotCurrentAction.kAutoSOTM){
           Pose2d predPose = getPredictedPose(0, 0);
@@ -688,19 +734,26 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           m_shooter.setPivotAngle(mRotations.get(1));
           // m_drive.drive(new ChassisSpeeds(0, 0, 0));
           // m_shooter.setFlywheelSpeedWithSpin(speeds.get(0),speeds.get(1));
+          double shootingDistance = m_shooterMath.getDistanceFromTarget(predPose,finalTarget);
           m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(0),m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,finalTarget)).get(1));
           // m_drive.setDriveTurnOverride(mRotations.get(0));
-          Logger.recordOutput("First",m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)));
-          Logger.recordOutput("Second", (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(3) )));
-          Logger.recordOutput("Third", (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg));
           ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
-          Logger.recordOutput("Four", actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1);
+          boolean flywheelInTolerance = m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1),m_shooterMath.calculateAcceptableDropoff(shootingDistance));
+          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(m_shooterMath.calculateShootingPivotTolerance(shootingDistance))));
+          boolean headingWithinTolerance = (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < m_shooterMath.calculateShootingHeadingTolerance(shootingDistance));
+          boolean speedWithinTolerance = (actualSpeed.vxMetersPerSecond < .5 && actualSpeed.vyMetersPerSecond < .5 && actualSpeed.omegaRadiansPerSecond < .2);
+          
+          Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
+          Logger.recordOutput("ReadyToShoot/PivotWithinTolerance", pivotInTolerance);
+          Logger.recordOutput("ReadyToShoot/HeadingInTolerance", headingWithinTolerance);
+          Logger.recordOutput("ReadyToShoot/SpeedWithinTolerance", speedWithinTolerance);
+          
           shooterOverrideAngle = mRotations.get(0);
           angleOverrideTime = System.currentTimeMillis() + 1000;
 
 
 
-          if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .5 && actualSpeed.vyMetersPerSecond < .5 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
+          if (headingWithinTolerance && pivotInTolerance && speedWithinTolerance && flywheelInTolerance) {
             m_indexer.setState(Indexer.IndexerState.SHOOTING);
             curAction = RobotCurrentAction.kIntake;
             
@@ -712,6 +765,40 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           
 
          }
+         else if (curAction == RobotCurrentAction.kAutoShoot){
+          // first we stop 
+          // then we shoot
+          // then we set to kPathPlanner
+          
+          m_drive.setProfile(DriveProfiles.kAutoShoot);
+          Pose2d predPose = getPredictedPose(0.3, 0.3);
+          Translation3d finalTarget = AllianceFlipUtil.apply(frc.robot.FieldConstants.centerSpeakerOpening);
+          ArrayList<Rotation2d> mRotations = m_shooterMath.setNextShootingPoseAndVelocity(predPose,robotVelocity,finalTarget);
+          double shootingDistance = m_shooterMath.getDistanceFromTarget(predPose,finalTarget);
+          ArrayList <Double> speeds = m_shooterMath.getShooterMetersPerSecond(shootingDistance);
+          m_shooter.setPivotAngle(mRotations.get(1));
+          // m_drive.drive(new ChassisSpeeds(0, 0, 0));
+          // m_shooter.setFlywheelSpeedWithSpin(speeds.get(0),speeds.get(1));
+          m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(0),m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(1));
+          m_drive.setDriveTurnOverride(mRotations.get(0));
+          
+          
+          ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
+          
+
+          boolean flywheelInTolerance = m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1),m_shooterMath.calculateAcceptableDropoff(shootingDistance));
+          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(m_shooterMath.calculateShootingPivotTolerance(shootingDistance))));
+          boolean headingWithinTolerance = (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < m_shooterMath.calculateShootingHeadingTolerance(shootingDistance));
+          boolean speedWithinTolerance = (actualSpeed.vxMetersPerSecond < .5 && actualSpeed.vyMetersPerSecond < .5 && actualSpeed.omegaRadiansPerSecond < .2);
+          
+          Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
+          Logger.recordOutput("ReadyToShoot/PivotWithinTolerance", pivotInTolerance);
+          Logger.recordOutput("ReadyToShoot/HeadingInTolerance", headingWithinTolerance);
+          Logger.recordOutput("ReadyToShoot/SpeedWithinTolerance", speedWithinTolerance);
+          if (headingWithinTolerance && pivotInTolerance && speedWithinTolerance && flywheelInTolerance) {
+            m_indexer.setState(Indexer.IndexerState.SHOOTING);
+          }
+        }
         else if (curAction == RobotCurrentAction.kAutoFender){
           // first we stop 
           // then we shoot
@@ -730,7 +817,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           Logger.recordOutput("PLS",Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg );
           Logger.recordOutput("Second", (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(3) )));
           ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
-          if ((m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(9,9) ) {
+          if ((m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(9,9,1) ) {
           m_indexer.setState(Indexer.IndexerState.SHOOTING);
             // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
             // setRobotCurrentAction(RobotCurrentAction.kPathPlanner);

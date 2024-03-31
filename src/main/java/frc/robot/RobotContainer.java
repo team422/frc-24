@@ -364,7 +364,7 @@ public class RobotContainer {
     
     // m_shooter = new Shooter(new PivotIOSim(), new FlywheelIOSim());
     Unmanaged.setPhoenixDiagnosticsStartTime(-1);
-    // m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_0",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_1",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_2",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_3",""));
+    m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_0",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_1",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_2",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_3",""));
     if (Robot.isSimulation()) {
       m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim() );
       m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
@@ -525,6 +525,7 @@ public class RobotContainer {
     // m_robotState.updateTestScheduler();
     if(edu.wpi.first.wpilibj.RobotState.isTeleop()){
       m_drive.setProfile(DriveProfiles.kDefault);
+      m_shooter.clearI();
       // Commands.runOnce(()->{
       //   m_amp.m_state = AmpState.Zeroing;
       // }).andThen(Commands.waitSeconds(1)).andThen(()->{

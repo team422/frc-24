@@ -93,8 +93,8 @@ public class ShooterMath {
         m_shootSpeedLeft.put(Units.inchesToMeters(120)+constantAddition,11.0);
         m_shootSpeedLeft.put(Units.inchesToMeters(163)+constantAddition,11.0);
         m_shootSpeedLeft.put(Units.inchesToMeters(180)+constantAddition,11.0);
-        m_shootSpeedLeft.put(Units.inchesToMeters(208)+constantAddition,14.0);
-        // m_shootSpeedLeft.put(Units.inchesToMeters(276)625)+constantAddition,13.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(208)+constantAddition,11.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(276)+constantAddition,14.0);
         // m_shootSpeedLeft.put(Units.inchesToMeters(116.625)+constantAddition,13.0);
         // m_shootSpeedLeft.put(Units.inchesToMeters(130.625)+constantAddition,13.0);
         // m_shootSpeedLeft.put(Units.inchesToMeters(143.625)+constantAddition,15.000000);
@@ -152,6 +152,22 @@ public class ShooterMath {
 
 
     }
+
+    public double calculateShootingHeadingTolerance(double distance){
+        distance = Units.metersToInches(distance);
+        return ShooterMathConstants.headingErrorMultiplier.get() *(ShooterMathConstants.errorCubicA*Math.pow(distance, 3) +ShooterMathConstants.errorCubicB*Math.pow(distance, 2) + ShooterMathConstants.errorCubicC*Math.pow(distance, 1) + ShooterMathConstants.errorCubicD ); 
+    }
+
+    public double calculateShootingPivotTolerance( double distance ){
+        distance = Units.metersToInches(distance);
+        return (ShooterMathConstants.errorCubicA*Math.pow(distance, 3) +ShooterMathConstants.errorCubicB*Math.pow(distance, 2) + ShooterMathConstants.errorCubicC*Math.pow(distance, 1) + ShooterMathConstants.errorCubicD)/ShooterMathConstants.pivotErrorMultiplier.get() ;
+    }
+
+    public double calculateAcceptableDropoff(double distance){
+        distance = Units.metersToInches(distance);
+        return Math.max(ShooterMathConstants.DropoffMultiplier.get()*distance+ShooterMathConstants.DropoffInitilizer.get(),ShooterMathConstants.DropoffFloor.get());
+    }
+
 
 
 

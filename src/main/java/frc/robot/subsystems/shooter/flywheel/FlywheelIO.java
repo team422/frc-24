@@ -34,7 +34,7 @@ public interface FlywheelIO extends LoggedIO<FlywheelIO.FlywheelIOInputs> {
     public default void setDesiredSpeedWithSpin(double speedLeft, double speedRight){
     };
 
-    public default boolean checkIfTolerance(double left,double right){
+    public default boolean checkIfTolerance(double left,double right, double tolerance){
         return true;
     }
 

@@ -262,10 +262,10 @@ public class FlywheelIOKraken implements FlywheelIO {
   }
 
   @Override
-  public boolean checkIfTolerance(double left, double right){
-    Logger.recordOutput("Delta", m_krakenLeft.getRotorVelocity().getValueAsDouble() - left);
-    Logger.recordOutput("Delta Right", m_krakenRight.getRotorVelocity().getValueAsDouble() - right);
-    return Math.abs(m_krakenLeft.getRotorVelocity().getValueAsDouble() - left) < 3 && Math.abs(m_krakenRight.getRotorVelocity().getValueAsDouble() -right) < 3;
+  public boolean checkIfTolerance(double left, double right, double tolerance){
+    // Logger.recordOutput("Delta", m_krakenLeft.getRotorVelocity().getValueAsDouble() - left);
+    // Logger.recordOutput("Delta Right", m_krakenRight.getRotorVelocity().getValueAsDouble() - right);
+    return Math.abs(m_krakenLeft.getRotorVelocity().getValueAsDouble() - left) < tolerance && Math.abs(m_krakenRight.getRotorVelocity().getValueAsDouble() -right) < tolerance;
 
   }
 }

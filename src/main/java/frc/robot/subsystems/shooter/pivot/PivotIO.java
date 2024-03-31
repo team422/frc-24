@@ -42,6 +42,8 @@ public interface PivotIO extends LoggedIO<PivotIO.PivotIOInputs>{
 
     public Rotation2d getDesiredAngle();
 
+    public void clearI();
+
     
 
     public Rotation2d getCurrentAngle();

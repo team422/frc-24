@@ -145,7 +145,7 @@ public final class Constants {
       public static final double kIdleSpeedFar = 21;
       public static final LoggedTunableNumber kFlywheelSpeedLeft = new LoggedTunableNumber("Flywheel Speed Left", 0.0, "Shooter");
       public static final LoggedTunableNumber kFlywheelSpeedRight = new LoggedTunableNumber("Flywheel Speed Right", 0.0, "Shooter");
-      public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 15.00000, "Amp");
+      public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 8.00000, "Amp");
       public static final LoggedTunableNumber kFlywheelHockeyPuck = new LoggedTunableNumber("Flywheel hockey puck speed", 11, "Hockey Puck");
     }
 
@@ -166,8 +166,8 @@ public final class Constants {
       public static final LoggedTunableNumber kPivotkG = new LoggedTunableNumber("Pivot KG", 0.080000, "Shooter"); 
       public static final LoggedTunableNumber kUsingAmp = new LoggedTunableNumber("Pivot using amp", 0, "Shooter"); 
 
-      public static final LoggedTunableNumber kPivotPDirect = new LoggedTunableNumber("Pivot P Direct", 7.0, "Shooter");
-      public static final LoggedTunableNumber kPivotIDirect = new LoggedTunableNumber("Pivot I Direct", 0.0, "Shooter");
+      public static final LoggedTunableNumber kPivotPDirect = new LoggedTunableNumber("Pivot P Direct", 8.0, "Shooter");
+      public static final LoggedTunableNumber kPivotIDirect = new LoggedTunableNumber("Pivot I Direct", 3.000000, "Shooter");
       public static final LoggedTunableNumber kPivotDDirect = new LoggedTunableNumber("Pivot D Direct", 0.0, "Shooter");
 
       public static final double kOffset = Rotation2d.fromDegrees(181.7-13+52+6+123).getRotations();
@@ -217,9 +217,9 @@ public final class Constants {
 
 
   public static final class AmpConstants {
-    public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Amp Shot", 220.0, "Amp");
-    public static final LoggedTunableNumber kAmpAngle = new LoggedTunableNumber("Amp Angle",225.0, "Amp");
-    public static final LoggedTunableNumber kAmpP = new LoggedTunableNumber("Amp P", 0.1, "Amp");
+    public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Amp Shot", 190.0, "Amp");
+    public static final LoggedTunableNumber kAmpAngle = new LoggedTunableNumber("Amp Angle",190.0, "Amp");
+    public static final LoggedTunableNumber kAmpP = new LoggedTunableNumber("Amp P", 8.0, "Amp");
     public static final LoggedTunableNumber kAmpI = new LoggedTunableNumber("Amp I", 0.0, "Amp");
     public static final LoggedTunableNumber kAmpD = new LoggedTunableNumber("Amp D", 0.0, "Amp");
   }
@@ -231,7 +231,7 @@ public final class Constants {
     public static final double kMaxAngularSpeedRadiansPerSecond = 1.75 * Math.PI;
     public static final LoggedTunableNumber driveAccel = new LoggedTunableNumber("drive accel",.3,"Drive");
     public static final double controllerDeadzone = 0.04;
-    public static final double kShootToleranceDeg = 5;
+    public static final double kShootToleranceDeg = 15;
     public static final double kWheelRadius = Units.inchesToMeters(13.2582521472);
     public static final double kWheelBase = Units.inchesToMeters(18.75);
     public static final double kTrackWidth = Units.inchesToMeters(18.75);
@@ -245,7 +245,7 @@ public final class Constants {
     public static final double kMaxAccelerationMetersPerSecondSquared = 3.0;
     public static final double kMaxAngularAccelerationRadiansPerSecondSquared = 3.0 * Math.PI;
     public static final double kMaxAccelMetersPerSecondSq = 3.0;
-    public static final double kMaxAngularAccelRadiansPerSecondSq = 3.0 * Math.PI;
+    public static final double kMaxAngula1AccelRadiansPerSecondSq = 3.0 * Math.PI; 
 
     public static final CustomHolmonomicDrive holonomicDrive = new CustomHolmonomicDrive(new PIDController(1.0, 0, 0),
         new PIDController(.08, 0, 0), new SlewRateLimiter(kMaxAccelMetersPerSecondSq),
@@ -258,10 +258,10 @@ public final class Constants {
     public static final boolean useTorqueCurrentFOC = true;
     public static final boolean useMotionMagic = false;
     public static final Matrix<N3, N1> odometryStateStdDevs = new Matrix<>(VecBuilder.fill(0.003, 0.003, 0.0002));
-    public static final PathConstraints kAutoAlignToAmpSpeed = new PathConstraints(5.9,6,2,2);
-    public static final PathConstraints kDriveToPieceSpeed = new PathConstraints(5.5,22.5,5,5);
-    public static final LoggedTunableNumber AutoAlignP = new LoggedTunableNumber("Auto Align P", 4.5, "Drive");
-    public static final LoggedTunableNumber AutoAlignD = new LoggedTunableNumber("Auto Align D", 0.05, "Drive");
+    public static final PathConstraints kAutoAlignToAmpSpeed = new PathConstraints(5.9,2.0,2,2);
+    public static final PathConstraints kDriveToPieceSpeed = new PathConstraints(3.0,2.0,1,1);
+    public static final LoggedTunableNumber AutoAlignP = new LoggedTunableNumber("Auto Align P", 8.5, "Drive");
+    public static final LoggedTunableNumber AutoAlignD = new LoggedTunableNumber("Auto Align D", 0.0, "Drive");
     public static final LoggedTunableNumber kHeadingP = new LoggedTunableNumber("kHeadingP", 1.000 , "Drive");
     public static final LoggedTunableNumber kHeadingI = new LoggedTunableNumber("kHeadingI", 0.000 , "Drive");
     public static final LoggedTunableNumber kHeadingD = new LoggedTunableNumber("kHeadingD", 0.030000 , "Drive");
@@ -400,6 +400,18 @@ public final class Constants {
     public static final double cubicB = -0.894156;
     public static final double cubicC = 10.3972;
     public static final double cubicD = 1.85749;
+
+
+    // error cubic constants
+    public static final double errorCubicA = -0.00000216579;
+    public static final double errorCubicB = 0.00139213;
+    public static final double errorCubicC = -0.296805;
+    public static final double errorCubicD = 23.9083;
+    public static final LoggedTunableNumber pivotErrorMultiplier = new LoggedTunableNumber("Pivot Error Multiplier", 15, "Shooter Math");
+    public static final LoggedTunableNumber DropoffInitilizer = new LoggedTunableNumber("Flywheel dropoff init", 7, "Shooter Math");
+    public static final LoggedTunableNumber DropoffMultiplier = new LoggedTunableNumber("Flywheel multiplier", -.05, "Shooter Math");
+    public static final LoggedTunableNumber DropoffFloor = new LoggedTunableNumber("Flywheel Floor", 1.500000, "Shooter Math");
+    public static final LoggedTunableNumber headingErrorMultiplier = new LoggedTunableNumber("headingErrorMultiplier", 2.8, "Shooter Math");
 
 
     

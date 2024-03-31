@@ -73,9 +73,9 @@ public class AutoFactory extends Command {
         m_drive::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         m_drive::driveAuto, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                    new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                    new PIDConstants(4.0, 0.0, 0.0), // Rotation PID constants
-                    5.0, // Max module speed, in m/s
+                    new PIDConstants(1.5, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(1.5, 0.0, 0.0), // Rotation PID constants
+                    5.6, // Max module speed, in m/s
                     0.4, // Drive base radius in meters. Distance from robot center to furthest module.
                     new ReplanningConfig(false,false,.7,1 ) // Default path replanning config. See the API for the options here
             ),

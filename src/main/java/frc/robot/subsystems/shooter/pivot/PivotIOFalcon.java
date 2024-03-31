@@ -172,6 +172,13 @@ public class PivotIOFalcon implements PivotIO {
         leaderTalon.setControl(new VoltageOut(mPositionController.calculate(getCurrentAngle().getRadians(), m_desiredAngle.getRadians())+feedforward).withEnableFOC(true));
     }
 
+
+    @Override
+    public void clearI(){
+        mPositionController.setIntegratorRange(-0.3,0.3);
+        mPositionController.reset();
+    }
+
     @Override
     public void updateInputs(PivotIOInputs inputs) {
         LoggedTunableNumber.ifChanged(hashCode(),()->{

@@ -49,6 +49,10 @@ public class PivotIOSparkMax implements IntakePivotIO {
 
     }
 
+    public Rotation2d getCurrentPosition(){
+        return Rotation2d.fromRadians(m_encoder.getPosition());
+    }
+
 
     @Override
     public void updateInputs(IntakePivotIOInputs inputs) {
@@ -73,6 +77,7 @@ public class PivotIOSparkMax implements IntakePivotIO {
         m_desiredAngle = angle;
         m_controller.setReference(angle.getRadians(), ControlType.kPosition, 0);
     }
+
 
 
     @Override

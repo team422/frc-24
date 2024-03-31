@@ -180,10 +180,10 @@ public class AprilTagVision extends VirtualSubsystem {
         double avgDistance = totalDistance / tagPoses.size();
         // System.out.println(System.currentTimeMillis());
         // Add observation to list
-        double xyStdDev = xyStdDevCoefficient * Math.pow(avgDistance, 2.0) / tagPoses.size();
+        double xyStdDev = xyStdDevCoefficient.get() * Math.pow(avgDistance, 2.0) / tagPoses.size();
         double thetaStdDev =
             useVisionRotation
-                ? thetaStdDevCoefficient * Math.pow(avgDistance, 2.0) / tagPoses.size()
+                ? thetaStdDevCoefficient.get() * Math.pow(avgDistance, 2.0) / tagPoses.size()
                 : Double.POSITIVE_INFINITY;
         allVisionObservations.add(
             new VisionObservation(

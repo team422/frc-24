@@ -74,6 +74,10 @@ public class Shooter extends ProfiledSubsystem {
     public void simulationPeriodic() {
     }
 
+    public void clearI(){
+        m_pivotIO.clearI();
+    }
+
     @Override
     public void periodic() {
         double start = HALUtil.getFPGATime();
@@ -174,10 +178,11 @@ public class Shooter extends ProfiledSubsystem {
 
     }
 
-    public boolean isWithinToleranceWithSpin(double speedLeft,double speedRight){
+    public boolean isWithinToleranceWithSpin(double speedLeft,double speedRight, double tolerance){
         // Logger.recordOutput("Velo Left",m_inputsFlywheel.VelocityLeft);
         // Logger.recordOutput("Velo Actual", metersPerSecondToRPM(speedLeft/60.0));
-        return m_flywheelIO.checkIfTolerance(metersPerSecondToRPM(speedLeft/60.0), metersPerSecondToRPM(speedRight/60.0));
+        tolerance = metersPerSecondToRPM(tolerance/60.0);
+        return m_flywheelIO.checkIfTolerance(metersPerSecondToRPM(speedLeft/60.0), metersPerSecondToRPM(speedRight/60.0), tolerance);
         // if(Math.abs(m_inputsFlywheel.Velocity - metersPerSecondToRPM(speedRight)/60.0) < 2.5 ){
         //     return true;
         // }

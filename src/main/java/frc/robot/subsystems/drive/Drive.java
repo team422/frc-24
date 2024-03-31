@@ -380,6 +380,9 @@ private SwerveSetpoint currentSetpoint =
         // public Rotation2d operatorForwardDirection;
         // public double updatePeriod;
         // SwerveRequest request = new SwerveRequest();
+        Logger.recordOutput("RobotVelocity/DesiredVelocity X", m_desChassisSpeeds.vxMetersPerSecond);
+        Logger.recordOutput("RobotVelocity/DesiredVelocity y", m_desChassisSpeeds.vyMetersPerSecond);
+        Logger.recordOutput("RobotVelocity/DesiredVelocity Theta", m_desChassisSpeeds.omegaRadiansPerSecond);
         m_desChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(m_desChassisSpeeds,getPose().getRotation());
         SwerveRequest request = new SwerveRequest.FieldCentric().withVelocityX(m_desChassisSpeeds.vxMetersPerSecond).withVelocityY(m_desChassisSpeeds.vyMetersPerSecond).withRotationalRate(m_desChassisSpeeds.omegaRadiansPerSecond);
         m_CommandSwerveDrivetrain.applyRequest(request);
@@ -802,13 +805,13 @@ private SwerveSetpoint currentSetpoint =
 //     timestampQueue.clear();
 //     Logger.processInputs("Drive/OdometryTimestamps", odometryTimestampInputs);
 //     // Read inputs from gyro
-//     m_gyro.updateInputs(m_gyroInputs);
-//     Logger.processInputs("Drive/Gyro", m_gyroInputs);
+    m_gyro.updateInputs(m_gyroInputs);
+    Logger.processInputs("Drive/Gyro", m_gyroInputs);
 //     // Read inputs from modules
-//     for (int i = 0; i < m_modules.length; i++) {
-//       m_modules[i].updateInputs(m_inputs[i]);
-//       Logger.processInputs("Drive/Module" + i, m_inputs[i]);
-//     }
+    for (int i = 0; i < m_modules.length; i++) {
+      m_modules[i].updateInputs(m_inputs[i]);
+      Logger.processInputs("Drive/Module" + i, m_inputs[i]);
+    }
 //     odometryLock.unlock();
 
 //     // Calculate the min odometry position updates across all modules
@@ -891,7 +894,8 @@ private SwerveSetpoint currentSetpoint =
     ChassisSpeeds robotRelativeVelocity = getChassisSpeeds();
     robotRelativeVelocity = DriveConstants.kDriveKinematics.toChassisSpeeds(m_CommandSwerveDrivetrain.getModuleStates());
     robotRelativeVelocity.omegaRadiansPerSecond = m_gyroInputs.yawVelocityRadPerSec;
-    RobotState.getInstance().addVelocityData(new Twist2d(robotRelativeVelocity.vxMetersPerSecond, robotRelativeVelocity.vyMetersPerSecond, robotRelativeVelocity.omegaRadiansPerSecond));
+    
+    RobotState.getInstance().addVelocityData(new Twist2d(m_CommandSwerveDrivetrain.getState().speeds.vxMetersPerSecond, m_CommandSwerveDrivetrain.getState().speeds.vyMetersPerSecond, m_CommandSwerveDrivetrain.getState().speeds.omegaRadiansPerSecond));
     // updateSlipData();
     // calculateSlipLikelyhood();
     // Logger.getInstance().processInputs("Gyro", m_gyroInputs);  
@@ -938,7 +942,9 @@ private SwerveSetpoint currentSetpoint =
   }
 
   public ChassisSpeeds calculateAutoAlignChassisSpeeds(){
+
     m_desChassisSpeeds.omegaRadiansPerSecond = m_autoAlignController.calculate(getPose().getRotation().getRadians(), turnOverride.getRadians());
+    // m_desChassisSpeeds.omegaRadiansPerSecond = Math.copySign(Math.max(m_desChassisSpeeds.omegaRadiansPerSecond,DriveConstants.kMinTurnSpeed.get()), m_desChassisSpeeds.omegaRadiansPerSecond)
     return m_desChassisSpeeds;
 
   }
@@ -966,7 +972,7 @@ private SwerveSetpoint currentSetpoint =
       Logger.processInputs("Module" + i, m_inputs[i]);
     }
 
-    m_poseEstimator.update(m_gyro.getAngle(), getSwerveModulePositions());
+    // m_poseEstimator.update(m_gyro.getAngle(), getSwerveModulePositions());
 
     Logger.recordOutput("Drive/Pose", getPose());
     Logger.recordOutput("Drive/ModuleStates", getModuleStates());
@@ -1047,7 +1053,16 @@ private SwerveSetpoint currentSetpoint =
   }
 
   public ChassisSpeeds getChassisSpeeds() {
-    return DriveConstants.kDriveKinematics.toChassisSpeeds(getModuleStates());
+    return m_CommandSwerveDrivetrain.getState().speeds;
+  }
+
+  public ArrayList<Double> getWheelyAmounts(){
+    ArrayList<Double> wheelyAmounts = new ArrayList<>();
+    wheelyAmounts.add(m_gyroInputs.pitchVelocityRadPerSec);
+    wheelyAmounts.add(m_gyroInputs.yawVelocityRadPerSec);
+    return wheelyAmounts;
+
+    
   }
 
   public ChassisSpeeds getChassisSpeedsFieldRelative(){

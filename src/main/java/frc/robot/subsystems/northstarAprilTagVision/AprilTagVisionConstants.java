@@ -10,6 +10,7 @@ package frc.robot.subsystems.northstarAprilTagVision;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
+import frc.lib.utils.LoggedTunableNumber;
 
 
 public class AprilTagVisionConstants {
@@ -17,8 +18,8 @@ public class AprilTagVisionConstants {
   public static final double targetLogTimeSecs = 0.1;
   public static final double fieldBorderMargin = 0.5;
   public static final double zMargin = 0.75;
-  public static final double xyStdDevCoefficient = 0.005;
-  public static final double thetaStdDevCoefficient = 0.01;
+  public static final LoggedTunableNumber xyStdDevCoefficient = new LoggedTunableNumber("xyStdDevCoefficient", 0.05,"Cameras");
+  public static final LoggedTunableNumber thetaStdDevCoefficient = new LoggedTunableNumber("thetaStdDevCoefficient", 0.1,"Cameras");;
 
   public static final Pose3d[] cameraPoses =
     new Pose3d[] {
