@@ -7,8 +7,6 @@ package frc.robot;
 import java.util.List;
 import java.util.Objects;
 
-import javax.sound.sampled.AudioFormat;
-
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -36,11 +34,11 @@ import frc.robot.commands.drive.FeedForwardCharacterization;
 import frc.robot.commands.drive.TeleopControllerNoAugmentation;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.oi.DriverControls;
-import frc.robot.oi.DriverControlsXboxReal;
+import frc.robot.oi.DriverControlsXboxController;
 import frc.robot.oi.ManualController;
 import frc.robot.subsystems.amp.Amp;
-import frc.robot.subsystems.amp.AmpIOFalcon;
 import frc.robot.subsystems.amp.Amp.AmpState;
+import frc.robot.subsystems.amp.AmpIOFalcon;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.ClimbIOTalon;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
@@ -99,9 +97,9 @@ public class RobotContainer {
   }
 
   public void configureControllers(){
-    // m_driverControls = new DriverControlsXboxController(3);
-    m_driverControls = new DriverControlsXboxReal(3);
-    m_testingController = new ManualController(4);
+    m_driverControls = new DriverControlsXboxController(3);
+    // m_driverControls = new DriverControlsXboxReal(3);
+    m_testingController = new ManualController(5);
     
   }
 
@@ -127,7 +125,13 @@ public class RobotContainer {
 
 
       m_testingController.amp().onTrue(Commands.runOnce(()->{
-        m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpShoot);
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpLineup);
+      })).onFalse(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+      }));
+      m_testingController.finalShoot().onTrue(Commands.runOnce(()->{
+        System.out.println("NOW SHOOT");
+        m_indexer.setState(IndexerState.SHOOTING);
       }));
 
       m_driverControls.hockeyPuck().whileTrue(Commands.runOnce(()->{
@@ -233,6 +237,7 @@ public class RobotContainer {
       })).onFalse(Commands.runOnce(()->{
         Logger.recordOutput("stow Trigger 13", Timer.getFPGATimestamp());
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+        m_robotState.setDriveType(DriveProfiles.kDefault);
       
       }));
 
@@ -358,7 +363,7 @@ public class RobotContainer {
     
     // m_shooter = new Shooter(new PivotIOSim(), new FlywheelIOSim());
     Unmanaged.setPhoenixDiagnosticsStartTime(-1);
-    m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_0",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_1",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_2",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_3",""));
+    // m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_0",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_1",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_2",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_3",""));
     if (Robot.isSimulation()) {
       m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim() );
       m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
@@ -392,10 +397,10 @@ public class RobotContainer {
       //     new SwerveModuleIOMK4Talon(7,8,9),
       //     new SwerveModuleIOMK4Talon(10,11,12));
       m_amp = new Amp(new AmpIOFalcon(Ports.ampMotor));
-      
+      // new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort)
     }
     else{
-      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) , new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort));
+      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) ,new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort));
     m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
     m_amp = new Amp(new AmpIOFalcon(Ports.ampMotor));
       // m_shooter = new Shooter(new frc.robot.subsystems.shooter.pivot.PivotIOSim(), new FlywheelIOSim());
@@ -519,11 +524,11 @@ public class RobotContainer {
     // m_robotState.updateTestScheduler();
     if(edu.wpi.first.wpilibj.RobotState.isTeleop()){
       m_drive.setProfile(DriveProfiles.kDefault);
-      Commands.runOnce(()->{
-        m_amp.m_state = AmpState.Zeroing;
-      }).andThen(Commands.waitSeconds(1)).andThen(()->{
-        m_amp.m_state = AmpState.PositionFollowing;
-      }).schedule();
+      // Commands.runOnce(()->{
+      //   m_amp.m_state = AmpState.Zeroing;
+      // }).andThen(Commands.waitSeconds(1)).andThen(()->{
+      //   m_amp.m_state = AmpState.PositionFollowing;
+      // }).schedule();
       m_drive.drive(new ChassisSpeeds(0,0,0));
       new TeleopControllerNoAugmentation(m_drive,()->m_driverControls.getDriveForward(),()->m_driverControls.getDriveLeft() , ()-> m_driverControls.getDriveRotation(), DriveConstants.controllerDeadzone).schedule();
 

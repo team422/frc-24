@@ -2,10 +2,13 @@ package frc.robot.subsystems.amp;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.hal.HALUtil;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotState;
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
 import frc.lib.utils.LoggedTunableNumber;
+import frc.robot.Constants;
 import frc.robot.Constants.AmpConstants;
 
 public class Amp extends ProfiledSubsystem {
@@ -26,6 +29,7 @@ public class Amp extends ProfiledSubsystem {
         m_ampIO = ampIO;
         ampRotation2d = ampIO.getPosition();
         m_inputsPivot = new AmpIOInputsAutoLogged();
+        m_state = AmpState.PositionFollowing;
     }
 
     
@@ -38,6 +42,7 @@ public class Amp extends ProfiledSubsystem {
 
     @Override
     public void periodic() {
+        double start = HALUtil.getFPGATime();
         LoggedTunableNumber.ifChanged(
       hashCode(), () -> {
         m_ampIO.setPID(AmpConstants.kAmpP.get(),AmpConstants.kAmpI.get(),AmpConstants.kAmpD.get());
@@ -50,14 +55,18 @@ public class Amp extends ProfiledSubsystem {
         
         
         Logger.processInputs("Amp Pivot", m_inputsPivot);
+        if(Constants.fullManualShooterAndPivotSpeedControls){
+            m_ampIO.setPosition(Rotation2d.fromDegrees(MathUtil.clamp(Rotation2d.fromDegrees(AmpConstants.kAmpAngle.get()).getDegrees(),0,240)));
+            return;
+        }
         if(m_state == AmpState.PositionFollowing){
             m_ampIO.setPosition(ampRotation2d);
-
         }
         else{
-            m_ampIO.zero();
+            // m_ampIO.zero();
         }
 
+        Logger.recordOutput("LoggedRobot/AmpTime", (HALUtil.getFPGATime()-start)/1000);
         
     }
 

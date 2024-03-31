@@ -164,7 +164,7 @@ public class PivotIOFalcon implements PivotIO {
         m_desiredAngle = angle;
 
         // System.out.println(angle);
-        feedforward = armFF.calculate(m_desiredAngle.getRadians(),getCurrentVelocity());
+        feedforward = armFF.calculate(m_desiredAngle.getRadians(),getCurrentAngle().getRadians());
         if (Robot.isSimulation()){
             feedforward = 0;
         }
@@ -192,17 +192,17 @@ public class PivotIOFalcon implements PivotIO {
 
         }, ShooterPivotConstants.kPivotP,ShooterPivotConstants.kPivotI,ShooterPivotConstants.kPivotD,ShooterPivotConstants.kUsingAmp,ShooterPivotConstants.kPivotkG,ShooterPivotConstants.kPivotkS,ShooterPivotConstants.kPivotkG,ShooterPivotConstants.kPivotkV,ShooterPivotConstants.kPivotkA);   
 
-        RobotCurrentAction curAction = frc.robot.RobotState.getInstance().curAction;
-        if(curAction.equals(RobotCurrentAction.kRevAndAlign) || curAction.equals(RobotCurrentAction.kAutoShoot) || curAction.equals(RobotCurrentAction.kAutoSOTM) || curAction.equals(RobotCurrentAction.kAmpShoot) ){
-            if(!Robot.isSimulation()){
-            counter +=1;
-            if(counter % 10 == 0){
-                leaderTalon.setPosition(getCurrentAngle().getRotations(), 0.002);
-                counter = 0;
-            }
+        // RobotCurrentAction curAction = frc.robot.RobotState.getInstance().curAction;
+        // if(curAction.equals(RobotCurrentAction.kRevAndAlign) || curAction.equals(RobotCurrentAction.kAutoShoot) || curAction.equals(RobotCurrentAction.kAutoSOTM) || curAction.equals(RobotCurrentAction.kAmpShoot) ){
+        //     if(!Robot.isSimulation()){
+        //     counter +=1;
+        //     if(counter % 10 == 0){
+        //         leaderTalon.setPosition(getCurrentAngle().getRotations(), 0.002);
+        //         counter = 0;
+        //     }
             
-        }
-    }
+        // }
+    // }
         // if(!Robot.isSimulation()){
         //     leaderTalon.setPosition(getCurrentAngle().getRotations(), 0.002);
         // }

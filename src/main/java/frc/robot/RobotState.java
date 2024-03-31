@@ -88,6 +88,7 @@ public class RobotState {
     }
 
     public RobotCurrentAction curAction = RobotCurrentAction.kStow;
+    public Timer stowAmpTimer;
 
     public Rotation2d shooterOverrideAngle = null;
     public long angleOverrideTime = 0;
@@ -285,6 +286,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     if(action == RobotCurrentAction.kAutoIntake){
       mDriveToPiece = null;
     }
+    stowAmpTimer = null;
 
     // if(action == RobotCurrentAction.kStow){
     //   if (curAction == RobotCurrentAction.kAutoIntake){
@@ -445,14 +447,39 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           Logger.recordOutput("Is KStow", Timer.getFPGATimestamp());
           stowAndStopIntake();
           stowShooter();
-          if(m_amp.getPivotAngle().getDegrees() > 30){
-            if (m_intake.getAngle().getDegrees() > 110){
-              m_intake.setPivotAngle(IntakeConstants.kAmpAngle);
 
-            }else{
-              m_amp.setPivotAngle(Rotation2d.fromDegrees(0));
+          if(m_amp.getPivotAngle().getDegrees() > 5){
+            m_shooter.setPivotAngle(m_shooter.getPivotAngle());
+            if (stowAmpTimer == null){
+              stowAmpTimer = new Timer();
+              stowAmpTimer.start();
+              m_intake.setPivotAngle(IntakeConstants.kAmpAngle.minus(Rotation2d.fromDegrees(10)));
             }
+            
+            if (stowAmpTimer.get() > .1){
+              m_amp.setPivotAngle(Rotation2d.fromDegrees(0));
+              m_intake.setPivotAngle(IntakeConstants.kAmpAngle.minus(Rotation2d.fromDegrees(10)));
+              
+
           }
+
+
+            
+            // Logger.recordOutput("intake angle",m_intake.getCurrentAngle().getDegrees());
+            // Logger.recordOutput("intake angle >", IntakeConstants.kAmpAngle.getDegrees() -5);
+            // if (m_intake.getAngle().getDegrees() > IntakeConstants.kAmpAngle.getDegrees() -5 ){
+            //   m_intake.setPivotAngle(IntakeConstants.kAmpAngle.minus(Rotation2d.fromDegrees(10)));
+
+            // }else{
+            //   m_amp.setPivotAngle(Rotation2d.fromDegrees(0));
+            //   m_intake.setPivotAngle(IntakeConstants.kAmpAngle.minus(Rotation2d.fromDegrees(10)));
+            // }
+          }
+          if(stowAmpTimer !=null){
+          if(stowAmpTimer.get() > 3){
+            stowAmpTimer = null;
+          }
+        }
           if(!edu.wpi.first.wpilibj.RobotState.isAutonomous()){
           m_shooter.setFlywheelSpeedWithSpin(0,0);
           }
@@ -564,12 +591,22 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           
         }
          else if (curAction == RobotCurrentAction.kAmpLineup){
-          m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
-          m_intake.setPivotAngle(IntakeConstants.kAmpAngle);
-          PathfindHolonomic path = mAutoFactory.get().generateTrajectoryToPose(frc.robot.FieldConstants.kAmpBlue,DriveConstants.kAutoAlignToAmpSpeed, true, instance);
+          
+          if(stowAmpTimer == null){
+            stowAmpTimer = new Timer();
+            stowAmpTimer.start();
+          }
+          m_intake.setPivotAngle(IntakeConstants.kAmpAngle.minus(Rotation2d.fromDegrees(10)));
+          if(stowAmpTimer.get() > .1){
+            m_amp.setPivotAngle(Rotation2d.fromDegrees(AmpConstants.kAmpShot.get()));
+          }
+          
+          PathfindHolonomic path = mAutoFactory.get().generateTrajectoryToPose(AllianceFlipUtil.apply(frc.robot.FieldConstants.kAmpBlue),DriveConstants.kAutoAlignToAmpSpeed, false, instance);
           path.schedule();
-          m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
-          m_amp.setPivotAngle(Rotation2d.fromDegrees(AmpConstants.kAmpShot.get()));
+          m_drive.setProfile(DriveProfiles.kAutoPiecePickup);
+          // if(m_intake.getAngle().getDegrees() < IntakeConstants.kAmpAngle.getDegrees()){
+          
+          // }
           m_shooter.setPivotAngle(Rotation2d.fromDegrees(ShooterPivotConstants.kAmpShot.get()));
           m_shooter.setFlywheelSpeedWithSpin(FlywheelConstants.kAmpSpeed.get(), FlywheelConstants.kAmpSpeed.get());          
         }  

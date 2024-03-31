@@ -43,8 +43,9 @@ public class ManualController {
 
 
     public Trigger amp(){
-        return m_controller.b();
+        return m_controller.leftBumper();
     }
+
 
     public Trigger toggleBeamBreakOne() {
         return m_controller.povUp();

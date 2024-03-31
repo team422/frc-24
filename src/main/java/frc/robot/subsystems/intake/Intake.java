@@ -90,4 +90,8 @@ public class Intake extends ProfiledSubsystem {
     public Rotation2d getAngle() {
         return m_rotation;
     }
+
+    public Rotation2d getCurrentAngle(){
+        return m_PivotIO.getAngle();
+    }
 }
