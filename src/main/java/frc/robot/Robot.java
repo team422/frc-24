@@ -7,11 +7,13 @@ package frc.robot;
 import java.sql.DriverPropertyInfo;
 
 import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -71,8 +73,9 @@ public class Robot extends LoggedRobot {
     // finished or interrupted commands, and running subsystem periodic() methods.
     // This must be called from the robot's periodic block in order for anything in
     // the Command-based framework to work.
-
+    long start = HALUtil.getFPGATime();
     CommandScheduler.getInstance().run();
+    Logger.recordOutput("LoggedRobot/CommandScheduler", (HALUtil.getFPGATime()-start)/1000);
     robotContainer.updateRobotState();
   }
 

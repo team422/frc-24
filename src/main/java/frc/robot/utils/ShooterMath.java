@@ -48,57 +48,58 @@ public class ShooterMath {
     public void setUpTreeMap(){
         // 37.625
         double constantAddition = Units.inchesToMeters(36);
-        m_distanceAngle.put(0.0+constantAddition,57.0);
-        m_distanceAngle.put(Units.inchesToMeters(13.5+13)+constantAddition,52.0);
-        m_distanceAngle.put(Units.inchesToMeters(28.5+13)+constantAddition,48.0);
-        m_distanceAngle.put(Units.inchesToMeters(41.125+8)+constantAddition,43.0);
-        m_distanceAngle.put(Units.inchesToMeters(53.25)+constantAddition,42.0);
-        m_distanceAngle.put(Units.inchesToMeters(64.5)+constantAddition,38.0);
-        m_distanceAngle.put(Units.inchesToMeters(76.5)+constantAddition,36.0);
-        m_distanceAngle.put(Units.inchesToMeters(87.625)+constantAddition,34.0);
-        m_distanceAngle.put(Units.inchesToMeters(100.625)+constantAddition,31.0);
-        m_distanceAngle.put(Units.inchesToMeters(116.625)+constantAddition,29.0);
-        m_distanceAngle.put(Units.inchesToMeters(130.625)+constantAddition,28.0);
-        m_distanceAngle.put(Units.inchesToMeters(143.625)+constantAddition,26.500000);
-        m_distanceAngle.put(Units.inchesToMeters(160.625)+constantAddition,25.000000);
-        m_distanceAngle.put(Units.inchesToMeters(175.625)+constantAddition,25.500000);
-        // m_distanceAngle.put(Units.inchesToMeters(20 0.625)+constantAddition,21.000000);
+        m_distanceAngle.put(Units.inchesToMeters(13.5)+constantAddition,54.0);
+        m_distanceAngle.put(Units.inchesToMeters(33.5)+constantAddition,50.0);
+        m_distanceAngle.put(Units.inchesToMeters(49)+constantAddition,44.0);
+        m_distanceAngle.put(Units.inchesToMeters(52)+constantAddition,43.0);
+        m_distanceAngle.put(Units.inchesToMeters(62)+constantAddition,40.0);
+        m_distanceAngle.put(Units.inchesToMeters(76)+constantAddition,35.0);
+        m_distanceAngle.put(Units.inchesToMeters(99)+constantAddition,32.4);
+        m_distanceAngle.put(Units.inchesToMeters(120)+constantAddition,29.0);
+        m_distanceAngle.put(Units.inchesToMeters(137)+constantAddition,26.0);
+        m_distanceAngle.put(Units.inchesToMeters(163)+constantAddition,24.5);
+        m_distanceAngle.put(Units.inchesToMeters(180)+constantAddition,24.0);
+        m_distanceAngle.put(Units.inchesToMeters(208)+constantAddition,22.15);
+        m_distanceAngle.put(Units.inchesToMeters(276)+constantAddition,19.0);
         
         
         
         
         
         
-        m_shootSpeedRight.put(0.0+constantAddition,10.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(13.5)+constantAddition,10.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(28.5)+constantAddition,10.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(41.125)+constantAddition,10.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(53.125)+constantAddition,11.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(64.25)+constantAddition,11.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(76.5)+constantAddition,13.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(87.5)+constantAddition,15.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(100.625)+constantAddition,15.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(116.625)+constantAddition,15.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(130.625)+constantAddition,15.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(143.625)+constantAddition,17.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(160.625)+constantAddition,17.0);
-        m_shootSpeedRight.put(Units.inchesToMeters(175.625)+constantAddition,21.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(13.5)+constantAddition,14.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(33.5)+constantAddition,14.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(49)+constantAddition,14.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(76)+constantAddition,14.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(99)+constantAddition,14.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(120)+constantAddition,14.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(163)+constantAddition,14.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(180)+constantAddition,14.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(208)+constantAddition,14.0);
+        m_shootSpeedRight.put(Units.inchesToMeters(276)+constantAddition,18.0);
+        // m_shootSpeedRight.put(Units.inchesToMeters(100.625)+constantAddition,15.0);
+        // m_shootSpeedRight.put(Units.inchesToMeters(116.625)+constantAddition,15.0);
+        // m_shootSpeedRight.put(Units.inchesToMeters(130.625)+constantAddition,15.0);
+        // m_shootSpeedRight.put(Units.inchesToMeters(143.625)+constantAddition,17.0);
+        // m_shootSpeedRight.put(Units.inchesToMeters(160.625)+constantAddition,17.0);
+        // m_shootSpeedRight.put(Units.inchesToMeters(175.625)+constantAddition,21.0);
         // m_shootSpeedRight.put(Units.inchesToMeters(200.625)+constantAddition,18.000000);
         
-        m_shootSpeedLeft.put(0.0+constantAddition,10.0);
-        m_shootSpeedLeft.put(Units.inchesToMeters(13.5)+constantAddition,10.0);
-        m_shootSpeedLeft.put(Units.inchesToMeters(28.5)+constantAddition,10.0);
-        m_shootSpeedLeft.put(Units.inchesToMeters(41.125)+constantAddition,10.0);
-        m_shootSpeedLeft.put(Units.inchesToMeters(54.125)+constantAddition,11.0);
-        m_shootSpeedLeft.put(Units.inchesToMeters(64.25)+constantAddition,11.0);
-        m_shootSpeedLeft.put(Units.inchesToMeters(76.5)+constantAddition,13.0);
-        m_shootSpeedLeft.put(Units.inchesToMeters(87.25)+constantAddition,13.0);
-        m_shootSpeedLeft.put(Units.inchesToMeters(100.625)+constantAddition,13.0);
-        m_shootSpeedLeft.put(Units.inchesToMeters(116.625)+constantAddition,13.0);
-        m_shootSpeedLeft.put(Units.inchesToMeters(130.625)+constantAddition,13.0);
-        m_shootSpeedLeft.put(Units.inchesToMeters(143.625)+constantAddition,15.000000);
-        m_shootSpeedLeft.put(Units.inchesToMeters(160.625)+constantAddition,15.0);
-        m_shootSpeedLeft.put(Units.inchesToMeters(175.625)+constantAddition,19.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(13.5)+constantAddition,11.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(33.5)+constantAddition,11.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(49)+constantAddition,11.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(76)+constantAddition,11.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(99)+constantAddition,11.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(120)+constantAddition,11.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(163)+constantAddition,11.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(180)+constantAddition,11.0);
+        m_shootSpeedLeft.put(Units.inchesToMeters(208)+constantAddition,14.0);
+        // m_shootSpeedLeft.put(Units.inchesToMeters(276)625)+constantAddition,13.0);
+        // m_shootSpeedLeft.put(Units.inchesToMeters(116.625)+constantAddition,13.0);
+        // m_shootSpeedLeft.put(Units.inchesToMeters(130.625)+constantAddition,13.0);
+        // m_shootSpeedLeft.put(Units.inchesToMeters(143.625)+constantAddition,15.000000);
+        // m_shootSpeedLeft.put(Units.inchesToMeters(160.625)+constantAddition,15.0);
+        // m_shootSpeedLeft.put(Units.inchesToMeters(175.625)+constantAddition,19.0);
         // m_shootSpeedLeft.put(Units.inchesToMeters(200.625)+constantAddition,16.000000);
 
         

@@ -35,7 +35,7 @@ public class DriverControlsXboxController implements DriverControls {
   @Override
   public double getDriveRotation() {
     double val = m_controls.addDeadzoneScaled(m_controller.getRightX(), 0.06);
-    return -Math.signum(val) * Math.pow(val, 4);
+    return - Math.pow(val, 1);
   }
 //burblesquirp
   @Override
@@ -72,7 +72,7 @@ public class DriverControlsXboxController implements DriverControls {
 
   @Override
   public Trigger ampAutoLineup(){
-    return m_controller.L3();
+    return m_controller.L1();
   }
 
   @Override
@@ -97,7 +97,7 @@ public class DriverControlsXboxController implements DriverControls {
 
   @Override
   public Trigger hockeyPuck(){
-    return m_controller.L1();
+    return m_controller.povLeft();
   }
 
   @Override
