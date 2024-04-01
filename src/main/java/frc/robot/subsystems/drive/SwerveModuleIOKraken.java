@@ -586,6 +586,24 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
     // mTurnController.setIZone(3);
     }
 
+    @Override
+    public void setTurnFF(double kS, double kV, double kA) {
+        turnFeedbackConfig.kS = kS;
+        turnFeedbackConfig.kV = kV;
+        turnFeedbackConfig.kA = kA;
+        // m_turnMotor.getConfigurator().apply(turnConfig,0.1);
+        // mTurnControllerFF = new ArmFeedforward(kS, kV, kA);
+    }
+
+    @Override
+    public void setDriveFF(double kS,double kV, double kA){
+        driveConfig.Slot0.kS = kS;
+        driveConfig.Slot0.kV = kV;
+        driveConfig.Slot0.kA = kA;
+        // m_driveMotor.getConfigurator().apply(driveConfig,0.1);
+
+    }
+
     public void setDriveBrakeMode(boolean mode) {
         m_driveMotor.setNeutralMode(mode ? NeutralModeValue.Brake : NeutralModeValue.Coast);
     }

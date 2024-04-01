@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 2.385117978722477,
-        "y": 5.51952656141832
+        "x": 2.815583374732926,
+        "y": 5.574873809061344
       },
       "prevControl": {
-        "x": 1.7054711974007277,
-        "y": 5.251500190500382
+        "x": 2.135936593411177,
+        "y": 5.306847438143406
       },
       "nextControl": null,
       "isLocked": false,
@@ -78,7 +78,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Six piece SOTM",
+  "folder": null,
   "previewStartingState": {
     "rotation": 150.3824697424943,
     "velocity": 0

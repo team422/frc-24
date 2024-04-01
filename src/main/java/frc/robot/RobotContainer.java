@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,6 +63,7 @@ import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.AutoBuilderManager;
 import frc.robot.utils.AutoScanLoop;
 import frc.robot.utils.GeomUtil;
+import frc.robot.utils.Note;
 import frc.robot.utils.NoteVisualizer;
 
 public class RobotContainer {
@@ -105,7 +107,7 @@ public class RobotContainer {
   }
 
   public void configureControllers(){
-    m_driverControls = new DriverControlsXboxController(3);
+    m_driverControls = new DriverControlsXboxController(1);
     // m_driverControls = new DriverControlsXboxReal(3);
     m_testingController = new ManualController(5);
     
@@ -301,7 +303,9 @@ public class RobotContainer {
     m_autoChooser.addDefaultOption("Do Nothing", Commands.none());
     List<String> paths = PathPlannerUtil.getExistingPaths();
     for (String path : paths) {
-      m_autoChooser.addOption(path, m_autoFactory.getAutoCommand(path));
+      m_autoChooser.addOption(path, m_autoFactory.getAutoCommand(path).andThen(Commands.runOnce(()->{
+        RobotState.getInstance().mUpdatingAutoBuilder = true;
+      })));
     }
     m_autoChooser.addOption(
       "Drive Wheel Radius Characterization",
@@ -330,15 +334,19 @@ public class RobotContainer {
   public void addScoutingPathing(){
     m_scoutingChooser = new LoggedDashboardChooser<>("Scouting Chooser");
     m_endChooser = new LoggedDashboardChooser<>("End Chooser");
-    m_scoutingChooser.addDefaultOption("None", Commands.none());
+    m_scoutingChooser.addDefaultOption("None", Commands.runOnce(()->{
+      RobotState.getInstance().getAutoBuilderManager().setEndNotes(new Note[0]);
+    }));
     m_autoScanLoop.getAllScoutPossibilties().forEach((key, value) -> {
-      
+
       m_scoutingChooser.addOption(key, Commands.runOnce(()->{ 
-        RobotState.getInstance().getAutoBuilderManager().setNotes(value);
+        RobotState.getInstance().getAutoBuilderManager().setEndNotes(value);
       }));
     });
 
-    m_endChooser.addDefaultOption("None", Commands.none());
+    m_endChooser.addDefaultOption("None", Commands.runOnce(()->{ 
+      RobotState.getInstance().getAutoBuilderManager().setNotes(new Note[0]);
+    }));
     m_autoScanLoop.getAllEndPossibilties().forEach((key, value) -> {
       m_endChooser.addOption(key, Commands.runOnce(()->{ 
         RobotState.getInstance().getAutoBuilderManager().setNotes(value);
@@ -346,7 +354,9 @@ public class RobotContainer {
     });
 
     m_scoutNumber = new LoggedDashboardChooser<>("Scouting Number");
-    m_scoutNumber.addDefaultOption("0", Commands.none());
+    m_scoutNumber.addDefaultOption("0", Commands.runOnce(()->{
+      RobotState.getInstance().getAutoBuilderManager().setNumScouts(0);
+    }));
     m_scoutNumber.addOption("1", Commands.runOnce(()->{
       RobotState.getInstance().getAutoBuilderManager().setNumScouts(1);
     }));
@@ -563,6 +573,7 @@ public class RobotContainer {
 
   public void onDisabled(){
     m_drive.setWheelIdleBrake(true);
+    RobotState.getInstance().getAutoBuilderManager().reset();
   }
 
   public void disabledPeriodic(){
@@ -583,6 +594,7 @@ public class RobotContainer {
       new TeleopControllerNoAugmentation(m_drive,()->m_driverControls.getDriveForward(),()->m_driverControls.getDriveLeft() , ()-> m_driverControls.getDriveRotation(), DriveConstants.controllerDeadzone).schedule();
 
     }
+    m_robotState.mUpdatingAutoBuilder = false;
     
   }
   private void configureBindings() {
@@ -604,7 +616,7 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     NoteVisualizer.resetAutoNotes();
     NoteVisualizer.showAllNotes();
-    return m_autoChooser.get();
+    return m_scoutNumber.get().andThen(m_scoutingChooser.get()).andThen(m_endChooser.get()).andThen(m_autoChooser.get());
     // return Commands.print("No autonomous command configured");
   }
 }

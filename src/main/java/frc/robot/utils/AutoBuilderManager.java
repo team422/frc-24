@@ -64,7 +64,9 @@ public class AutoBuilderManager {
             case STARTING:
                 mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(getNextNotePosition(false)), DriveConstants.kDriveToPieceSpeed, false, RobotState.getInstance());
                 mDriveToPiece.schedule();
-                currAutoState = AutoState.SCANNING;
+                break;
+                
+
             case SCANNING:
 
                 
@@ -178,6 +180,14 @@ public class AutoBuilderManager {
         ENDING
     }
 
+    public void reset(){
+        currAutoState = AutoState.STARTING;
+        currentNote = -1;
+        notesShot = 0;
+
+ 
+     }
+
     public boolean isCameraWorking() {
         return true;
     }
@@ -222,6 +232,7 @@ public class AutoBuilderManager {
     
         if (!isEnding) {
             if (currentNote < notes.length && notesShot < num_scouts) {
+                currAutoState = AutoState.SCANNING;
                 return new Pose2d(notes[currentNote].getPosition(), new Rotation2d());
             }
             currentNote = 0;
@@ -229,6 +240,7 @@ public class AutoBuilderManager {
         }
 
         if (currentNote < endNotes.length) {
+            currAutoState = AutoState.ENDING_DRIVING;
             return new Pose2d(endNotes[currentNote].getPosition(), new Rotation2d());
         }
 

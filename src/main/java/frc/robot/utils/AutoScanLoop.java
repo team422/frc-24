@@ -27,6 +27,16 @@ public class AutoScanLoop {
     }
 
     public static Pose2d shoot(Note note) {
+        switch(note){
+            case FOUR:
+            case FIVE:
+                return AutoRuns.ampSideWingShot;
+            case SIX:
+            case SEVEN:
+                return AutoRuns.underStageShot;
+            case EIGHT:
+                return AutoRuns.farSourceWingShot;
+        }
         return null;
     }
 

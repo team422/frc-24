@@ -175,7 +175,9 @@ public class PivotIOFalcon implements PivotIO {
 
     @Override
     public void clearI(){
-        mPositionController.setIntegratorRange(-0.3,0.3);
+        mPositionController.setIntegratorRange(-0.07,0.07);
+
+
         mPositionController.reset();
     }
 

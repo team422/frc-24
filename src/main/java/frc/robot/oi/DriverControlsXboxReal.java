@@ -33,7 +33,7 @@ public class DriverControlsXboxReal implements DriverControls {
   @Override
   public double getDriveRotation() {
     double val = m_controls.addDeadzoneScaled(m_controller.getRightX(), 0.03);
-    return -Math.signum(val) * Math.pow(val, 4);
+    return Math.signum(val) * Math.pow(val, 4);
   }
 
   @Override

@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotState;
@@ -205,7 +206,10 @@ private final PositionTorqueCurrentFOC positionControl =
             }
             if (m_finalBeamBreak.get()) {
                 RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
-                RobotState.getInstance().setIndexer(IndexerState.IDLE);
+                Commands.waitSeconds(.5).andThen(Commands.runOnce(()->{
+                    RobotState.getInstance().setIndexer(IndexerState.IDLE);
+                })).schedule();
+                
                 
             }
             

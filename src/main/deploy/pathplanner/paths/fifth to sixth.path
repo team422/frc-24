@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.495174048712068,
-        "y": 6.643376574896533
+        "x": 4.507158374764053,
+        "y": 6.416840844557915
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.324972274396305,
-        "y": 5.8471363427101855
+        "x": 6.2313557868537295,
+        "y": 7.135048583822659
       },
       "isLocked": false,
       "linkedName": "shoot left wing"
@@ -48,10 +48,10 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 2.5,
+    "maxVelocity": 5.5,
+    "maxAcceleration": 3.4,
     "maxAngularVelocity": 360.0,
-    "maxAngularAcceleration": 360.0
+    "maxAngularAcceleration": 180.0
   },
   "goalEndState": {
     "velocity": 0,

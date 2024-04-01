@@ -276,7 +276,7 @@ public final class Constants {
     public static final LoggedTunableNumber turnStatic = new LoggedTunableNumber("drive ff", -0.200000,"drive");
 
 
-    public static final LoggedTunableNumber kDriveP = new LoggedTunableNumber("Drive wP", 3.000000, "Drive");
+    public static final LoggedTunableNumber kDriveP = new LoggedTunableNumber("Drive wP", 0.150000, "Drive");
     public static final LoggedTunableNumber kDriveI = new LoggedTunableNumber("Drive I", 0.0, "Drive");
     public static final LoggedTunableNumber kDriveD = new LoggedTunableNumber("Drive D", 0.00, "Drive");
     public static final LoggedTunableNumber kDriveFF = new LoggedTunableNumber("Drive FF", 2.96, "Drive");
@@ -307,9 +307,19 @@ public final class Constants {
 
 
 
-    public static final LoggedTunableNumber kDriveKS = new LoggedTunableNumber("Drive KS", 0.29785, "Drive");
-    public static final LoggedTunableNumber kDriveKV = new LoggedTunableNumber("Drive KV", 2.08931, "Drive");
+    public static final LoggedTunableNumber kDriveKS = new LoggedTunableNumber("Drive KS", 0.3, "Drive");
+    public static final LoggedTunableNumber kDriveKV = new LoggedTunableNumber("Drive KV", .12, "Drive");
     public static final LoggedTunableNumber kDriveKA = new LoggedTunableNumber("Drive KA", 0, "Drive");
+
+    public static final LoggedTunableNumber kTurningKS = new LoggedTunableNumber("Turning KS", 0.3, "Drive");
+    public static final LoggedTunableNumber kTurningKV = new LoggedTunableNumber("Turning KV", 1.5, "Drive");
+    public static final LoggedTunableNumber kTurningKA = new LoggedTunableNumber("Turning KA", 0, "Drive");
+
+
+    public static final LoggedTunableNumber kTurningKP = new LoggedTunableNumber("Turning KP", 100., "Drive");
+    public static final LoggedTunableNumber kTurningKI = new LoggedTunableNumber("Turning KI", 0.0, "Drive");
+    public static final LoggedTunableNumber kTurningKD = new LoggedTunableNumber("Turning KD", 0, "Drive");
+
 
     public static final LoggedTunableNumber kTurningPSim = new LoggedTunableNumber("TurningP Sim", 4.5, "Drive");
     public static final LoggedTunableNumber kTurningISim = new LoggedTunableNumber("Turning I Sim", 0.00, "Drive");
@@ -485,6 +495,11 @@ public final class Constants {
       
       }}
     ;
+
+    public static final Pose2d farSourceWingShot = new Pose2d(4.67,6.16,Rotation2d.fromDegrees(1.24));
+    public static final Pose2d underStageShot = new Pose2d(4.20,4.94,Rotation2d.fromDegrees(-12.03));
+    public static final Pose2d ampSideWingShot = new Pose2d(3.87,2.76,Rotation2d.fromDegrees(139.53));
+
 
     // queue possibilties
 

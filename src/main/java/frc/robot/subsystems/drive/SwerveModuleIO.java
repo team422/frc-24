@@ -99,6 +99,15 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
   public void setDrivePID(double p, double i, double d);
 
   public void setTurnPID(double p, double i, double d);
+  
+
+  public default void setTurnFF(double ks, double kv, double ka){
+    return;
+  }
+
+  public default void setDriveFF(double ks, double kv, double ka){
+    return;
+  }
 
 
   public default void runCharacterization(double turnSetpoint, double driveVoltage){

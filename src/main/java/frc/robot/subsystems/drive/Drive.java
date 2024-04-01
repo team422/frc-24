@@ -14,6 +14,7 @@ import java.util.stream.IntStream;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.SteerRequestType;
@@ -282,6 +283,7 @@ private SwerveSetpoint currentSetpoint =
 
 
   public void setDriveToPieceChassisSpeeds(ChassisSpeeds speeds) {
+    // speeds.omegaRadiansPerSecond = -speeds.omegaRadiansPerSecond;
     m_driveToPieceSpeeds = speeds;
   }
 
@@ -397,7 +399,7 @@ private SwerveSetpoint currentSetpoint =
     for (int i = 0; i < moduleStates.length; i++) {
       moduleStates[i] = SwerveModuleState.optimize(moduleStates[i], m_modules[i].getAngle());
     }
-  }
+  } 
     SwerveModuleState[] straightStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(m_desChassisSpeeds);
     Logger.recordOutput("Drive/DesiredSpeeds",straightStates);
     Logger.recordOutput("Drive/DesiredSpeedsOptimized",m_CommandSwerveDrivetrain.getTargetStates());
@@ -793,11 +795,37 @@ private SwerveSetpoint currentSetpoint =
   },DriveConstants.AutoAlignP,DriveConstants.AutoAlignD);
   LoggedTunableNumber.ifChanged(hashCode(), ()->{
 
+    
+    m_modules[0].setDriveFF(ModuleConstants.kDriveKS.get(), ModuleConstants.kDriveKV.get(), ModuleConstants.kDriveKA.get());
+  m_modules[1].setDriveFF(ModuleConstants.kDriveKS.get(), ModuleConstants.kDriveKV.get(), ModuleConstants.kDriveKA.get());
+  m_modules[2].setDriveFF(ModuleConstants.kDriveKS.get(), ModuleConstants.kDriveKV.get(), ModuleConstants.kDriveKA.get());
+  m_modules[3].setDriveFF(ModuleConstants.kDriveKS.get(), ModuleConstants.kDriveKV.get(), ModuleConstants.kDriveKA.get());
+
+    Slot0Configs configs =  new Slot0Configs().withKP(ModuleConstants.kDriveP.get()).withKI(ModuleConstants.kDriveI.get()).withKD(ModuleConstants.kDriveD.get()).withKS(ModuleConstants.kDriveKS.get()).withKV(ModuleConstants.kDriveKV.get()).withKA(ModuleConstants.kDriveKA.get());
+
+    m_CommandSwerveDrivetrain.getModule(0).getDriveMotor().getConfigurator().apply(configs);
+    m_CommandSwerveDrivetrain.getModule(1).getDriveMotor().getConfigurator().apply(configs);
+    m_CommandSwerveDrivetrain.getModule(2).getDriveMotor().getConfigurator().apply(configs);
+    m_CommandSwerveDrivetrain.getModule(3).getDriveMotor().getConfigurator().apply(configs);
+},ModuleConstants.kDriveP,ModuleConstants.kDriveI,ModuleConstants.kDriveD,ModuleConstants.kDriveKS, ModuleConstants.kDriveKA, ModuleConstants.kDriveKV);
+
+LoggedTunableNumber.ifChanged(hashCode(), ()->{
     m_modules[0].setTurnPID(ModuleConstants.FLkTurningP.get(), ModuleConstants.FLkTurningI.get(), ModuleConstants.FLkTurningD.get());
     m_modules[1].setTurnPID(ModuleConstants.FRkTurningP.get(), ModuleConstants.FRkTurningI.get(), ModuleConstants.FRkTurningD.get());
     m_modules[2].setTurnPID(ModuleConstants.BLkTurningP.get(), ModuleConstants.BLkTurningI.get(), ModuleConstants.BLkTurningD.get());
     m_modules[3].setTurnPID(ModuleConstants.BRkTurningP.get(), ModuleConstants.BRkTurningI.get(), ModuleConstants.BRkTurningD.get());
-},ModuleConstants.FLkTurningP,ModuleConstants.FLkTurningI, ModuleConstants.FLkTurningD,ModuleConstants.FRkTurningP,ModuleConstants.FRkTurningI, ModuleConstants.FRkTurningD,ModuleConstants.BLkTurningP,ModuleConstants.BLkTurningI, ModuleConstants.BLkTurningD,ModuleConstants.BRkTurningP,ModuleConstants.BRkTurningI, ModuleConstants.BRkTurningD);
+    m_modules[0].setTurnFF(ModuleConstants.kTurningKS.get(), ModuleConstants.kTurningKV.get(), ModuleConstants.kTurningKA.get());
+    m_modules[1].setTurnFF(ModuleConstants.kTurningKS.get(), ModuleConstants.kTurningKV.get(), ModuleConstants.kTurningKA.get());
+    m_modules[2].setTurnFF(ModuleConstants.kTurningKS.get(), ModuleConstants.kTurningKV.get(), ModuleConstants.kTurningKA.get());
+    m_modules[3].setTurnFF(ModuleConstants.kTurningKS.get(), ModuleConstants.kTurningKV.get(), ModuleConstants.kTurningKA.get());
+    Slot0Configs configs =  new Slot0Configs().withKP(ModuleConstants.kTurningKP.get()).withKI(ModuleConstants.kTurningKI.get()).withKD(ModuleConstants.kTurningKD.get()).withKS(ModuleConstants.kTurningKS.get()).withKV(ModuleConstants.kTurningKV.get()).withKA(ModuleConstants.kTurningKA.get());
+    m_CommandSwerveDrivetrain.getModule(0).getSteerMotor().getConfigurator().apply(configs);
+    m_CommandSwerveDrivetrain.getModule(1).getSteerMotor().getConfigurator().apply(configs);
+    m_CommandSwerveDrivetrain.getModule(2).getSteerMotor().getConfigurator().apply(configs);
+    m_CommandSwerveDrivetrain.getModule(3).getSteerMotor().getConfigurator().apply(configs);
+
+},ModuleConstants.kTurningKP,ModuleConstants.kTurningKI,ModuleConstants.kTurningKD,ModuleConstants.kTurningKS, ModuleConstants.kTurningKV, ModuleConstants.kTurningKA,ModuleConstants.FLkTurningP,ModuleConstants.FLkTurningI, ModuleConstants.FLkTurningD,ModuleConstants.FRkTurningP,ModuleConstants.FRkTurningI, ModuleConstants.FRkTurningD,ModuleConstants.BLkTurningP,ModuleConstants.BLkTurningI, ModuleConstants.BLkTurningD,ModuleConstants.BRkTurningP,ModuleConstants.BRkTurningI, ModuleConstants.BRkTurningD);
+
     
 // odometryLock.lock();
 //     // Read timestamps from odometry thread and fake sim timestamps
@@ -916,6 +944,7 @@ private SwerveSetpoint currentSetpoint =
     else if (m_profiles.getCurrentProfile() == DriveProfiles.kAutoPiecePickup){
       
       m_desChassisSpeeds = m_driveToPieceSpeeds;
+
 
       defaultPeriodic();
     } else if(m_profiles.getCurrentProfile() == DriveProfiles.kAutoShoot){
@@ -1172,7 +1201,9 @@ private SwerveSetpoint currentSetpoint =
   }
 
   public void driveAuto(ChassisSpeeds speeds ){
+    // speeds.omegaRadiansPerSecond = -speeds.omegaRadiansPerSecond;
     m_desAutoChassisSpeeds = speeds;
+
   }
 
   public void driveRobotRelative(ChassisSpeeds speeds) {

@@ -32,10 +32,10 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 2.5,
+    "maxVelocity": 5.5,
+    "maxAcceleration": 3.4,
     "maxAngularVelocity": 360.0,
-    "maxAngularAcceleration": 360.0
+    "maxAngularAcceleration": 180.0
   },
   "goalEndState": {
     "velocity": 0,
@@ -45,7 +45,7 @@
   "reversed": false,
   "folder": "allPointToPointPaths",
   "previewStartingState": {
-    "rotation": 177.81828626840664,
+    "rotation": 153.73372352433043,
     "velocity": 0
   },
   "useDefaultConstraints": true

@@ -46,6 +46,12 @@
           "data": {
             "pathName": "2to1"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShoot"
+          }
         }
       ]
     }

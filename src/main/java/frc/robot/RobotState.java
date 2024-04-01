@@ -101,6 +101,7 @@ public class RobotState {
     public double shooterStopTime = -1;
 
     public boolean kAmpTopReached = false;
+    public boolean mUpdatingAutoBuilder = false;
 
 
 
@@ -174,6 +175,8 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         }
         return instance;
     }
+
+    
 
 
 
@@ -297,7 +300,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     // }
     // difference between estimate and vision pose
     m_drive.addVisionMeasurement(observation.visionPose(), observation.timestamp(),observation.stdDevs());
-    System.out.println(observation.stdDevs());
+    // System.out.println(observation.stdDevs());
     // Transform2d transform = new Transform2d(estimateAtTime, observation.visionPose());
     // // scale transform by visionK
     // var kTimesTransform =
@@ -409,7 +412,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         }
         if (location == GamePieceLocation.SHOOTER){
           if (!edu.wpi.first.wpilibj.RobotState.isTeleop()){
-            shooterStopTime = Timer.getFPGATimestamp() ;
+            shooterStopTime = Timer.getFPGATimestamp() +0.5;
             Logger.recordOutput("knows it shot", shooterStopTime);
           }else {
             shooterStopTime = Timer.getFPGATimestamp() + 1.0;
@@ -459,6 +462,9 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
 
     public void updateRobotState() {
       Logger.recordOutput("Current State Space", curAction);
+      if(mUpdatingAutoBuilder){
+        mAutoBuilderManager.update();
+      }
         if(intakeStowTime != -1 && intakeStowTime < Timer.getFPGATimestamp()) {
             intakeStowTime = -1;
         }
@@ -783,7 +789,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           ArrayList <Double> speeds = m_shooterMath.getShooterMetersPerSecond(shootingDistance);
           m_shooter.setPivotAngle(mRotations.get(1));
           // m_drive.drive(new ChassisSpeeds(0, 0, 0));
-          // m_shooter.setFlywheelSpeedWithSpin(speeds.get(0),speeds.get(1));
+          // m_shooter.setFlywheelSpeedWithSpin(speeds.get(0),speeds.get(1)); burblesquirp and we da goats  
           m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(0),m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(1));
           m_drive.setDriveTurnOverride(mRotations.get(0));
           
@@ -791,9 +797,9 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
           
 
-          boolean flywheelInTolerance = m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1),m_shooterMath.calculateAcceptableDropoff(shootingDistance));
-          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(m_shooterMath.calculateShootingPivotTolerance(shootingDistance))));
-          boolean headingWithinTolerance = (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < m_shooterMath.calculateShootingHeadingTolerance(shootingDistance));
+          boolean flywheelInTolerance = m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1),2.5*m_shooterMath.calculateAcceptableDropoff(shootingDistance));
+          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(10.0*m_shooterMath.calculateShootingPivotTolerance(shootingDistance))));
+          boolean headingWithinTolerance = (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < m_shooterMath.calculateShootingHeadingTolerance(shootingDistance)*3);
           boolean speedWithinTolerance = (actualSpeed.vxMetersPerSecond < .5 && actualSpeed.vyMetersPerSecond < .5 && actualSpeed.omegaRadiansPerSecond < .2);
           
           Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
