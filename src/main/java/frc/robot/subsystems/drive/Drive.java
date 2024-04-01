@@ -43,6 +43,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -1050,6 +1051,7 @@ private SwerveSetpoint currentSetpoint =
 
     m_gyro.addAngle(Rotation2d.fromRadians(gyroDelta * deltaTime));
     m_simGyroLastUpdated = ts;
+    m_CommandSwerveDrivetrain.updateSimState(0.02,  RobotController.getBatteryVoltage());
   }
 
   public ChassisSpeeds getChassisSpeeds() {
