@@ -130,8 +130,8 @@ public class AutoBuilderManager {
                     mDriveToPiece.schedule();
                 }else if(curNotePose != null){
                     
-                 if (Math.pow(Math.pow(RobotState.getInstance().getDrive().getChassisSpeeds().vxMetersPerSecond,2) +Math.pow(RobotState.getInstance().getDrive().getChassisSpeeds().vxMetersPerSecond,2),0.5) < .1 ){
-                    
+                 if (Math.pow(Math.pow(RobotState.getInstance().getDrive().getChassisSpeeds().vxMetersPerSecond,2) +Math.pow(RobotState.getInstance().getDrive().getChassisSpeeds().vyMetersPerSecond,2),0.5) < .1 && RobotState.getInstance().getEstimatedPose().getTranslation().getDistance(AllianceFlipUtil.apply(curNotePose.getTranslation())) < 1 ){
+
                     currAutoState = AutoState.SHOOTING;
                     if(mDriveToPiece !=null){
                         mDriveToPiece.cancel();

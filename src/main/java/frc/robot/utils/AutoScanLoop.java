@@ -30,12 +30,12 @@ public class AutoScanLoop {
         switch(note){
             case FOUR:
             case FIVE:
-                return AutoRuns.ampSideWingShot;
+            return AutoRuns.farSourceWingShot;
             case SIX:
             case SEVEN:
-                return AutoRuns.underStageShot;
+            return AutoRuns.underStageShot;
             case EIGHT:
-                return AutoRuns.farSourceWingShot;
+            return AutoRuns.ampSideWingShot;
         }
         return null;
     }

@@ -610,7 +610,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           ArrayList<Rotation2d> mRotations = m_shooterMath.setNextShootingPoseAndVelocity(predPose,robotVelocity,finalTarget);
           // double speed = m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,FieldConstants.kShooterCenter));
           
-          m_drive.setProfile(DriveProfiles.kAutoAlign);
+          m_drive.setProfile(DriveProfiles.kAutoAlignAndDrive);
 
           double shootingDistance = m_shooterMath.getDistanceFromTarget(predPose, finalTarget);
           m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(0),m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(1));
@@ -622,11 +622,11 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
           ArrayList<Double> wheelyAmounts = m_drive.getWheelyAmounts();
           boolean flywheelInTolerance = m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1),m_shooterMath.calculateAcceptableDropoff(shootingDistance));
-          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1)));
+          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(2.5)));
           boolean headingWithinTolerance = (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < m_shooterMath.calculateShootingHeadingTolerance(shootingDistance));
           boolean speedWithinTolerance = (Math.abs(actualSpeed.vxMetersPerSecond) < 1. && Math.abs(actualSpeed.vyMetersPerSecond) < 1. && Math.abs(actualSpeed.omegaRadiansPerSecond) < .2);
           boolean RollAndYawPerSecondIsSlow = (Math.abs(wheelyAmounts.get(0)) < .05 && Math.abs(wheelyAmounts.get(1)) < .05);
-          boolean atActualPose = (Math.abs(getEstimatedPose().getTranslation().getX() - predPose.getTranslation().getX()) < .1 && Math.abs(getEstimatedPose().getTranslation().getY() - predPose.getTranslation().getY()) < .1);
+          boolean atActualPose = (Math.abs(getEstimatedPose().getTranslation().getX() - predPose.getTranslation().getX()) < .3 && Math.abs(getEstimatedPose().getTranslation().getY() - predPose.getTranslation().getY()) < .3);
           
           Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
           Logger.recordOutput("ReadyToShoot/PivotWithinTolerance", pivotInTolerance);

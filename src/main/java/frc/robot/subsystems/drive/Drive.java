@@ -141,7 +141,7 @@ public class Drive extends ProfiledSubsystem {
   }
 
   public enum DriveProfiles {
-    kDefault, kTuning, kTesting, kFFdrive, kFFPIDDrive, kModuleAndAccuracyTesting, kTrajectoryFollowing, kAutoAlign, kShootWithTrajectory,kAutoPiecePickup,kAutoShoot,WHEEL_RADIUS_CHARACTERIZATION,CHARACTERIZATION,WHEEL_RADIUS_CHARACTERIZATION_ORIENTATION
+    kDefault, kTuning, kTesting, kFFdrive, kFFPIDDrive, kModuleAndAccuracyTesting, kTrajectoryFollowing, kAutoAlign, kShootWithTrajectory,kAutoPiecePickup,kAutoShoot,WHEEL_RADIUS_CHARACTERIZATION,CHARACTERIZATION,WHEEL_RADIUS_CHARACTERIZATION_ORIENTATION,kAutoAlignAndDrive
   }
 
   // Profiling variables
@@ -942,6 +942,13 @@ LoggedTunableNumber.ifChanged(hashCode(), ()->{
       m_desChassisSpeeds = calculateAutoAlignChassisSpeeds();
       defaultPeriodic();
     }
+    else if (m_profiles.getCurrentProfile() == DriveProfiles.kAutoAlignAndDrive){
+      m_desChassisSpeeds = m_driveToPieceSpeeds;
+
+      m_desChassisSpeeds = calculateAutoAlignChassisSpeeds();
+      defaultPeriodic();
+    }
+
     else if (m_profiles.getCurrentProfile() == DriveProfiles.kAutoPiecePickup){
       
       m_desChassisSpeeds = m_driveToPieceSpeeds;
