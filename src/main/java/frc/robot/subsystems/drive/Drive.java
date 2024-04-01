@@ -15,6 +15,8 @@ import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveControlRequestParameters;
 
 import edu.wpi.first.apriltag.AprilTag;
@@ -385,7 +387,8 @@ private SwerveSetpoint currentSetpoint =
         Logger.recordOutput("RobotVelocity/DesiredVelocity y", m_desChassisSpeeds.vyMetersPerSecond);
         Logger.recordOutput("RobotVelocity/DesiredVelocity Theta", m_desChassisSpeeds.omegaRadiansPerSecond);
         m_desChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(m_desChassisSpeeds,getPose().getRotation());
-        SwerveRequest request = new SwerveRequest.FieldCentric().withVelocityX(m_desChassisSpeeds.vxMetersPerSecond).withVelocityY(m_desChassisSpeeds.vyMetersPerSecond).withRotationalRate(m_desChassisSpeeds.omegaRadiansPerSecond);
+        SwerveRequest request = new SwerveRequest.FieldCentric().withVelocityX(m_desChassisSpeeds.vxMetersPerSecond).withVelocityY(m_desChassisSpeeds.vyMetersPerSecond).withRotationalRate(m_desChassisSpeeds.omegaRadiansPerSecond).withDriveRequestType(DriveRequestType.Velocity).withSteerRequestType(SteerRequestType.MotionMagicExpo);
+
         m_CommandSwerveDrivetrain.applyRequest(request);
         
     

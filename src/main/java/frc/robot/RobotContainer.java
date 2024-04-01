@@ -37,7 +37,6 @@ import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsXboxController;
 import frc.robot.oi.ManualController;
 import frc.robot.subsystems.amp.Amp;
-import frc.robot.subsystems.amp.Amp.AmpState;
 import frc.robot.subsystems.amp.AmpIOFalcon;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.ClimbIOTalon;
@@ -60,6 +59,8 @@ import frc.robot.subsystems.shooter.Shooter.ShooterIsIntaking;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOKraken;
 import frc.robot.subsystems.shooter.pivot.PivotIOFalcon;
 import frc.robot.utils.AllianceFlipUtil;
+import frc.robot.utils.AutoBuilderManager;
+import frc.robot.utils.AutoScanLoop;
 import frc.robot.utils.GeomUtil;
 import frc.robot.utils.NoteVisualizer;
 
@@ -82,12 +83,18 @@ public class RobotContainer {
 
   ObjectDetectionCam m_objectDetectionCams;
 
+  AutoScanLoop m_autoScanLoop = new AutoScanLoop();
+  AutoBuilderManager m_autoBuilderManager = new AutoBuilderManager();
+
   Command autoDriveCommand;
 
   Amp m_amp;
 
 
   private LoggedDashboardChooser<Command> m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
+  private LoggedDashboardChooser<Command> m_scoutingChooser = new LoggedDashboardChooser<>("Scouting Chooser");
+  private LoggedDashboardChooser<Command> m_scoutNumber = new LoggedDashboardChooser<>("Scouting Number");
+  private LoggedDashboardChooser<Command> m_endChooser = new LoggedDashboardChooser<>("End Chooser");
 
   public RobotContainer() {
     configureControllers();
@@ -286,7 +293,7 @@ public class RobotContainer {
 
   }
 
-  public void planPathPlanner(){
+  public void addBasePaths(){
     m_autoChooser = new LoggedDashboardChooser<>("Auto Chooser");
     
 
@@ -314,8 +321,49 @@ public class RobotContainer {
 
   public void configureAutonomous(){
     m_autoFactory = new AutoFactory(m_drive, m_intake);
-    planPathPlanner();
+    addBasePaths();
+    addScoutingPathing();
+
+  }
+
+
+  public void addScoutingPathing(){
+    m_scoutingChooser = new LoggedDashboardChooser<>("Scouting Chooser");
+    m_endChooser = new LoggedDashboardChooser<>("End Chooser");
+    m_scoutingChooser.addDefaultOption("None", Commands.none());
+    m_autoScanLoop.getAllScoutPossibilties().forEach((key, value) -> {
+      
+      m_scoutingChooser.addOption(key, Commands.runOnce(()->{ 
+        RobotState.getInstance().getAutoBuilderManager().setNotes(value);
+      }));
+    });
+
+    m_endChooser.addDefaultOption("None", Commands.none());
+    m_autoScanLoop.getAllEndPossibilties().forEach((key, value) -> {
+      m_endChooser.addOption(key, Commands.runOnce(()->{ 
+        RobotState.getInstance().getAutoBuilderManager().setNotes(value);
+      }));
+    });
+
+    m_scoutNumber = new LoggedDashboardChooser<>("Scouting Number");
+    m_scoutNumber.addDefaultOption("0", Commands.none());
+    m_scoutNumber.addOption("1", Commands.runOnce(()->{
+      RobotState.getInstance().getAutoBuilderManager().setNumScouts(1);
+    }));
+    m_scoutNumber.addOption("2", Commands.runOnce(()->{
+      RobotState.getInstance().getAutoBuilderManager().setNumScouts(2);
+    }));
+    m_scoutNumber.addOption("3", Commands.runOnce(()->{
+      RobotState.getInstance().getAutoBuilderManager().setNumScouts(3);
+    }));
+    m_scoutNumber.addOption("4", Commands.runOnce(()->{
+      RobotState.getInstance().getAutoBuilderManager().setNumScouts(4);
+    }));
+
+
+
     
+
   }
 
   
@@ -461,7 +509,7 @@ public class RobotContainer {
 
     m_objectDetectionCams = new ObjectDetectionCam(new ObjectDetectionIODepth(""));
     
-    m_robotState = RobotState.startInstance(m_drive, m_climb, m_indexer,m_shooter, m_objectDetectionCams, m_aprilTagVision, m_intake,this::getAutoFactory,m_driverControls,m_amp);
+    m_robotState = RobotState.startInstance(m_drive, m_climb, m_indexer,m_shooter, m_objectDetectionCams, m_aprilTagVision, m_intake,this::getAutoFactory,m_driverControls,m_amp,m_autoBuilderManager);
     // m_TebInterfacer = new NetworkTablesTEBInterfacer("teb");
   }
 

@@ -3,41 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.623095307465124,
-        "y": 4.186837684337134
+        "x": 2.8985646558915663,
+        "y": 7.004598525894356
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.21469822887562406,
-        "y": 4.960828164609762
+        "x": 3.8985646558915654,
+        "y": 7.004598525894356
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.036673735724921,
-        "y": 0.6913699864470814
+        "x": 7.927008588392176,
+        "y": 7.444763546849398
       },
       "prevControl": {
-        "x": 6.176562803493253,
-        "y": 0.5117883589014735
-      },
-      "nextControl": {
-        "x": 10.229930248547335,
-        "y": 0.9031146557422128
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.9468252387791543,
-        "y": 2.702517935673127
-      },
-      "prevControl": {
-        "x": 1.9468252387791543,
-        "y": 2.702517935673127
+        "x": 6.927008588392176,
+        "y": 7.444763546849398
       },
       "nextControl": null,
       "isLocked": false,
@@ -49,15 +33,15 @@
   "eventMarkers": [
     {
       "name": "New Event Marker",
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 0.6,
       "command": {
-        "type": "parallel",
+        "type": "sequential",
         "data": {
           "commands": [
             {
               "type": "named",
               "data": {
-                "name": "deployIntake"
+                "name": "AutoIntake"
               }
             }
           ]
@@ -73,13 +57,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 159.56316495663546,
+    "rotation": 0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "allPointToPointPaths",
   "previewStartingState": {
-    "rotation": 171.51006771021812,
+    "rotation": 0,
     "velocity": 0
   },
   "useDefaultConstraints": true

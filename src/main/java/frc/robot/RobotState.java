@@ -59,6 +59,7 @@ import frc.robot.subsystems.northstarAprilTagVision.AprilTagVision;
 import frc.robot.subsystems.objectVision.ObjectDetectionCam;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.utils.AllianceFlipUtil;
+import frc.robot.utils.AutoBuilderManager;
 import frc.robot.utils.NoteVisualizer;
 import frc.robot.utils.ShooterMath;
 import frc.robot.utils.swerve.ModuleLimits;
@@ -82,10 +83,13 @@ public class RobotState {
     private Pose2d mDriveToPiecePose = null;
     private Supplier<AutoFactory> mAutoFactory = null;
     private DriverControls mDriveControls;
+    private AutoBuilderManager mAutoBuilderManager;
 
     public enum RobotCurrentAction {
-      kStow,kIntake,kShootFender,kRevAndAlign, kShootWithAutoAlign,kAmpLineup,kAmpShoot, kAutoIntake, kAutoShoot, kPathPlanner,kVomit,kTune,kHockeyPuck,kGamePieceLock,kAutoFender,kNoteBackToIntake,kAutoSOTM,kDailedShot
+      kStow,kIntake,kShootFender,kRevAndAlign, kShootWithAutoAlign,kAmpLineup,kAmpShoot, kAutoIntake, kAutoShoot, kPathPlanner,kVomit,kTune,kHockeyPuck,kGamePieceLock,kAutoFender,kNoteBackToIntake,kAutoSOTM,kDailedShot,kAutoShootAtPosition
     }
+
+    public Pose2d actualAutoShootAtPositionPose;
 
     public RobotCurrentAction curAction = RobotCurrentAction.kStow;
     public Timer stowAmpTimer;
@@ -97,6 +101,8 @@ public class RobotState {
     public double shooterStopTime = -1;
 
     public boolean kAmpTopReached = false;
+
+
 
   public record OdometryObservation(
       SwerveDriveWheelPositions wheelPositions, Rotation2d gyroAngle, double timestamp) {}
@@ -137,7 +143,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     public Command m_driveToAmp = null;
     public Command m_driveToDailedShot = null;
 
-    private RobotState(Drive drive, Climb climb, Indexer indexer, Shooter shooter, ObjectDetectionCam objectDetectionCams, AprilTagVision aprilTagVisions, Intake intake, Supplier<AutoFactory> autoFactory,DriverControls mDriverControls, Amp amp) {
+    private RobotState(Drive drive, Climb climb, Indexer indexer, Shooter shooter, ObjectDetectionCam objectDetectionCams, AprilTagVision aprilTagVisions, Intake intake, Supplier<AutoFactory> autoFactory,DriverControls mDriverControls, Amp amp, AutoBuilderManager autoBuilderManager) {
         this.m_drive = drive;
         this.m_climb = climb;
         this.m_shooter = shooter;
@@ -148,6 +154,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         this.mAutoFactory = autoFactory;
         this.mDriveControls = mDriverControls;
         this.m_amp = amp;
+        this.mAutoBuilderManager = autoBuilderManager;
         NoteVisualizer.setRobotPoseSupplier(this::getEstimatedPose);
         m_shooterMath = new ShooterMath(new Translation3d(0,0,Units.inchesToMeters(16.496)));
         ProfilingScheduling.startInstance();
@@ -159,10 +166,10 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         m_customTrajectoryRunner = new CustomTrajectoryRunner();
         // this.m_swerveTester = new SwerveTester(drive);
     }
-    public static RobotState startInstance(Drive drive, Climb climb, Indexer indexer, Shooter shooter, ObjectDetectionCam objectDetectionCams, AprilTagVision aprilTagVision, Intake intake, Supplier<AutoFactory> autoFactory, DriverControls mDriverControls, Amp amp) {
+    public static RobotState startInstance(Drive drive, Climb climb, Indexer indexer, Shooter shooter, ObjectDetectionCam objectDetectionCams, AprilTagVision aprilTagVision, Intake intake, Supplier<AutoFactory> autoFactory, DriverControls mDriverControls, Amp amp, AutoBuilderManager autoBuilderManager) {
         if (instance == null) {
             
-            instance = new RobotState(drive, climb, indexer,shooter, objectDetectionCams, aprilTagVision, intake,autoFactory,mDriverControls,amp);
+            instance = new RobotState(drive, climb, indexer,shooter, objectDetectionCams, aprilTagVision, intake,autoFactory,mDriverControls,amp, autoBuilderManager);
 
         }
         return instance;
@@ -175,6 +182,34 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         
         return instance;
     }
+
+    public Pose2d[] getNotesInView() {
+      return m_objectDetectionCams.getAllNotes();
+    }
+
+    public Pose2d getClosestNote(){
+      return m_objectDetectionCams.getClosestNote();
+    }
+
+    public AutoBuilderManager getAutoBuilderManager(){
+      return mAutoBuilderManager;
+    }
+
+    public ShooterMath getShooterMath(){
+      return m_shooterMath;
+    }
+    public AutoFactory getAutoFactory(){
+      return mAutoFactory.get();
+    }
+
+    public Drive getDrive(){
+        return m_drive;
+    }
+
+    public boolean hasNote(){
+      return m_indexer.inContactWithGamePiece();
+    }
+
 
     public Transform3d getShooterTransform(){
       return m_shooter.getTransform();
@@ -559,6 +594,49 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
 // 
 
         }
+        else if (curAction == RobotCurrentAction.kAutoShootAtPosition){
+
+          Pose2d predPose = actualAutoShootAtPositionPose;
+          Translation3d finalTarget = AllianceFlipUtil.apply(frc.robot.FieldConstants.centerSpeakerOpening);
+
+          ArrayList<Rotation2d> mRotations = m_shooterMath.setNextShootingPoseAndVelocity(predPose,robotVelocity,finalTarget);
+          // double speed = m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,FieldConstants.kShooterCenter));
+          
+          m_drive.setProfile(DriveProfiles.kAutoAlign);
+
+          double shootingDistance = m_shooterMath.getDistanceFromTarget(predPose, finalTarget);
+          m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(0),m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(1));
+          m_shooter.setPivotAngle(mRotations.get(1));
+          m_drive.setDriveTurnOverride(mRotations.get(0));
+          // ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
+          ArrayList<Double> speeds = (m_shooterMath.getShooterMetersPerSecond(shootingDistance));
+
+          ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
+          ArrayList<Double> wheelyAmounts = m_drive.getWheelyAmounts();
+          boolean flywheelInTolerance = m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1),m_shooterMath.calculateAcceptableDropoff(shootingDistance));
+          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1)));
+          boolean headingWithinTolerance = (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < m_shooterMath.calculateShootingHeadingTolerance(shootingDistance));
+          boolean speedWithinTolerance = (Math.abs(actualSpeed.vxMetersPerSecond) < 1. && Math.abs(actualSpeed.vyMetersPerSecond) < 1. && Math.abs(actualSpeed.omegaRadiansPerSecond) < .2);
+          boolean RollAndYawPerSecondIsSlow = (Math.abs(wheelyAmounts.get(0)) < .05 && Math.abs(wheelyAmounts.get(1)) < .05);
+          boolean atActualPose = (Math.abs(getEstimatedPose().getTranslation().getX() - predPose.getTranslation().getX()) < .1 && Math.abs(getEstimatedPose().getTranslation().getY() - predPose.getTranslation().getY()) < .1);
+          
+          Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
+          Logger.recordOutput("ReadyToShoot/PivotWithinTolerance", pivotInTolerance);
+          Logger.recordOutput("ReadyToShoot/HeadingInTolerance", headingWithinTolerance);
+          Logger.recordOutput("ReadyToShoot/SpeedWithinTolerance", speedWithinTolerance);
+          Logger.recordOutput("ReadyToShoot/AtActualPose", atActualPose);
+          if (headingWithinTolerance && pivotInTolerance && speedWithinTolerance && flywheelInTolerance && atActualPose) {
+            m_indexer.setState(Indexer.IndexerState.SHOOTING);
+            mAutoBuilderManager.shot();
+          }
+          // if ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < DriveConstants.kShootToleranceDeg) && (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(1) )) && actualSpeed.vxMetersPerSecond < .05 && actualSpeed.vyMetersPerSecond < .05 && actualSpeed.omegaRadiansPerSecond < .1 && m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1)) ) {
+          // //   System.out.println("SHOULD BE RUMBLING");
+          //   // mDriveControls.setDriverRumble(0.2, RumbleType.kLeftRumble);
+            
+          // }
+// 
+
+        } 
         else if (curAction == RobotCurrentAction.kDailedShot){
           Pose2d predPose = frc.robot.FieldConstants.kDailedShot;
 

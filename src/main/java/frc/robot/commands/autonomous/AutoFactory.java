@@ -60,6 +60,8 @@ public class AutoFactory extends Command {
       m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
       // RobotState.getInstance().setShooterSpeed(0);
     }));
+
+    NamedCommands.registerCommand("revCommand",Commands.none());
     
     // NamedCommands.registerCommand("AutoShoot",Commands.runOnce(()->{
     //   System.out.println("AutoShoot");
@@ -96,7 +98,6 @@ public class AutoFactory extends Command {
             PathPlannerLogging.setLogActivePathCallback((path) -> RobotState.getInstance().saveActivePath(path));
             PathPlannerLogging.setLogCurrentPoseCallback((pose) -> RobotState.getInstance().saveCurrentPose(pose));
             PathPlannerLogging.setLogTargetPoseCallback((pose) -> RobotState.getInstance().saveCurrentTarget(pose));
-            
   }
 
   public PathPlannerPath loadPathGroupByName(String name) {

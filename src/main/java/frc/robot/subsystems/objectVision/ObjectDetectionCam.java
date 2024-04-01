@@ -151,6 +151,16 @@ public class ObjectDetectionCam extends VirtualSubsystem {
             }
             return closestNote;
     }
+
+   
   }
+  public Pose2d[] getAllNotes(){
+    Pose2d[] notes = new Pose2d[positions.size()];
+    for (int i = 0; i < positions.size(); i++) {
+        Pose3d note = positions.get(i);
+        notes[i] = new Pose2d(note.getTranslation().getX(), note.getTranslation().getY(), note.getRotation().toRotation2d());
+    }
+    return notes;
+}
     
 }

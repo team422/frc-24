@@ -1,4 +1,6 @@
 package frc.robot;
+import java.util.HashMap;
+
 import org.apache.commons.math3.analysis.function.Log;
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 
@@ -22,6 +24,7 @@ import edu.wpi.first.math.util.Units;
 import frc.lib.utils.CustomHolmonomicDrive;
 import frc.lib.utils.LoggedTunableNumber;
 import frc.lib.utils.TunableNumber;
+import frc.robot.utils.Note;
 import frc.robot.utils.swerve.ModuleLimits;
 
 public final class Constants {
@@ -455,6 +458,37 @@ public final class Constants {
 
       public static final double kDualFlightStickDeadzone = 0.3;
     }
+  }
+
+  public static final class AutoRuns {
+
+    public static final HashMap<String,Note[]> scoutPossibilties = new HashMap<String,Note[]>()
+    {{
+      put("456", new Note[]{Note.FOUR, Note.FIVE, Note.SIX});
+      put("678", new Note[]{Note.SIX, Note.SEVEN, Note.EIGHT});
+      put("567", new Note[]{Note.FIVE, Note.SIX, Note.SEVEN});
+
+      
+    }};
+    public static final HashMap<String, Integer> scoutNumberPossibilities = new HashMap<String, Integer>() {{
+      put("1", 1);
+      put("2", 2);
+      put("3", 3);
+      put("4", 4);
+  }};
+    public static final HashMap<String,Note[]> endPossibilties = new HashMap<String,Note[]>()
+      {{
+        put("1", new Note[]{Note.ONE});
+        put("2", new Note[]{Note.TWO});
+        put("3", new Note[]{Note.THREE});
+        
+      
+      }}
+    ;
+
+    // queue possibilties
+
+
   }
 
   public static final class TrajectoryGenerationManager {
