@@ -284,6 +284,7 @@ private SwerveSetpoint currentSetpoint =
 
   public void setDriveToPieceChassisSpeeds(ChassisSpeeds speeds) {
     // speeds.omegaRadiansPerSecond = -speeds.omegaRadiansPerSecond;
+    Logger.recordOutput("Drive/DriveToPieceSpeeds", DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds));
     m_driveToPieceSpeeds = speeds;
   }
 

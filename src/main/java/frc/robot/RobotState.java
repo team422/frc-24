@@ -218,9 +218,9 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
       return m_shooter.getTransform();
     }
 
-    public ModuleLimits getModuleLimits(){
-      return ModuleConstants.freeSpeedLimits;
-    }
+    // public ModuleLimits getModuleLimits(){
+    //   return ModuleConstants.freeSpeedLimits;
+    // }
 
     public void setShooterSpeed(double speed){
       m_shooter.setFlywheelSpeedWithSpin(speed, speed);
@@ -415,7 +415,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
             shooterStopTime = Timer.getFPGATimestamp() +0.5;
             Logger.recordOutput("knows it shot", shooterStopTime);
           }else {
-            shooterStopTime = Timer.getFPGATimestamp() + 1.0;
+            shooterStopTime = Timer.getFPGATimestamp();
             Logger.recordOutput("knows it shot", shooterStopTime);
           }
           
@@ -478,8 +478,10 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
               // curAction = RobotCurrentAction.kStow;
 
               } else {
-                m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
-                setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
+                if(curAction != RobotCurrentAction.kIntake){
+                  m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
+                  setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
+                }
               }
             }
             setGamePieceLocation(GamePieceLocation.NOT_IN_ROBOT);
@@ -798,12 +800,14 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           
 
           boolean flywheelInTolerance = m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1),2.5*m_shooterMath.calculateAcceptableDropoff(shootingDistance));
-          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(10.0*m_shooterMath.calculateShootingPivotTolerance(shootingDistance))));
+          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(15.0*m_shooterMath.calculateShootingPivotTolerance(shootingDistance))));
+
           boolean headingWithinTolerance = (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < m_shooterMath.calculateShootingHeadingTolerance(shootingDistance)*3);
           boolean speedWithinTolerance = (actualSpeed.vxMetersPerSecond < .5 && actualSpeed.vyMetersPerSecond < .5 && actualSpeed.omegaRadiansPerSecond < .2);
           
           Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
           Logger.recordOutput("ReadyToShoot/PivotWithinTolerance", pivotInTolerance);
+          Logger.recordOutput("ReadyToShoot/PivotTolerance", m_shooterMath.calculateShootingPivotTolerance(shootingDistance));
           Logger.recordOutput("ReadyToShoot/HeadingInTolerance", headingWithinTolerance);
           Logger.recordOutput("ReadyToShoot/SpeedWithinTolerance", speedWithinTolerance);
           if (headingWithinTolerance && pivotInTolerance && speedWithinTolerance && flywheelInTolerance) {

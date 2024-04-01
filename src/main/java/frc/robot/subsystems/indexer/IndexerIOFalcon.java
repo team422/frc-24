@@ -122,6 +122,7 @@ private final PositionTorqueCurrentFOC positionControl =
         inputs.beamBreakOneBroken = m_initialBeamBreak.get();
         inputs.outputCurrent = m_falconFirst.getSupplyCurrent().getValueAsDouble();
         inputs.beamBreakTwoBroken = m_finalBeamBreak.get();
+        inputs.inContactWithGamePiece = inContactWithGamePiece();
 
         if (RobotBase.isSimulation()) {
             simulationPeriodic();
@@ -151,7 +152,7 @@ private final PositionTorqueCurrentFOC positionControl =
 
     @Override
     public boolean inContactWithGamePiece() {
-        return m_initialBeamBreak.get() || m_finalBeamBreak.get();
+        return !m_initialBeamBreak.get() && !m_finalBeamBreak.get();
     }
 
 

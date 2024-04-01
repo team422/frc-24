@@ -335,21 +335,21 @@ public class RobotContainer {
     m_scoutingChooser = new LoggedDashboardChooser<>("Scouting Chooser");
     m_endChooser = new LoggedDashboardChooser<>("End Chooser");
     m_scoutingChooser.addDefaultOption("None", Commands.runOnce(()->{
-      RobotState.getInstance().getAutoBuilderManager().setEndNotes(new Note[0]);
+      RobotState.getInstance().getAutoBuilderManager().setNotes(new Note[0]);
     }));
     m_autoScanLoop.getAllScoutPossibilties().forEach((key, value) -> {
 
       m_scoutingChooser.addOption(key, Commands.runOnce(()->{ 
-        RobotState.getInstance().getAutoBuilderManager().setEndNotes(value);
+        RobotState.getInstance().getAutoBuilderManager().setNotes(value);
       }));
     });
 
     m_endChooser.addDefaultOption("None", Commands.runOnce(()->{ 
-      RobotState.getInstance().getAutoBuilderManager().setNotes(new Note[0]);
+      RobotState.getInstance().getAutoBuilderManager().setEndNotes(new Note[0]);
     }));
     m_autoScanLoop.getAllEndPossibilties().forEach((key, value) -> {
       m_endChooser.addOption(key, Commands.runOnce(()->{ 
-        RobotState.getInstance().getAutoBuilderManager().setNotes(value);
+        RobotState.getInstance().getAutoBuilderManager().setEndNotes(value);
       }));
     });
 

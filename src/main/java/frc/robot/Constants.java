@@ -262,7 +262,7 @@ public final class Constants {
     public static final boolean useMotionMagic = false;
     public static final Matrix<N3, N1> odometryStateStdDevs = new Matrix<>(VecBuilder.fill(0.003, 0.003, 0.0002));
     public static final PathConstraints kAutoAlignToAmpSpeed = new PathConstraints(5.9,2.0,2,2);
-    public static final PathConstraints kDriveToPieceSpeed = new PathConstraints(3.0,2.0,1,1);
+    public static final PathConstraints kDriveToPieceSpeed = new PathConstraints(5.5,4.0,1,1);
     public static final LoggedTunableNumber AutoAlignP = new LoggedTunableNumber("Auto Align P", 8.5, "Drive");
     public static final LoggedTunableNumber AutoAlignD = new LoggedTunableNumber("Auto Align D", 0.0, "Drive");
     public static final LoggedTunableNumber kHeadingP = new LoggedTunableNumber("kHeadingP", 1.000 , "Drive");
@@ -338,7 +338,7 @@ public final class Constants {
     public static final double kDriveConversionFactorSim = 1/(Units.inchesToMeters(4)*Math.PI);
     // public static final double kDriveConversionFactor = 1 / 22.0409;
 
-    public static final ModuleLimits freeSpeedLimits = new ModuleLimits(5.9, Units.feetToMeters(75), Rotation2d.fromDegrees(1080).getRadians());
+    // public static final ModuleLimits freeSpeedLimits = new ModuleLimits(5.9, Units.feetToMeters(75), Rotation2d.fromDegrees(1080).getRadians());
 
     
 

@@ -3,6 +3,7 @@ package frc.robot.utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -60,6 +61,7 @@ public class AutoBuilderManager {
     }
 
     public void update(){
+        Logger.recordOutput("AutoBuilderState",currAutoState);
         switch (currAutoState) {
             case STARTING:
                 mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(getNextNotePosition(false)), DriveConstants.kDriveToPieceSpeed, false, RobotState.getInstance());
@@ -68,7 +70,7 @@ public class AutoBuilderManager {
                 
 
             case SCANNING:
-
+                RobotState.getInstance().getDrive().setProfile(DriveProfiles.kAutoPiecePickup);
                 
                 RobotState.getInstance().setRobotCurrentAction(RobotState.RobotCurrentAction.kIntake);
                 if (isCameraWorking()) {
@@ -78,9 +80,15 @@ public class AutoBuilderManager {
                             RobotState.getInstance().getDrive().setProfile(DriveProfiles.kAutoPiecePickup);
 
                             curNotePose = getVisibleNoteLocation();
+                            if(mDriveToPiece !=null){
+                                mDriveToPiece.cancel();
+                            }
                             mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(curNotePose),DriveConstants.kAutoAlignToAmpSpeed,false,RobotState.getInstance());
                             mDriveToPiece.schedule();
                         } else {
+                            if(mDriveToPiece !=null){
+                                mDriveToPiece.cancel();
+                            }
                             mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(getNextNotePosition(false)), DriveConstants.kAutoAlignToAmpSpeed, false, RobotState.getInstance());
                             mDriveToPiece.schedule();
                         }
@@ -91,24 +99,41 @@ public class AutoBuilderManager {
                 }
                 break;
             case DRIVING_TO_NOTE:
-                if (isNoteDetected()) {
-                    Pose2d closest = getVisibleNoteLocation();
-                    if(closest.getTranslation().getDistance(curNotePose.getTranslation()) > 0.7) {
-                        mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(closest), DriveConstants.kAutoAlignToAmpSpeed, false, RobotState.getInstance());
-                        mDriveToPiece.schedule();
-                    }
+                if(isCameraWorking()){
+                    if (isNoteDetected()) {
+                        Pose2d closest = getVisibleNoteLocation();
+                        if(closest.getTranslation().getDistance(curNotePose.getTranslation()) > 0.7) {
+                            if(mDriveToPiece !=null){
+                                mDriveToPiece.cancel();
+                            }
+                            mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(closest), DriveConstants.kAutoAlignToAmpSpeed, false, RobotState.getInstance());
+                            mDriveToPiece.schedule();
+                        }
 
-                    RobotState.getInstance().getDrive().setDriveTurnOverride(RobotState.getInstance().getShooterMath().setNextShootingPoseAndVelocity(RobotState.getInstance().getEstimatedPose(),new Twist2d(),new Translation3d(closest.getX(),closest.getY(),0)).get(0));
-                    // Logic to check if new note pose is significantly different from old note pose here
-                    // If so, generate new path
+                        RobotState.getInstance().getDrive().setDriveTurnOverride(RobotState.getInstance().getShooterMath().setNextShootingPoseAndVelocity(RobotState.getInstance().getEstimatedPose(),new Twist2d(),new Translation3d(closest.getX(),closest.getY(),0)).get(0));
+                        // Logic to check if new note pose is significantly different from old note pose here
+                        // If so, generate new path
+                    }
                 }
                 // Check note position and maybe regenerate path
-
+                
 
                 if (isHoldingNote()) {
                     currAutoState = AutoState.SHOOTING;
-                    mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(getNextNotePosition(false)), DriveConstants.kAutoAlignToAmpSpeed, false, RobotState.getInstance());
+                    if(mDriveToPiece !=null){
+                        mDriveToPiece.cancel();
+                    }
+                    mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(AutoScanLoop.shoot(notes[currentNote])), DriveConstants.kAutoAlignToAmpSpeed, false, RobotState.getInstance());
                     mDriveToPiece.schedule();
+                }else if(curNotePose != null){
+                 if (AllianceFlipUtil.apply(curNotePose).getTranslation().getDistance(RobotState.getInstance().getEstimatedPose().getTranslation()) < 0.1){
+                    currAutoState = AutoState.SHOOTING;
+                    if(mDriveToPiece !=null){
+                        mDriveToPiece.cancel();
+                    }
+                    mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(AutoScanLoop.shoot(notes[currentNote])), DriveConstants.kAutoAlignToAmpSpeed, false, RobotState.getInstance());
+                    mDriveToPiece.schedule();
+                 }
                 }
                 
                 break;
@@ -127,7 +152,7 @@ public class AutoBuilderManager {
                 // Actuate and start intake
                 // Start Shooter / Set pivot
                 RobotState.getInstance().getDrive().setProfile(DriveProfiles.kAutoPiecePickup);
-                if(isNoteDetected()){
+                if(isHoldingNote()){
                     Pose2d closest = getVisibleNoteLocation();
                     RobotState.getInstance().getDrive().setDriveTurnOverride(RobotState.getInstance().getShooterMath().setNextShootingPoseAndVelocity(RobotState.getInstance().getEstimatedPose(),new Twist2d(),new Translation3d(closest.getX(),closest.getY(),0)).get(0));
                 }
@@ -189,7 +214,7 @@ public class AutoBuilderManager {
      }
 
     public boolean isCameraWorking() {
-        return true;
+        return false;
     }
 
    public boolean isNoteDetected() {
@@ -229,7 +254,9 @@ public class AutoBuilderManager {
 
    public Pose2d getNextNotePosition(boolean isEnding) {
         currentNote++;
-    
+        Logger.recordOutput("AutoBuilderManager/notesShot", notesShot);
+        Logger.recordOutput("AutoBuilderManager/notesLength", notes.length);
+        Logger.recordOutput("AutoBuilderManager/num_scouts", num_scouts);
         if (!isEnding) {
             if (currentNote < notes.length && notesShot < num_scouts) {
                 currAutoState = AutoState.SCANNING;
