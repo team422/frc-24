@@ -117,7 +117,10 @@ public class AutoBuilderManager {
                 }
                 // Check note position and maybe regenerate path
                 
-
+                
+                if (curNotePose !=null){
+                    RobotState.getInstance().getDrive().setDriveTurnOverride(RobotState.getInstance().getShooterMath().setNextShootingPoseAndVelocity(RobotState.getInstance().getEstimatedPose(), new Twist2d(), new Translation3d(curNotePose.getTranslation().getX(),curNotePose.getTranslation().getY(),0)).get(0));
+                }
                 if (isHoldingNote()) {
                     currAutoState = AutoState.SHOOTING;
                     if(mDriveToPiece !=null){
@@ -126,7 +129,9 @@ public class AutoBuilderManager {
                     mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(AutoScanLoop.shoot(notes[currentNote])), DriveConstants.kAutoAlignToAmpSpeed, false, RobotState.getInstance());
                     mDriveToPiece.schedule();
                 }else if(curNotePose != null){
-                 if (AllianceFlipUtil.apply(curNotePose).getTranslation().getDistance(RobotState.getInstance().getEstimatedPose().getTranslation()) < 0.1){
+                    
+                 if (Math.pow(Math.pow(RobotState.getInstance().getDrive().getChassisSpeeds().vxMetersPerSecond,2) +Math.pow(RobotState.getInstance().getDrive().getChassisSpeeds().vxMetersPerSecond,2),0.5) < .1 ){
+                    
                     currAutoState = AutoState.SHOOTING;
                     if(mDriveToPiece !=null){
                         mDriveToPiece.cancel();
