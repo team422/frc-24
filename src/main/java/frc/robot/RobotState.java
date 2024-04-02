@@ -629,8 +629,8 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(0),m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(1));
           m_shooter.setPivotAngle(mRotations.get(1));
           m_drive.setDriveTurnOverride(mRotations.get(0));
-          shooterOverrideAngle = mRotations.get(0);
-          shooterStopTime = Timer.getFPGATimestamp() +1;
+          // shooterOverrideAngle = mRotations.get(0);
+          // angleOverrideTime = System.currentTimeMillis() + 1000;
           // ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
           ArrayList<Double> speeds = (m_shooterMath.getShooterMetersPerSecond(shootingDistance));
 

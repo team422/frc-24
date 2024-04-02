@@ -68,6 +68,7 @@ public class AutoFactory extends Command {
     NamedCommands.registerCommand("deployIntake",Commands.runOnce(()->{
       RobotState.getInstance().goToIntakePosition();
       m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
+      RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
       // RobotState.getInstance().setShooterSpeed(0);
     }));
 

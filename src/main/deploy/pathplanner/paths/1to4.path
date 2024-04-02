@@ -16,35 +16,41 @@
     },
     {
       "anchor": {
-        "x": 8.174368819632246,
-        "y": 7.4788903905320065
+        "x": 7.918971756295227,
+        "y": 7.428769063267294
       },
       "prevControl": {
-        "x": 7.275934979546888,
-        "y": 7.354042360888031
+        "x": 7.026369144905861,
+        "y": 7.267427891654503
       },
       "nextControl": {
-        "x": 9.072802659717603,
-        "y": 7.603738420175982
+        "x": 8.182682783870472,
+        "y": 7.476435791566437
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.560011433135611,
-        "y": 6.581140614027553
+        "x": 5.085731105132553,
+        "y": 6.5992729741280565
       },
       "prevControl": {
-        "x": 6.455505578711832,
-        "y": 7.032826413998418
+        "x": 6.981225250708774,
+        "y": 7.0509587740989215
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "shoot left wing"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.0,
+      "rotationDegrees": -178.9181776272028,
+      "rotateFast": false
+    }
+  ],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
