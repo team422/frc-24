@@ -43,10 +43,8 @@ public class AmpIOFalcon implements AmpIO{
     }
 
     public void zero(){
-        m_motor.setControl(new PositionVoltage(-.5).withSlot(0));
-        if(Math.abs(m_motor.getAcceleration().getValueAsDouble()) < 0.1 && Math.abs(m_motor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(m_motor.getSupplyCurrent().getValueAsDouble()) > 10 ){
-            m_motor.setPosition(0);
-        } 
+        m_motor.setControl(new PositionVoltage(-.1).withSlot(0));
+        m_motor.setPosition(0);
     }
 
 

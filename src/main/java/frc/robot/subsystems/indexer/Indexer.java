@@ -15,7 +15,8 @@ public class Indexer extends ProfiledSubsystem {
         INTAKING,
         INDEXING, 
         SHOOTING,
-        BACKTOINTAKE
+        BACKTOINTAKE,
+        SOURCEINTAKING
     }
 
     IndexerState m_state = IndexerState.IDLE;
@@ -56,7 +57,10 @@ public class Indexer extends ProfiledSubsystem {
               NoteVisualizer.shoot().schedule();;
             }
         }
-        if (m_state == IndexerState.INDEXING) {
+        // if (m_state == IndexerState.INDEXING) {
+        //     io.startIndexingPositionControl();
+        // }
+        if(m_state == IndexerState.BACKTOINTAKE){
             io.startIndexingPositionControl();
         }
     }

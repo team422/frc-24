@@ -28,6 +28,7 @@ import frc.lib.autonPlanning.PathPlannerUtil;
 import frc.lib.utils.NetworkTablesTEBInterfacer;
 import frc.lib.utils.VirtualSubsystem;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.Ports;
 import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.commands.autonomous.AutoFactory;
@@ -39,6 +40,7 @@ import frc.robot.oi.DriverControlsXboxController;
 import frc.robot.oi.ManualController;
 import frc.robot.subsystems.amp.Amp;
 import frc.robot.subsystems.amp.AmpIOFalcon;
+import frc.robot.subsystems.amp.Amp.AmpState;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.ClimbIOTalon;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
@@ -202,8 +204,14 @@ public class RobotContainer {
       //   m_shooter.setFlywheelSpeed(m_testingController.getShooterStick()*FlywheelConstants.kMaxSpeed);
       // }).schedule();
 
-      m_testingController.intakeUpDegrees().onTrue(Commands.runOnce(()->m_intake.addDegreesToPivotAngle(2)));
-      m_testingController.intakeDownDegrees().onTrue(Commands.runOnce(()->m_intake.addDegreesToPivotAngle(-2)));
+      // m_testingController.intakeUpDegrees().onTrue(Commands.runOnce(()->m_intake.addDegreesToPivotAngle(2)));
+      // m_testingController.intakeDownDegrees().onTrue(Commands.runOnce(()->m_intake.addDegreesToPivotAngle(-2)));
+      m_testingController.sourceIntake().onTrue(Commands.runOnce(()->{
+        RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kSourceIntake);
+      })).onFalse(Commands.runOnce(()->{
+        RobotState.getInstance().setIndexer(IndexerState.IDLE);
+        RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kStow);
+      }));
 
       m_driverControls.goToIntakePosition().whileTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kIntake);
@@ -272,7 +280,16 @@ public class RobotContainer {
         Logger.recordOutput("stow Trigger 5", Timer.getFPGATimestamp());
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
+      m_testingController.zeroAmp().whileTrue(Commands.runOnce((()->{
+        m_intake.isAmpZeroing = true;
+        
+        m_amp.m_state = AmpState.Zeroing;
+      }))).onFalse(Commands.runOnce(()->{
+        m_intake.isAmpZeroing =false;
+        m_amp.m_state = AmpState.PositionFollowing;
+      }));
       m_driverControls.ampBackTrigger().whileTrue(Commands.runOnce(()->{
+        m_indexer.setState(IndexerState.BACKTOINTAKE);
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kNoteBackToIntake);
       })).onFalse(Commands.runOnce(()->{
         m_drive.setProfile(DriveProfiles.kDefault);
@@ -424,7 +441,8 @@ public class RobotContainer {
     Unmanaged.setPhoenixDiagnosticsStartTime(-1);
     m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_0",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_1",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_2",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_3",""));
     if (Robot.isSimulation()) {
-      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim() );
+      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim());
+      
       m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
       CommandSwerveDrivetrain m_CommandSwerveDrivetrain = new CommandSwerveDrivetrain(TunerConstants.DrivetrainConstants,0.005, TunerConstants.FrontLeft, TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);
       SwerveModuleIO[] m_SwerveModuleIOs = {
@@ -459,7 +477,7 @@ public class RobotContainer {
       // new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort)
     }
     else{
-      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) ,new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort));
+      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) ,new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort) );
     m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
     m_amp = new Amp(new AmpIOFalcon(Ports.ampMotor));
       // m_shooter = new Shooter(new frc.robot.subsystems.shooter.pivot.PivotIOSim(), new FlywheelIOSim());
@@ -524,9 +542,10 @@ public class RobotContainer {
   }
 
   public void updateRobotState(){
-
     double start = HALUtil.getFPGATime();
     VirtualSubsystem.periodicAll(); 
+    Logger.recordOutput("LoggedRobot/VirtualSubsystems", (HALUtil.getFPGATime()-start)/1000);
+    start = HALUtil.getFPGATime();
     m_robotState.updateRobotState();
     // m_robotState.calculateShooterAngle();
     

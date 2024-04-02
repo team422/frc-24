@@ -150,6 +150,8 @@ public final class Constants {
       public static final LoggedTunableNumber kFlywheelSpeedRight = new LoggedTunableNumber("Flywheel Speed Right", 0.0, "Shooter");
       public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 8.00000, "Amp");
       public static final LoggedTunableNumber kFlywheelHockeyPuck = new LoggedTunableNumber("Flywheel hockey puck speed", 11, "Hockey Puck");
+      public static final LoggedTunableNumber kSourceIntakeSpeed =  new LoggedTunableNumber("Source intake speed", -5, "Source Intake");
+      public static final LoggedTunableNumber kSourceIntakeStopTime = new LoggedTunableNumber("Source intake Stop time", .4, "Source Intake");
     }
 
     public static final class ShooterPivotConstants {
@@ -169,9 +171,10 @@ public final class Constants {
       public static final LoggedTunableNumber kPivotkG = new LoggedTunableNumber("Pivot KG", 0.080000, "Shooter"); 
       public static final LoggedTunableNumber kUsingAmp = new LoggedTunableNumber("Pivot using amp", 0, "Shooter"); 
 
-      public static final LoggedTunableNumber kPivotPDirect = new LoggedTunableNumber("Pivot P Direct", 8.0, "Shooter");
+      public static final LoggedTunableNumber kPivotPDirect = new LoggedTunableNumber("Pivot P Direct", 6.0, "Shooter");
       public static final LoggedTunableNumber kPivotIDirect = new LoggedTunableNumber("Pivot I Direct", 3.000000, "Shooter");
       public static final LoggedTunableNumber kPivotDDirect = new LoggedTunableNumber("Pivot D Direct", 0.0, "Shooter");
+      public static final LoggedTunableNumber kSourceIntake = new LoggedTunableNumber("Source Intake angle", 56.0, "Shooter");
 
       public static final double kOffset = Rotation2d.fromDegrees(181.7-13+52+6+123).getRotations();
 
@@ -421,10 +424,13 @@ public final class Constants {
     public static final double errorCubicC = -0.296805;
     public static final double errorCubicD = 23.9083;
     public static final LoggedTunableNumber pivotErrorMultiplier = new LoggedTunableNumber("Pivot Error Multiplier", 15, "Shooter Math");
-    public static final LoggedTunableNumber DropoffInitilizer = new LoggedTunableNumber("Flywheel dropoff init", 7, "Shooter Math");
-    public static final LoggedTunableNumber DropoffMultiplier = new LoggedTunableNumber("Flywheel multiplier", -.05, "Shooter Math");
-    public static final LoggedTunableNumber DropoffFloor = new LoggedTunableNumber("Flywheel Floor", 1.500000, "Shooter Math");
+    public static final LoggedTunableNumber FlywheelDropoffInitilizer = new LoggedTunableNumber("Flywheel dropoff init", 7, "Shooter Math");
+    public static final LoggedTunableNumber FlywheelDropoffMultiplier = new LoggedTunableNumber("Flywheel multiplier", -.05, "Shooter Math");
+    public static final LoggedTunableNumber FlywheelDropoffFloor = new LoggedTunableNumber("Flywheel Floor", 1.500000, "Shooter Math");
     public static final LoggedTunableNumber headingErrorMultiplier = new LoggedTunableNumber("headingErrorMultiplier", 2.8, "Shooter Math");
+    public static final LoggedTunableNumber PivotDropoffInitilizer = new LoggedTunableNumber("Pivot dropoff init", 7, "Shooter Math");
+    public static final LoggedTunableNumber PivotDropoffMultiplier = new LoggedTunableNumber("Pivot multiplier", -.05, "Shooter Math");
+    public static final LoggedTunableNumber PivotDropoffFloor = new LoggedTunableNumber("Pivot Floor", .500000, "Shooter Math");
 
 
     

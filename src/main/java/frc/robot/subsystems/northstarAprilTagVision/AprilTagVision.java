@@ -75,9 +75,15 @@ public class AprilTagVision extends VirtualSubsystem {
     List<Pose2d> allRobotPoses = new ArrayList<>();
     List<Pose3d> allRobotPoses3d = new ArrayList<>();
     List<VisionObservation> allVisionObservations = new ArrayList<>();
-    
+    int total = 0;
     for (int instanceIndex = 0; instanceIndex < io.length; instanceIndex++) {
       // Loop over frames
+      if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
+      total += inputs[instanceIndex].timestamps.length;
+      if(total > 25){
+        return; 
+      }
+    }
       for (int frameIndex = 0; frameIndex < inputs[instanceIndex].timestamps.length; frameIndex++) {
         lastFrameTimes.put(instanceIndex, Timer.getFPGATimestamp());
         var timestamp = inputs[instanceIndex].timestamps[frameIndex];

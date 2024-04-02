@@ -155,17 +155,19 @@ public class ShooterMath {
 
     public double calculateShootingHeadingTolerance(double distance){
         distance = Units.metersToInches(distance);
-        return ShooterMathConstants.headingErrorMultiplier.get() *(ShooterMathConstants.errorCubicA*Math.pow(distance, 3) +ShooterMathConstants.errorCubicB*Math.pow(distance, 2) + ShooterMathConstants.errorCubicC*Math.pow(distance, 1) + ShooterMathConstants.errorCubicD ); 
+        return Math.max(ShooterMathConstants.headingErrorMultiplier.get() *(ShooterMathConstants.errorCubicA*Math.pow(distance, 3) +ShooterMathConstants.errorCubicB*Math.pow(distance, 2) + ShooterMathConstants.errorCubicC*Math.pow(distance, 1) + ShooterMathConstants.errorCubicD ),2.0); 
     }
 
     public double calculateShootingPivotTolerance( double distance ){
+        // distance = Units.metersToInches(distance);
+        // return (ShooterMathConstants.errorCubicA*Math.pow(distance, 3) +ShooterMathConstants.errorCubicB*Math.pow(distance, 2) + ShooterMathConstants.errorCubicC*Math.pow(distance, 1) + ShooterMathConstants.errorCubicD)/ShooterMathConstants.pivotErrorMultiplier.get() ;
         distance = Units.metersToInches(distance);
-        return (ShooterMathConstants.errorCubicA*Math.pow(distance, 3) +ShooterMathConstants.errorCubicB*Math.pow(distance, 2) + ShooterMathConstants.errorCubicC*Math.pow(distance, 1) + ShooterMathConstants.errorCubicD)/ShooterMathConstants.pivotErrorMultiplier.get() ;
+        return Math.max(ShooterMathConstants.PivotDropoffMultiplier.get()*distance+ShooterMathConstants.PivotDropoffInitilizer.get(),ShooterMathConstants.PivotDropoffFloor.get());
     }
 
     public double calculateAcceptableDropoff(double distance){
         distance = Units.metersToInches(distance);
-        return Math.max(ShooterMathConstants.DropoffMultiplier.get()*distance+ShooterMathConstants.DropoffInitilizer.get(),ShooterMathConstants.DropoffFloor.get());
+        return Math.max(ShooterMathConstants.FlywheelDropoffMultiplier.get()*distance+ShooterMathConstants.FlywheelDropoffInitilizer.get(),ShooterMathConstants.FlywheelDropoffFloor.get());
     }
 
 

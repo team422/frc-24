@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotState;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.commands.shooting.ShootAtPositionWithVelocity;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
@@ -55,7 +56,16 @@ public class AutoFactory extends Command {
       RobotState.getInstance().stowAndStopIntake();
     }));
 
-    NamedCommands.registerCommand("deployIntake",Commands.run(()->{
+    NamedCommands.registerCommand("Align",Commands.runOnce(()->{
+      RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoRevAndAutoAlign);
+
+    }));
+
+    NamedCommands.registerCommand("Shoot", Commands.runOnce(()->{
+      RobotState.getInstance().setIndexer(IndexerState.SHOOTING);
+    }));
+
+    NamedCommands.registerCommand("deployIntake",Commands.runOnce(()->{
       RobotState.getInstance().goToIntakePosition();
       m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
       // RobotState.getInstance().setShooterSpeed(0);

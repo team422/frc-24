@@ -27,6 +27,7 @@ public class Intake extends ProfiledSubsystem {
     IntakePivotIOInputsAutoLogged m_pivotInputs;
     RollerIO m_rollerIO;
     RollerIOInputsAutoLogged m_rollerInputs;
+    public boolean isAmpZeroing = false;
 
     Rotation2d m_rotation;
 
@@ -54,6 +55,10 @@ public class Intake extends ProfiledSubsystem {
         Logger.processInputs("Intake Pivot", m_pivotInputs);
         m_rollerIO.updateInputs(m_rollerInputs);
         Logger.processInputs("Intake Roller", m_rollerInputs);
+        if(isAmpZeroing){
+            m_PivotIO.setDesiredAngle(IntakeConstants.kAmpAngle);
+            return;
+        }
         if (Constants.fullManualIntakePivotAndSpeedControls){
             m_PivotIO.setDesiredAngle(Rotation2d.fromDegrees(IntakeConstants.kIntakePivotManualControl.get()));
             m_rollerIO.setVoltage(IntakeConstants.kIntakeRollerManualControl.get());

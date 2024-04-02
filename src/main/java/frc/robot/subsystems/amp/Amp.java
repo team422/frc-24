@@ -63,7 +63,7 @@ public class Amp extends ProfiledSubsystem {
             m_ampIO.setPosition(ampRotation2d);
         }
         else{
-            // m_ampIO.zero();
+            m_ampIO.zero();
         }
 
         Logger.recordOutput("LoggedRobot/AmpTime", (HALUtil.getFPGATime()-start)/1000);

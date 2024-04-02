@@ -30,7 +30,42 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Align"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.45,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Shoot"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.5,
     "maxAcceleration": 3.4,
@@ -39,13 +74,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -154.59372969614682,
+    "rotation": -142.80373693448934,
     "rotateFast": false
   },
   "reversed": false,
   "folder": "allPointToPointPaths",
   "previewStartingState": {
-    "rotation": 177.48429234583153,
+    "rotation": -171.3818381006973,
     "velocity": 0
   },
   "useDefaultConstraints": true

@@ -18,6 +18,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "deployIntake"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "0to3"
@@ -33,6 +39,30 @@
           "type": "path",
           "data": {
             "pathName": "2to1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "1to4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "4to5"
           }
         },
         {
