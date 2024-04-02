@@ -800,7 +800,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           
 
           boolean flywheelInTolerance = m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1),2.5*m_shooterMath.calculateAcceptableDropoff(shootingDistance));
-          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(15.0*m_shooterMath.calculateShootingPivotTolerance(shootingDistance))));
+          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(7.0*m_shooterMath.calculateShootingPivotTolerance(shootingDistance))));
 
           boolean headingWithinTolerance = (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < m_shooterMath.calculateShootingHeadingTolerance(shootingDistance)*3);
           boolean speedWithinTolerance = (actualSpeed.vxMetersPerSecond < .5 && actualSpeed.vyMetersPerSecond < .5 && actualSpeed.omegaRadiansPerSecond < .2);
