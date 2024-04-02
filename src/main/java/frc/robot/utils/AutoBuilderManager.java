@@ -36,6 +36,7 @@ public class AutoBuilderManager {
 
     public Command mDriveToPiece;
     public Command mScoutingCommand;
+    public int holdingNoteCount;
     
 
     public AutoState currAutoState = AutoState.STARTING;
@@ -124,43 +125,49 @@ public class AutoBuilderManager {
                 
                     RobotState.getInstance().getDrive().setDriveTurnOverride(RobotState.getInstance().getShooterMath().setNextShootingPoseAndVelocity(RobotState.getInstance().getEstimatedPose(), new Twist2d(), new Translation3d(AllianceFlipUtil.apply(AutoScanLoop.shoot(notes[currentNote])).getTranslation().getX(),AllianceFlipUtil.apply(AutoScanLoop.shoot(notes[currentNote])).getTranslation().getY(),0)).get(0));
                 if (isHoldingNote()) {
-                    Logger.recordOutput("Set shooting state trigger 1",Timer.getFPGATimestamp());
-                    currAutoState = AutoState.SHOOTING;
-                    if(mDriveToPiece !=null){
-                        mDriveToPiece.cancel();
+                    if(holdingNoteCount>2){
+                        Logger.recordOutput("Set shooting state trigger 1",Timer.getFPGATimestamp());
+                        currAutoState = AutoState.SHOOTING;
+                        if(mDriveToPiece !=null){
+                            mDriveToPiece.cancel();
+                        }
+                        mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(AutoScanLoop.shoot(notes[currentNote])), DriveConstants.kAutoAlignToAmpSpeed, false, RobotState.getInstance());
+                        mDriveToPiece.schedule();
+                        holdingNoteCount = 0;
+                    }else {
+                        holdingNoteCount ++;
                     }
-                    mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(AutoScanLoop.shoot(notes[currentNote])), DriveConstants.kAutoAlignToAmpSpeed, false, RobotState.getInstance());
-                    mDriveToPiece.schedule();
-                }else 
-                    if (Math.pow(Math.pow(RobotState.getInstance().getDrive().getChassisSpeeds().vxMetersPerSecond,2) +Math.pow(RobotState.getInstance().getDrive().getChassisSpeeds().vyMetersPerSecond,2),0.5) < .1 && RobotState.getInstance().getEstimatedPose().getTranslation().getDistance(AllianceFlipUtil.apply(AutoScanLoop.shoot(notes[currentNote]).getTranslation())) < 1 ){
-                        Logger.recordOutput("Set shooting state trigger 2",Timer.getFPGATimestamp());
-                       currAutoState = AutoState.SCANNING;
-                       if(mDriveToPiece !=null){
-                           mDriveToPiece.cancel();
-                       }
-                       notesShot++;
-                       mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(getNextNotePosition(false)), DriveConstants.kAutoAlignToAmpSpeed, false, RobotState.getInstance());
-                       mDriveToPiece.schedule();
-                    }
+                }
+                // else 
+                //     if (Math.pow(Math.pow(RobotState.getInstance().getDrive().getChassisSpeeds().vxMetersPerSecond,2) +Math.pow(RobotState.getInstance().getDrive().getChassisSpeeds().vyMetersPerSecond,2),0.5) < .1 && RobotState.getInstance().getEstimatedPose().getTranslation().getDistance(AllianceFlipUtil.apply(notes[currentNote].getPosition())) < 1 ){
+                //         Logger.recordOutput("Set shooting state trigger 2",Timer.getFPGATimestamp());
+                //        currAutoState = AutoState.SCANNING;
+                //        if(mDriveToPiece !=null){
+                //            mDriveToPiece.cancel();
+                //        }
+                //        notesShot++;
+                //        mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(getNextNotePosition(false)), DriveConstants.kAutoAlignToAmpSpeed, false, RobotState.getInstance());
+                //        mDriveToPiece.schedule();
+                //     }
                     
-                
+                if (!isHoldingNote()){
+                    holdingNoteCount = 0;
+                }
                 break;
             case SHOOTING:
                 // Start Shooter/ Set pivot??
                 RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoShootAtPosition);
                 RobotState.getInstance().actualAutoShootAtPositionPose = AllianceFlipUtil.apply(AutoScanLoop.shoot(notes[currentNote]));
-                if(nextDriveTime < Timer.getFPGATimestamp()){
+                Logger.recordOutput("nextDriveTime",nextDriveTime);
+                if(nextDriveTime < Timer.getFPGATimestamp() && nextDriveTime != -1){
                 notesShot++;
-                if(currAutoState == AutoState.SHOOTING) {
-                    currAutoState = AutoState.SCANNING;
-                    mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(getNextNotePosition(false)), DriveConstants.kDriveToPieceSpeed, false, RobotState.getInstance());
-                    mDriveToPiece.schedule();
-                    RobotState.getInstance().getDrive().setProfile(DriveProfiles.kAutoPiecePickup);
-                }else{
-                    currAutoState = AutoState.ENDING_DRIVING;
-                    mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(getNextNotePosition(true)), DriveConstants.kDriveToPieceSpeed, false, RobotState.getInstance());
-                    mDriveToPiece.schedule();
-                }
+                
+                Logger.recordOutput("next drive time","Hit next drive time");
+                currAutoState = AutoState.SCANNING;
+                mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(getNextNotePosition(false)), DriveConstants.kDriveToPieceSpeed, false, RobotState.getInstance());
+                mDriveToPiece.schedule();
+                RobotState.getInstance().getDrive().setProfile(DriveProfiles.kAutoPiecePickup);
+                
                 nextDriveTime = -1;
             }
                 // If within range of pose
