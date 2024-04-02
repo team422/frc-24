@@ -635,7 +635,8 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     NoteVisualizer.resetAutoNotes();
     NoteVisualizer.showAllNotes();
-    return m_scoutNumber.get().andThen(m_scoutingChooser.get()).andThen(m_endChooser.get()).andThen(m_autoChooser.get());
+    return m_autoChooser.get();
+    // return m_scoutNumber.get().andThen(m_scoutingChooser.get()).andThen(m_endChooser.get()).andThen(m_autoChooser.get());
     // return Commands.print("No autonomous command configured");
   }
 }

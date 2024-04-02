@@ -668,7 +668,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
           ArrayList<Double> wheelyAmounts = m_drive.getWheelyAmounts();
           boolean flywheelInTolerance = m_shooter.isWithinToleranceWithSpin(speeds.get(0),speeds.get(1),m_shooterMath.calculateAcceptableDropoff(shootingDistance));
-          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(2.5)));
+          boolean pivotInTolerance = (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(.5)));
           boolean headingWithinTolerance = (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees()) < m_shooterMath.calculateShootingHeadingTolerance(shootingDistance));
           boolean speedWithinTolerance = (Math.abs(actualSpeed.vxMetersPerSecond) < 1. && Math.abs(actualSpeed.vyMetersPerSecond) < 1. && Math.abs(actualSpeed.omegaRadiansPerSecond) < .2);
           boolean RollAndYawPerSecondIsSlow = (Math.abs(wheelyAmounts.get(0)) < .05 && Math.abs(wheelyAmounts.get(1)) < .05);
@@ -858,6 +858,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           Logger.recordOutput("ReadyToShoot/SpeedWithinTolerance", speedWithinTolerance);
           if (headingWithinTolerance && pivotInTolerance && speedWithinTolerance && flywheelInTolerance) {
             m_indexer.setState(Indexer.IndexerState.SHOOTING);
+            RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
           }
         }
          else if(curAction == RobotCurrentAction.kAutoSOTM){

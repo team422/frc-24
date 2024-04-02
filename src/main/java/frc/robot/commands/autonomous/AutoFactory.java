@@ -47,11 +47,20 @@ public class AutoFactory extends Command {
     })));
     NamedCommands.registerCommand("AutoSOTM", Commands.runOnce(()->{
       RobotState.getInstance().setIndexer(IndexerState.INDEXING);
-    }).andThen(new AutoSOTM()) );
+    }).andThen(
+      // Commands.none())
+      new AutoSOTM()) 
+      );
     NamedCommands.registerCommand("AutoFender", Commands.runOnce(()->{
       RobotState.getInstance().setIndexer(IndexerState.INDEXING);
-    }).andThen(new AutoFender()) );
-    NamedCommands.registerCommand("AutoIntake", new AutoIntake() );
+    }).andThen(
+      // Commands.none())
+      new AutoFender()) 
+      );
+    NamedCommands.registerCommand("AutoIntake",
+    // Commands.none()
+     new AutoIntake() 
+     );
     NamedCommands.registerCommand("stow", Commands.run(()->{
       RobotState.getInstance().stowAndStopIntake();
     }));
@@ -69,7 +78,7 @@ public class AutoFactory extends Command {
       RobotState.getInstance().goToIntakePosition();
       m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
       RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
-      // RobotState.getInstance().setShooterSpeed(0);
+      RobotState.getInstance().setShooterSpeed(0);
     }));
 
     NamedCommands.registerCommand("revCommand",Commands.none());
@@ -86,8 +95,8 @@ public class AutoFactory extends Command {
         m_drive::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         m_drive::driveAuto, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                    new PIDConstants(1, 0.0, 0.0), // Translation PID constants
-                    new PIDConstants(6.0, 1.6, 0.0), // Rotation PID constants
+                    new PIDConstants(1.6, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(4, 0, 0.0), // Rotation PID constants
                     5.6, // Max module speed, in m/s
                     0.4, // Drive base radius in meters. Distance from robot center to furthest module.
                     new ReplanningConfig(false,false,.7,1 ) // Default path replanning config. See the API for the options here
