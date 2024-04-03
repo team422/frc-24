@@ -934,7 +934,15 @@ LoggedTunableNumber.ifChanged(hashCode(), ()->{
     // Logger.getInstance().processInputs("Gyro", m_gyroInputs);  
     // m_profiles.getPeriodicFunction().run();
     if (m_profiles.getCurrentProfile() == DriveProfiles.kTrajectoryFollowing){
+      if(m_desAutoChassisSpeeds == null){
+        defaultPeriodic();
+        return;
+      }
       m_desChassisSpeeds = m_desAutoChassisSpeeds;
+      if(RobotState.getInstance().currentTarget != null){
+        Logger.recordOutput("Has curre output", Timer.getFPGATimestamp());
+        m_desChassisSpeeds = managePathplannerInconsistency(RobotState.getInstance().currentTarget);
+      }
       defaultPeriodic();
 
     }
@@ -992,6 +1000,16 @@ LoggedTunableNumber.ifChanged(hashCode(), ()->{
     return m_desChassisSpeeds;
 
   }
+
+  public ChassisSpeeds managePathplannerInconsistency(Pose2d pose){
+    if(turnOverride != null){
+    m_desChassisSpeeds.omegaRadiansPerSecond = m_autoAlignController.calculate(getPose().getRotation().getRadians(), pose.getRotation().getRadians());
+    }
+    // m_desChassisSpeeds.omegaRadiansPerSecond = Math.copySign(Math.max(m_desChassisSpeeds.omegaRadiansPerSecond,DriveConstants.kMinTurnSpeed.get()), m_desChassisSpeeds.omegaRadiansPerSecond)
+    return m_desChassisSpeeds;
+
+  }
+
 
   public boolean isTrajectoryComplete(){
       return false;

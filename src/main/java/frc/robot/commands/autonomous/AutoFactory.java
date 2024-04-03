@@ -15,6 +15,7 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -30,7 +31,7 @@ import frc.robot.subsystems.intake.Intake;
 
 public class AutoFactory extends Command {
   public static final PIDConstants linearPIDConstants = new PIDConstants(10, 0, 0);
-  public static final PIDConstants angularPIDConstants = new PIDConstants(4, 0, 0);
+  public static final PIDConstants angularPIDConstants = new PIDConstants(4, .3, 0);
 
   private final Drive m_drive;
   private final Intake m_intake;
@@ -82,6 +83,18 @@ public class AutoFactory extends Command {
     }));
 
     NamedCommands.registerCommand("revCommand",Commands.none());
+    NamedCommands.registerCommand("ShootEnd", Commands.run(()->{
+      if(DriverStation.getMatchTime() < 0.5){
+        RobotState.getInstance().setIndexer(IndexerState.SHOOTING);
+      }
+    }));
+    NamedCommands.registerCommand("ShootFinal", Commands.run(()->{
+        RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kNothing);
+        RobotState.getInstance().m_shooter.setPivotAngle(Rotation2d.fromDegrees(27));
+        RobotState.getInstance().m_shooter.setFlywheelSpeedWithSpin(11.0, 14.0);
+        
+        // RobotState.getInstance().setIndexer(IndexerState.SHOOTING);
+    }));
     
     // NamedCommands.registerCommand("AutoShoot",Commands.runOnce(()->{
     //   System.out.println("AutoShoot");
@@ -96,7 +109,7 @@ public class AutoFactory extends Command {
         m_drive::driveAuto, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
                     new PIDConstants(.6, 0.0, 0.0), // Translation PID constants
-                    new PIDConstants(4, 0, 0.0), // Rotation PID constants
+                    new PIDConstants(6, 2.3, 0.0), // Rotation PID constants
                     5.6, // Max module speed, in m/s
                     0.4, // Drive base radius in meters. Distance from robot center to furthest module.
                     new ReplanningConfig(false,false,.7,1 ) // Default path replanning config. See the API for the options here

@@ -73,7 +73,7 @@ public class RobotState {
     private Drive m_drive;
     private Climb m_climb;
     private Indexer m_indexer;
-    private Shooter m_shooter;
+    public Shooter m_shooter;
     private ObjectDetectionCam m_objectDetectionCams;
     private AprilTagVision m_aprilTagVision;
     private Intake m_intake;
@@ -88,7 +88,7 @@ public class RobotState {
     private AutoBuilderManager mAutoBuilderManager;
 
     public enum RobotCurrentAction {
-      kStow,kIntake,kShootFender,kRevAndAlign, kShootWithAutoAlign,kAmpLineup,kAmpShoot, kAutoIntake, kAutoShoot, kPathPlanner,kVomit,kTune,kHockeyPuck,kGamePieceLock,kAutoFender,kNoteBackToIntake,kAutoSOTM,kDailedShot,kAutoShootAtPosition,kAutoRevAndAutoAlign,kSourceIntake
+      kStow,kIntake,kShootFender,kRevAndAlign, kShootWithAutoAlign,kAmpLineup,kAmpShoot, kAutoIntake, kAutoShoot, kPathPlanner,kVomit,kTune,kHockeyPuck,kGamePieceLock,kAutoFender,kNoteBackToIntake,kAutoSOTM,kDailedShot,kAutoShootAtPosition,kAutoRevAndAutoAlign,kSourceIntake,kNothing
     }
 
     public Pose2d actualAutoShootAtPositionPose;
@@ -434,6 +434,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         m_intake.setIntakeSpeed(0);
         m_intake.setPivotAngle(IntakeConstants.kIntakeMaxAngle);
     }
+    
 
 
     public Pose2d getRobotPose() {
@@ -631,8 +632,8 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(0),m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(1));
           m_shooter.setPivotAngle(mRotations.get(1));
           m_drive.setDriveTurnOverride(mRotations.get(0));
-          // shooterOverrideAngle = mRotations.get(0);
-          // angleOverrideTime = System.currentTimeMillis() + 1000;
+          shooterOverrideAngle = mRotations.get(0);
+          angleOverrideTime = System.currentTimeMillis() + 300;
           // ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
           ArrayList<Double> speeds = (m_shooterMath.getShooterMetersPerSecond(shootingDistance));
 
