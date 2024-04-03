@@ -21,7 +21,7 @@ public class ObjectDetectionVisionConstants {
             Units.inchesToMeters(-6.38586819),
             Units.inchesToMeters(9.92279767),
             Units.inchesToMeters(26.03562025),
-            new Rotation3d(0.0, Units.degreesToRadians(30), 0.0)
+            new Rotation3d(0.0, Units.degreesToRadians(35), 0.0)
             .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(185)))),
                 
             };

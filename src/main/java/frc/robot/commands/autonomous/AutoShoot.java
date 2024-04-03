@@ -23,6 +23,7 @@ public class AutoShoot extends Command {
     @Override
     public boolean isFinished() {
             if(Timer.getFPGATimestamp() - simTime > 1){
+                // frc.robot.RobotState.getInstance().setIndexer(IndexerState.SHOOTING);
                 frc.robot.RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
                 return true;
             }

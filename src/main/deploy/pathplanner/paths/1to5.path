@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 5.07389360366956,
-        "y": 6.3797051376271865
+        "x": 5.085731105132553,
+        "y": 6.5992729741280565
       },
       "prevControl": {
-        "x": 7.333312361171291,
-        "y": 6.086301380629723
+        "x": 7.345149862634285,
+        "y": 6.305869217130593
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "shoot left wing"
     }
   ],
   "rotationTargets": [
@@ -73,7 +73,7 @@
   ],
   "globalConstraints": {
     "maxVelocity": 5.5,
-    "maxAcceleration": 2.2,
+    "maxAcceleration": 3.1,
     "maxAngularVelocity": 360.0,
     "maxAngularAcceleration": 240.0
   },
@@ -88,5 +88,5 @@
     "rotation": -156.8615355146214,
     "velocity": 0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

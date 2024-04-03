@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.403278392494285,
-        "y": 5.097493900563782
+        "x": 4.586616118697924,
+        "y": 4.6014669579890635
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.343944060590327,
-        "y": 4.416659410065145
+        "x": 3.315292215756,
+        "y": 5.991284646478607
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "underStageClose"
     },
     {
       "anchor": {
-        "x": 2.577724816907967,
-        "y": 4.280825070534945
+        "x": 2.4714248455764065,
+        "y": 4.4653158960116945
       },
       "prevControl": {
-        "x": 1.8004087509400508,
-        "y": 4.792767316079976
+        "x": 1.992223783007615,
+        "y": 5.125682198361947
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "3"
     }
   ],
   "rotationTargets": [],
@@ -33,7 +33,7 @@
   "eventMarkers": [
     {
       "name": "New Event Marker",
-      "waypointRelativePos": 0,
+      "waypointRelativePos": 0.1,
       "command": {
         "type": "parallel",
         "data": {
@@ -41,7 +41,24 @@
             {
               "type": "named",
               "data": {
-                "name": "AutoSOTM"
+                "name": "Shoot"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.2,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "deployIntake"
               }
             }
           ]
@@ -51,20 +68,20 @@
   ],
   "globalConstraints": {
     "maxVelocity": 5.5,
-    "maxAcceleration": 2.35,
+    "maxAcceleration": 3.2,
     "maxAngularVelocity": 360.0,
     "maxAngularAcceleration": 240.0
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 147.48967719348568,
+    "rotation": 140.8494841518944,
     "rotateFast": false
   },
   "reversed": false,
   "folder": "allPointToPointPaths",
   "previewStartingState": {
-    "rotation": 161.8501534149859,
+    "rotation": 167.41412660463487,
     "velocity": 0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

@@ -3,59 +3,70 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.085731105132553,
-        "y": 6.5992729741280565
+        "x": 4.586616118697924,
+        "y": 4.6014669579890635
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.986925238249985,
-        "y": 5.885340987900112
+        "x": 5.639876616763036,
+        "y": 3.9748711865683544
       },
       "isLocked": false,
-      "linkedName": "shoot left wing"
+      "linkedName": "underStageClose"
     },
     {
       "anchor": {
-        "x": 8.007258138443973,
-        "y": 4.150335422300747
+        "x": 7.91552739968225,
+        "y": 2.571830335909447
       },
       "prevControl": {
-        "x": 7.893380752792449,
-        "y": 4.737370580554581
+        "x": 6.48801973997943,
+        "y": 3.570535392449462
       },
       "nextControl": {
-        "x": 8.121135524095497,
-        "y": 3.563300264046914
+        "x": 8.73658666100663,
+        "y": 1.9974053719310572
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.325597231923631,
-        "y": 4.686982018725067
+        "x": 4.586616118697924,
+        "y": 4.6014669579890635
       },
       "prevControl": {
-        "x": 4.991308225569882,
-        "y": 4.461238094504376
+        "x": 5.814786588212883,
+        "y": 3.8564565816325267
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "underStageClose"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.5,
-      "rotationDegrees": 151.43122826496437,
-      "rotateFast": false
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [
     {
       "name": "New Event Marker",
-      "waypointRelativePos": 0.2,
+      "waypointRelativePos": 0.05,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Shoot"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.35,
       "command": {
         "type": "parallel",
         "data": {
@@ -80,7 +91,7 @@
             {
               "type": "named",
               "data": {
-                "name": "AutoSOTM"
+                "name": "Align"
               }
             }
           ]
@@ -96,13 +107,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 165.93707444700524,
+    "rotation": 172.16502376733314,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "allPointToPointPaths",
   "previewStartingState": {
-    "rotation": -171.4835692700969,
+    "rotation": 167.56992904786807,
     "velocity": 0
   },
   "useDefaultConstraints": true

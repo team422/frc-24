@@ -75,16 +75,16 @@ public class ObjectDetectionCam extends VirtualSubsystem {
                         Double[] objectArray = {object[k], object[k+1], object[k+2], object[k+3], object[k+4], object[k+5], object[k+6]};
                         objectList.add(objectArray);
                     }
-                    if(positions.size() > objectList.size()){
-                      if(loses > 25){
-                        positions.clear();
-                      } else {
-                        loses +=1;
-                      }
-                    }else{
-                      loses = 0;
-                    }
-                    
+                    // if(positions.size() > objectList.size()){
+                    //   if(loses > 25){
+                    //     positions.clear();
+                    //   } else {
+                    //     loses +=1;
+                    //   }
+                    // }else{
+                    //   loses = 0;
+                    // }
+                    positions.clear();
                     for (Double[] objectArray : objectList) {
                         double x = objectArray[0];
                         double y = objectArray[1];
@@ -96,7 +96,7 @@ public class ObjectDetectionCam extends VirtualSubsystem {
                         double[] translation = {x, y, z};
                         double[] rotation = {tW, tX, tY, tZ};
 
-                        Transform3d noteTranslation = new Transform3d(new Translation3d(translation[0], translation[1], translation[2]), new Rotation3d(new Quaternion(tW, tX, tY, tZ)));
+                        Transform3d noteTranslation = new Transform3d(new Translation3d(translation[0], translation[1], translation[2]), new Rotation3d(new Quaternion(0,0,0,0)));
 
                         noteTransforms.add(noteTranslation);
 

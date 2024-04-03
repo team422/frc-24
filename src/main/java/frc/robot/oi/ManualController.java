@@ -67,4 +67,8 @@ public class ManualController {
         return m_controller.povLeft();
     }
 
+    public Trigger preRev(){
+        return m_controller.leftTrigger();
+    }
+
 }

@@ -950,9 +950,11 @@ LoggedTunableNumber.ifChanged(hashCode(), ()->{
     }
 
     else if (m_profiles.getCurrentProfile() == DriveProfiles.kAutoPiecePickup){
-      
       m_desChassisSpeeds = m_driveToPieceSpeeds;
+      if(m_desChassisSpeeds != null){
 
+      m_desChassisSpeeds = calculateAutoAlignChassisSpeeds();
+      }
 
       defaultPeriodic();
     } else if(m_profiles.getCurrentProfile() == DriveProfiles.kAutoShoot){
@@ -983,8 +985,9 @@ LoggedTunableNumber.ifChanged(hashCode(), ()->{
   }
 
   public ChassisSpeeds calculateAutoAlignChassisSpeeds(){
-
+    if(turnOverride != null){
     m_desChassisSpeeds.omegaRadiansPerSecond = m_autoAlignController.calculate(getPose().getRotation().getRadians(), turnOverride.getRadians());
+    }
     // m_desChassisSpeeds.omegaRadiansPerSecond = Math.copySign(Math.max(m_desChassisSpeeds.omegaRadiansPerSecond,DriveConstants.kMinTurnSpeed.get()), m_desChassisSpeeds.omegaRadiansPerSecond)
     return m_desChassisSpeeds;
 

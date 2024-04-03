@@ -155,7 +155,7 @@ public class ShooterMath {
 
     public double calculateShootingHeadingTolerance(double distance){
         distance = Units.metersToInches(distance);
-        return Math.max(ShooterMathConstants.headingErrorMultiplier.get() *(ShooterMathConstants.errorCubicA*Math.pow(distance, 3) +ShooterMathConstants.errorCubicB*Math.pow(distance, 2) + ShooterMathConstants.errorCubicC*Math.pow(distance, 1) + ShooterMathConstants.errorCubicD ),2.0); 
+        return Math.max(ShooterMathConstants.headingErrorMultiplier.get() *(ShooterMathConstants.errorCubicA*Math.pow(distance, 3) +ShooterMathConstants.errorCubicB*Math.pow(distance, 2) + ShooterMathConstants.errorCubicC*Math.pow(distance, 1) + ShooterMathConstants.errorCubicD ),1.0); 
     }
 
     public double calculateShootingPivotTolerance( double distance ){

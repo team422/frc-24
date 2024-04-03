@@ -265,6 +265,13 @@ public class RobotContainer {
         Logger.recordOutput("stow Trigger 3", Timer.getFPGATimestamp());
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
+      m_testingController.preRev().whileTrue(Commands.runOnce(()->{
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kRevAndAlign);
+      })).onFalse(Commands.runOnce(()->{
+        Logger.recordOutput("stow Trigger 22", Timer.getFPGATimestamp());
+        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+        m_robotState.setDriveType(DriveProfiles.kDefault);
+      }));
       m_driverControls.intakeVomit().whileTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kVomit);
       })).onFalse(Commands.runOnce(()->{
@@ -321,7 +328,7 @@ public class RobotContainer {
     List<String> paths = PathPlannerUtil.getExistingPaths();
     for (String path : paths) {
       m_autoChooser.addOption(path, m_autoFactory.getAutoCommand(path).andThen(Commands.runOnce(()->{
-        RobotState.getInstance().mUpdatingAutoBuilder = true;
+        // RobotState.getInstance().mUpdatingAutoBuilder = true;
       })));
     }
     m_autoChooser.addOption(
@@ -427,7 +434,7 @@ public class RobotContainer {
     // Logger.recordOutput("kShooterBackRight", new Pose3d(FieldConstants.kShooterBackRight, new Rotation3d(0, 0, 0)));
     // Logger.recordOutput("kShooterFrontLeft", new Pose3d(FieldConstants.kShooterFrontLeft, new Rotation3d(0, 0, 0)));
     // Logger.recordOutput("kShooterFrontRight", new Pose3d(FieldConstants.kShooterFrontRight, new Rotation3d(0, 0, 0)));
-    m_led = new Led(Ports.ledPort, 20);
+    // m_led = new Led(Ports.ledPort, 20);
 
     
 
@@ -601,9 +608,10 @@ public class RobotContainer {
 
   public void onEnabled(){
     // m_robotState.updateTestScheduler();
+    m_shooter.clearI();
     if(edu.wpi.first.wpilibj.RobotState.isTeleop()){
       m_drive.setProfile(DriveProfiles.kDefault);
-      m_shooter.clearI();
+      
       // Commands.runOnce(()->{
       //   m_amp.m_state = AmpState.Zeroing;
       // }).andThen(Commands.waitSeconds(1)).andThen(()->{
@@ -626,15 +634,13 @@ public class RobotContainer {
     // Pose3d objectPose = new Pose3d().plus(robotToCamera).plus(cameraToObject);
     // Logger.recordOutput("objectPose", objectPose); 
     // Logger.recordOutput("Camera Pose", new Pose3d().plus(robotToCamera));
-
-
-
-
   }
 
   public Command getAutonomousCommand() {
+    if(Robot.isSimulation()){
     NoteVisualizer.resetAutoNotes();
     NoteVisualizer.showAllNotes();
+    }
     return m_autoChooser.get();
     // return m_scoutNumber.get().andThen(m_scoutingChooser.get()).andThen(m_endChooser.get()).andThen(m_autoChooser.get());
     // return Commands.print("No autonomous command configured");

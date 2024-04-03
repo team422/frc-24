@@ -42,8 +42,8 @@ public class AutoFactory extends Command {
     NamedCommands.registerCommand("AutoShoot", Commands.runOnce(()->{
       RobotState.getInstance().setIndexer(IndexerState.INDEXING);
     }).andThen(new AutoShoot()).andThen(Commands.runOnce(()->{
-      RobotState.getInstance().goToIntakePosition();
-      m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
+      // RobotState.getInstance().goToIntakePosition();
+      // m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
     })));
     NamedCommands.registerCommand("AutoSOTM", Commands.runOnce(()->{
       RobotState.getInstance().setIndexer(IndexerState.INDEXING);
@@ -95,7 +95,7 @@ public class AutoFactory extends Command {
         m_drive::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         m_drive::driveAuto, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                    new PIDConstants(1.6, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(.6, 0.0, 0.0), // Translation PID constants
                     new PIDConstants(4, 0, 0.0), // Rotation PID constants
                     5.6, // Max module speed, in m/s
                     0.4, // Drive base radius in meters. Distance from robot center to furthest module.

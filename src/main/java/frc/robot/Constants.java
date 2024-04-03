@@ -265,8 +265,8 @@ public final class Constants {
     public static final boolean useMotionMagic = false;
     public static final Matrix<N3, N1> odometryStateStdDevs = new Matrix<>(VecBuilder.fill(0.003, 0.003, 0.0002));
     public static final PathConstraints kAutoAlignToAmpSpeed = new PathConstraints(5.9,2.0,2,2);
-    public static final PathConstraints kDriveToPieceSpeed = new PathConstraints(5.5,4.0,1,1);
-    public static final LoggedTunableNumber AutoAlignP = new LoggedTunableNumber("Auto Align P", 8.5, "Drive");
+    public static final PathConstraints kDriveToPieceSpeed = new PathConstraints(5.5,2.0,1,1);
+    public static final LoggedTunableNumber AutoAlignP = new LoggedTunableNumber("Auto Align P", 6., "Drive");
     public static final LoggedTunableNumber AutoAlignD = new LoggedTunableNumber("Auto Align D", 0.0, "Drive");
     public static final LoggedTunableNumber kHeadingP = new LoggedTunableNumber("kHeadingP", 1.000 , "Drive");
     public static final LoggedTunableNumber kHeadingI = new LoggedTunableNumber("kHeadingI", 0.000 , "Drive");

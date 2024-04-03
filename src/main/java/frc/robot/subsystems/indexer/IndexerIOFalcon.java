@@ -203,27 +203,29 @@ private final PositionTorqueCurrentFOC positionControl =
         } else if (state == IndexerState.SHOOTING) {
             if (edu.wpi.first.wpilibj.RobotState.isAutonomous()){
                 if (autoTimerShot == -1){
-                    autoTimerShot = Timer.getFPGATimestamp() + .5;
+                    autoTimerShot = Timer.getFPGATimestamp() + 1.;
                 }
-                m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeedAuto));
-                m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeedAuto));
+                m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
+                m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
             }else{
                 m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
                 m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
             }
-            if (m_finalBeamBreak.get()) {
-                if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
-                    RobotState.getInstance().setIndexer(IndexerState.IDLE);
-                }else{
-                RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
-                Commands.waitSeconds(.5).andThen(Commands.runOnce(()->{
-                    RobotState.getInstance().setIndexer(IndexerState.IDLE);
-                })).schedule();
-            }
-            }
+            // if (m_finalBeamBreak.get()) {
+            //     if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
+            //         RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
+            //         RobotState.getInstance().setIndexer(IndexerState.IDLE);
+            //     }else{
+            //     RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
+            //     Commands.waitSeconds(.5).andThen(Commands.runOnce(()->{
+            //         RobotState.getInstance().setIndexer(IndexerState.IDLE);
+            //     })).schedule();
+            // }
+            // }
             
             if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
                 if(autoTimerShot < Timer.getFPGATimestamp()){
+                    RobotState.getInstance().setIndexer(IndexerState.IDLE);
                     RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
                     autoTimerShot = -1;
                 }
