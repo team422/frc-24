@@ -64,6 +64,7 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterProfile;
 import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.AutoBuilderManager;
+import frc.robot.utils.DynamicCurrentLimitsManager;
 import frc.robot.utils.NoteVisualizer;
 import frc.robot.utils.ShooterMath;
 import frc.robot.utils.swerve.ModuleLimits;
@@ -526,6 +527,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
 
     public void updateRobotState() {
       Logger.recordOutput("Current State Space", curAction);
+      DynamicCurrentLimitsManager.getInstance().update();
       if(mUpdatingAutoBuilder){
         mAutoBuilderManager.update();
       }
