@@ -18,23 +18,23 @@ public class AprilTagVisionConstants {
   public static final double targetLogTimeSecs = 0.1;
   public static final double fieldBorderMargin = 0.5;
   public static final double zMargin = 0.75;
-  public static final LoggedTunableNumber xyStdDevCoefficient = new LoggedTunableNumber("xyStdDevCoefficient", 0.05,"Cameras");
+  public static final LoggedTunableNumber xyStdDevCoefficient = new LoggedTunableNumber("xyStdDevCoefficient", 0.015,"Cameras");
   public static final LoggedTunableNumber thetaStdDevCoefficient = new LoggedTunableNumber("thetaStdDevCoefficient", 0.1,"Cameras");;
 
   public static final Pose3d[] cameraPoses =
     new Pose3d[] {
         new Pose3d(
-            Units.inchesToMeters(-6.79911684),
-            Units.inchesToMeters(-11.30880362),
-            Units.inchesToMeters(25.97154753),
+            Units.inchesToMeters(-6.79968796),
+            Units.inchesToMeters(-8.79911684),
+            Units.inchesToMeters(25.97520222),
             new Rotation3d(0.0, Units.degreesToRadians(-10), 0.0)
-            .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(180+20.0)))),
+            .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(180-20.0)))),
             new Pose3d(
-                Units.inchesToMeters(-6.79968796),
-                Units.inchesToMeters(-8.79911684),
-                Units.inchesToMeters(25.97520222),
+                Units.inchesToMeters(-6.79911684),
+                Units.inchesToMeters(-11.30880362),
+                Units.inchesToMeters(25.97154753),
                 new Rotation3d(0.0, Units.degreesToRadians(-10), 0.0)
-                .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(180-20.0)))),
+                .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(180+20.0)))),
             new Pose3d(
                 Units.inchesToMeters(10.22704742),
                 Units.inchesToMeters(-5.4947935),

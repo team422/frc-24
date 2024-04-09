@@ -50,6 +50,7 @@ import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
 import frc.robot.commands.autonomous.AutoFactory;
 import frc.robot.commands.autonomous.CustomTrajectoryRunner;
 import frc.robot.oi.DriverControls;
+import frc.robot.oi.ManualController;
 import frc.robot.subsystems.amp.Amp;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.drive.Drive;
@@ -60,6 +61,7 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.northstarAprilTagVision.AprilTagVision;
 import frc.robot.subsystems.objectVision.ObjectDetectionCam;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.Shooter.ShooterProfile;
 import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.AutoBuilderManager;
 import frc.robot.utils.NoteVisualizer;
@@ -86,10 +88,24 @@ public class RobotState {
     private Supplier<AutoFactory> mAutoFactory = null;
     private DriverControls mDriveControls;
     private AutoBuilderManager mAutoBuilderManager;
+    private ManualController m_testingController;
+
 
     public enum RobotCurrentAction {
       kStow,kIntake,kShootFender,kRevAndAlign, kShootWithAutoAlign,kAmpLineup,kAmpShoot, kAutoIntake, kAutoShoot, kPathPlanner,kVomit,kTune,kHockeyPuck,kGamePieceLock,kAutoFender,kNoteBackToIntake,kAutoSOTM,kDailedShot,kAutoShootAtPosition,kAutoRevAndAutoAlign,kSourceIntake,kNothing
     }
+
+    public RobotCurrentAction[] preRevActions = {
+      RobotCurrentAction.kStow,RobotCurrentAction.kPathPlanner
+    };
+
+    public RobotCurrentAction[] noRevActions = {
+      RobotCurrentAction.kIntake,RobotCurrentAction.kAutoIntake,RobotCurrentAction.kHockeyPuck,RobotCurrentAction.kNoteBackToIntake,
+    };
+
+    public RobotCurrentAction[] activeShooting = {
+      RobotCurrentAction.kShootWithAutoAlign,RobotCurrentAction.kShootFender,RobotCurrentAction.kAmpLineup,RobotCurrentAction.kAmpShoot,RobotCurrentAction.kAutoShoot,RobotCurrentAction.kTune,RobotCurrentAction.kHockeyPuck,RobotCurrentAction.kAutoFender,RobotCurrentAction.kAutoSOTM,RobotCurrentAction.kDailedShot,RobotCurrentAction.kAutoShootAtPosition,RobotCurrentAction.kAutoRevAndAutoAlign,RobotCurrentAction.kNothing,RobotCurrentAction.kRevAndAlign
+    };
 
     public Pose2d actualAutoShootAtPositionPose;
 
@@ -105,6 +121,8 @@ public class RobotState {
     public boolean kAmpTopReached = false;
     public boolean mUpdatingAutoBuilder = false;
     public double kSourceIntakeStopTime = -1;
+
+    public boolean lastInContactWithNote = true;
 
 
 
@@ -147,7 +165,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     public Command m_driveToAmp = null;
     public Command m_driveToDailedShot = null;
 
-    private RobotState(Drive drive, Climb climb, Indexer indexer, Shooter shooter, ObjectDetectionCam objectDetectionCams, AprilTagVision aprilTagVisions, Intake intake, Supplier<AutoFactory> autoFactory,DriverControls mDriverControls, Amp amp, AutoBuilderManager autoBuilderManager) {
+    private RobotState(Drive drive, Climb climb, Indexer indexer, Shooter shooter, ObjectDetectionCam objectDetectionCams, AprilTagVision aprilTagVisions, Intake intake, Supplier<AutoFactory> autoFactory,DriverControls mDriverControls, Amp amp, AutoBuilderManager autoBuilderManager, ManualController m_testingController) {
         this.m_drive = drive;
         this.m_climb = climb;
         this.m_shooter = shooter;
@@ -159,6 +177,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         this.mDriveControls = mDriverControls;
         this.m_amp = amp;
         this.mAutoBuilderManager = autoBuilderManager;
+        this.m_testingController = m_testingController;
         NoteVisualizer.setRobotPoseSupplier(this::getEstimatedPose);
         m_shooterMath = new ShooterMath(new Translation3d(0,0,Units.inchesToMeters(16.496)));
         ProfilingScheduling.startInstance();
@@ -170,10 +189,10 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         m_customTrajectoryRunner = new CustomTrajectoryRunner();
         // this.m_swerveTester = new SwerveTester(drive);
     }
-    public static RobotState startInstance(Drive drive, Climb climb, Indexer indexer, Shooter shooter, ObjectDetectionCam objectDetectionCams, AprilTagVision aprilTagVision, Intake intake, Supplier<AutoFactory> autoFactory, DriverControls mDriverControls, Amp amp, AutoBuilderManager autoBuilderManager) {
+    public static RobotState startInstance(Drive drive, Climb climb, Indexer indexer, Shooter shooter, ObjectDetectionCam objectDetectionCams, AprilTagVision aprilTagVision, Intake intake, Supplier<AutoFactory> autoFactory, DriverControls mDriverControls, Amp amp, AutoBuilderManager autoBuilderManager, ManualController m_testingController) {
         if (instance == null) {
             
-            instance = new RobotState(drive, climb, indexer,shooter, objectDetectionCams, aprilTagVision, intake,autoFactory,mDriverControls,amp, autoBuilderManager);
+            instance = new RobotState(drive, climb, indexer,shooter, objectDetectionCams, aprilTagVision, intake,autoFactory,mDriverControls,amp, autoBuilderManager,m_testingController);
 
         }
         return instance;
@@ -187,6 +206,12 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     public static RobotState getInstance() {
         
         return instance;
+    }
+
+    public void setCurrentLimits(double moduleBudget, double shooterBudget, double shooterPivotBudget) {
+        m_drive.setModuleCurrentLimit(moduleBudget);
+        m_shooter.setFlywheelCurrentLimit(shooterBudget);
+        m_shooter.setPivotCurrentLimit(shooterPivotBudget);
     }
 
     public Pose2d[] getNotesInView() {
@@ -303,6 +328,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     // }
     // difference between estimate and vision pose
     m_drive.addVisionMeasurement(observation.visionPose(), observation.timestamp(),observation.stdDevs());
+    
     // System.out.println(observation.stdDevs());
     // Transform2d transform = new Transform2d(estimateAtTime, observation.visionPose());
     // // scale transform by visionK
@@ -335,6 +361,23 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     }
     stowAmpTimer = null;
 
+
+    for(int i = 0; i< preRevActions.length;i++){
+      if(preRevActions[i] == action){
+        m_shooter.setProfile(ShooterProfile.slowRev);
+      }
+    }
+    for(int i = 0; i< activeShooting.length;i++){
+      if(activeShooting[i] == action){
+        m_shooter.setProfile(ShooterProfile.activeShooting);
+      }
+    }
+
+    for(int i = 0; i< noRevActions.length;i++){
+      if(noRevActions[i] == action){
+        m_shooter.setProfile(ShooterProfile.notReving);
+      }
+    }
     // if(action == RobotCurrentAction.kStow){
     //   if (curAction == RobotCurrentAction.kAutoIntake){
     //     action = RobotCurrentAction.kPathPlanner;
@@ -462,6 +505,23 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         if (ProfilingScheduling.hasTests() && !DriverStation.isFMSAttached()) {
             ProfilingScheduling.updateCurrent();
         }
+      }
+
+    public void manageAutoRev(){
+      if(m_indexer.inContactWithGamePiece()){
+        m_shooter.setProfile(ShooterProfile.slowRev);
+        double distance = m_shooterMath.getDistanceFromTarget(getEstimatedPose(),FieldConstants.kShooterCenter);
+        if(distance > 8){
+          return;
+        }
+        ArrayList<Rotation2d> headingAndPivotAngles = m_shooterMath.setNextShootingPoseAndVelocity(getEstimatedPose(), robotVelocity,FieldConstants.kShooterCenter);      
+        ArrayList<Double> shooterSpeeds = m_shooterMath.getShooterMetersPerSecond(distance);
+        m_shooter.setPivotAngle(headingAndPivotAngles.get(1));
+        m_shooter.setFlywheelSpeedWithSpin(shooterSpeeds.get(0),shooterSpeeds.get(1));
+      }else{
+        m_shooter.setProfile(ShooterProfile.notReving);
+      }
+      // m_shooter.setProfile(ShooterProfile);
     }
 
     public void updateRobotState() {
@@ -495,11 +555,16 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
             Logger.recordOutput("knows it shot", shooterStopTime);
         }
 
+
+
+
         if (curAction == RobotCurrentAction.kStow) {
           // m_drive.setProfile(DriveProfiles.kDefault);
           Logger.recordOutput("Is KStow", Timer.getFPGATimestamp());
           stowAndStopIntake();
           stowShooter();
+          manageAutoRev(); 
+
 
           if(m_amp.getPivotAngle().getDegrees() > 5){
             m_shooter.setPivotAngle(m_shooter.getPivotAngle());
@@ -533,9 +598,9 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
             stowAmpTimer = null;
           }
         }
-          if(!edu.wpi.first.wpilibj.RobotState.isAutonomous()){
-          m_shooter.setFlywheelSpeedWithSpin(0,0);
-          }
+          // if(!edu.wpi.first.wpilibj.RobotState.isAutonomous()){
+          // m_shooter.setFlywheelSpeedWithSpin(0,0);
+          // }
           // m_indexer.setState(IndexerState.IDLE);
           // m_indexer.setState(IndexerState.IDLE);
         } else if(curAction == RobotCurrentAction.kTune){
@@ -894,7 +959,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
 
           if (headingWithinTolerance && pivotInTolerance && speedWithinTolerance && flywheelInTolerance) {
             m_indexer.setState(Indexer.IndexerState.SHOOTING);
-            curAction = RobotCurrentAction.kIntake;
+            setRobotCurrentAction(RobotCurrentAction.kIntake);
             
             // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
             // setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
@@ -977,7 +1042,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           }
 
         } else if (curAction == RobotCurrentAction.kAutoIntake){
-          m_drive.setProfile(DriveProfiles.kAutoPiecePickup);
+          
           m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
           m_indexer.setState(IndexerState.INTAKING);
           goToIntakePosition();
@@ -988,24 +1053,29 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           //     m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
           // }
           if (closestNote == null) {
+            m_drive.setProfile(DriveProfiles.kDefault);
             return ;
           }
 
           if(mDriveToPiece == null ){
             
-            mDriveToPiece = mAutoFactory.get().generateTrajectoryToPose(closestNote, DriveConstants.kDriveToPieceSpeed, false, this);
-            mDriveToPiece.schedule();
+            // mDriveToPiece = mAutoFactory.get().generateTrajectoryToPose(closestNote, DriveConstants.kDriveToPieceSpeed, false, this);
+            // mDriveToPiece.schedule();
+            mDriveToPiece = Commands.none();
             mDriveToPiecePose = closestNote;
           }else{
             // add rotational override to point the robot the robot in the direction of the piece
             // make sure the back of the robot is facing the piece
+            mDriveToPiecePose = closestNote;
+            m_drive.setProfile(DriveProfiles.kAutoPiecePickup);
             Translation2d robotToPiece = m_drive.getPose().getTranslation().minus(mDriveToPiecePose.getTranslation());
-            Logger.recordOutput("Turn angle",robotToPiece.getAngle());
             Rotation2d robotToPieceRot = robotToPiece.getAngle();
+            m_drive.setDriveTurnOverride(robotToPieceRot);
+            m_drive.setDriveToPieceChassisSpeeds(DriveConstants.holonomicDrive.calculate(getEstimatedPose(), closestNote));
+            Logger.recordOutput("Turn angle",robotToPiece.getAngle());
             // Rotation2d.fromRadians(Math.tan(robotToPiece.getX()/robotToPiece.getY())).plus(Rotation2d.fromDegrees(180));
 
             shooterOverrideAngle = robotToPieceRot;
-            m_drive.setDriveTurnOverride(robotToPieceRot);
             // angleOverrideTime = System.currentTimeMillis() + 1000;
             // m_drive.setDriveTurnOverride(robotToPieceRot);
             
@@ -1025,11 +1095,24 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
         Transform3d curTransformShooter = m_shooter.getTransform();
         Logger.recordOutput("RobotState/ShooterPose", curTransformShooter);
 
+        if(m_indexer.inContactWithGamePiece() != lastInContactWithNote){
+          lastInContactWithNote =  !lastInContactWithNote;
+          Commands.runOnce(()->{
+            Logger.recordOutput("Rumble", 0.1);
+            setDriverRumble(0.1, RumbleType.kBothRumble);
+          }).andThen(Commands.waitSeconds(1.5)).andThen(Commands.runOnce(()->{
+            Logger.recordOutput("Rumble", 0);
+            setDriverRumble(0., RumbleType.kBothRumble);
+          })).schedule();
+          
+        }
+
 
     }
 
     public void setDriverRumble(double value, RumbleType side){
       mDriveControls.setDriverRumble(value,side);
+      m_testingController.setRumble(value,side);
     }
 
     public Pose2d getPredictedPose(double translationLookaheadS, double rotationLookaheadS) {

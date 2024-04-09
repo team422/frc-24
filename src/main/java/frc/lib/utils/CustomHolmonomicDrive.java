@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Constants;
+import frc.robot.Constants.DriveConstants;
 
 /**
  * This holonomic drive controller can be used to follow trajectories using a holonomic drivetrain
@@ -215,6 +216,10 @@ public class CustomHolmonomicDrive {
   public ChassisSpeeds calculate(
       Pose2d currentPose,
       Pose2d poseRef) {
+      LoggedTunableNumber.ifChanged(hashCode(),()->{
+        m_xyController.setPID(DriveConstants.kHolonomicXYP.get(),DriveConstants.kHolonomicXYI.get(),DriveConstants.kHolonomicXYD.get());
+        m_zController.setPID(DriveConstants.kHolonomicThetaP.get(),DriveConstants.kHolonomicThetaI.get(),DriveConstants.kHolonomicThetaD.get());
+      },DriveConstants.kHolonomicXYP,DriveConstants.kHolonomicXYI,DriveConstants.kHolonomicXYD,DriveConstants.kHolonomicThetaP,DriveConstants.kHolonomicThetaI,DriveConstants.kHolonomicThetaD);
 
     // Calculate feedforward velocities (field-relative).
     // double xFF = linearVelocityRefMeters * poseRef.getRotation().getCos();

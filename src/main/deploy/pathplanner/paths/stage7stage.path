@@ -1,0 +1,126 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.821861716333727,
+        "y": 4.565004286258573
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.24464784643855,
+        "y": 4.062246991681484
+      },
+      "isLocked": false,
+      "linkedName": "underStageShort"
+    },
+    {
+      "anchor": {
+        "x": 8.100310782094779,
+        "y": 2.5404444782103845
+      },
+      "prevControl": {
+        "x": 8.286428859121836,
+        "y": 2.4786028136509386
+      },
+      "nextControl": {
+        "x": 7.914192705067725,
+        "y": 2.6022861427698305
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.821861716333727,
+        "y": 4.565004286258573
+      },
+      "prevControl": {
+        "x": 5.709951972359302,
+        "y": 4.01386712371639
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "underStageShort"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.65,
+      "rotationDegrees": 140.9967592984017,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.05,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Shoot"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.45,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "deployIntake"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 1.5,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Align"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.5,
+    "maxAcceleration": 3.7,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 240.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 161.51192439578747,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "allPointToPointPaths",
+  "previewStartingState": {
+    "rotation": 161.3792841849973,
+    "velocity": 0
+  },
+  "useDefaultConstraints": false
+}

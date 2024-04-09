@@ -49,4 +49,7 @@ public interface PivotIO extends LoggedIO<PivotIO.PivotIOInputs>{
     public Rotation2d getCurrentAngle();
 
     public double getCurrentVelocity();
+
+    default public void setPivotCurrentLimit(double limit) {
+    };
 }

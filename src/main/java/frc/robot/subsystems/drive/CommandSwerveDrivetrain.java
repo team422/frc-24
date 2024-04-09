@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
  * so it can be used in command-based projects easily.
  */
 public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsystem {
-    private static final double kSimLoopPeriod = 0.005; // 5 ms
+    private static final double kSimLoopPeriod = 0.001; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
@@ -81,8 +81,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             m_lastSimTime = currentTime;
 
             /* use the measured time delta, get battery voltage from WPILib */
-            updateSimState(deltaTime, RobotController.getBatteryVoltage());
+            updateSimState(deltaTime, 12);
         });
-        m_simNotifier.startPeriodic(kSimLoopPeriod);
+        // m_simNotifier.startPeriodic(kSimLoopPeriod);
+        // m_simNotifier.setName("Drive Periodic");
     }
 }

@@ -80,7 +80,7 @@ public class PivotIOFalcon implements PivotIO {
     // FOR SIM ONLY
     private SingleJointedArmSim m_armSim = new SingleJointedArmSim(DCMotor.getFalcon500Foc(2), ShooterPivotConstants.gearboxRatio,.02,.06,Rotation2d.fromDegrees(11).getRadians(),Rotation2d.fromDegrees(84).getRadians(),true,Rotation2d.fromDegrees(11).getRadians());
     private CANcoder m_canCoder;
-
+    TalonFXConfiguration leaderConfig = new TalonFXConfiguration();
 
     public PivotIOFalcon(int primaryMotor, int secondaryMotor, int absoluteEncoderPort) {
         absoluteEncoder = new DutyCycleEncoder(absoluteEncoderPort);
@@ -94,7 +94,7 @@ public class PivotIOFalcon implements PivotIO {
         
         
         // Leader motor configs
-        TalonFXConfiguration leaderConfig = new TalonFXConfiguration();
+        
         leaderConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
         leaderConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         leaderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -254,7 +254,7 @@ public class PivotIOFalcon implements PivotIO {
 
     public void simulationPeriodic(){
         TalonFXSimState lSimState = followerTalon.getSimState();
-        System.out.println(lSimState.getMotorVoltage());
+        // System.out.println(lSimState.getMotorVoltage());
         m_armSim.setInputVoltage(-lSimState.getMotorVoltage());
 
         m_armSim.update(0.02);
@@ -267,6 +267,11 @@ public class PivotIOFalcon implements PivotIO {
 
     }
 
+    @Override 
+    public void setPivotCurrentLimit(double limit){
+        leaderConfig.CurrentLimits.SupplyCurrentLimit = limit;
+        leaderTalon.getConfigurator().apply(leaderConfig, 0.1);
+    }
 
   
     

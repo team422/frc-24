@@ -61,7 +61,7 @@ public class ObjectDetectionCam extends VirtualSubsystem {
             var values = inputs[i].objects;
             Logger.recordOutput("Number of values", values.length);
             if (values.length == 0) {
-                continue;
+                positions.clear();
               }
                 for (int j = 0; j < values.length; j++) {
                     double[] object = values[j];

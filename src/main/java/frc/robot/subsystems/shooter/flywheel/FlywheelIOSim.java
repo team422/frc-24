@@ -15,14 +15,14 @@ public class FlywheelIOSim implements FlywheelIO {
 
     }
 
-    @Override
-    public void setDesiredSpeed(double speed) {
-        inputs.desiredSpeed = speed;
-        double output = m_Controller.calculate(inputs.curSpeed, inputs.desiredSpeed);
-        inputs.voltage = output;
-        m_FlywheelSim.setInputVoltage(output);
-        m_FlywheelSim.update(0.02);
-    }
+    // @Override
+    // public void setDesiredSpeed(double speed) {
+    //     inputs.desiredSpeed = speed;
+    //     double output = m_Controller.calculate(inputs.curSpeed, inputs.desiredSpeed);
+    //     inputs.voltage = output;
+    //     m_FlywheelSim.setInputVoltage(output);
+    //     m_FlywheelSim.update(0.02);
+    // }
 
 
 

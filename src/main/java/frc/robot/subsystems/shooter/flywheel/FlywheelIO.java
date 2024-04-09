@@ -4,6 +4,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.advantagekit.LoggedIO;
+import frc.robot.subsystems.shooter.Shooter.ShooterProfile;
 
 public interface FlywheelIO extends LoggedIO<FlywheelIO.FlywheelIOInputs> {
     @AutoLog
@@ -29,9 +30,15 @@ public interface FlywheelIO extends LoggedIO<FlywheelIO.FlywheelIOInputs> {
     
     }
 
-    public void setDesiredSpeed(double speed);
+
+    public default void setProfile(Enum<?> profile){
+
+    };
 
     public default void setDesiredSpeedWithSpin(double speedLeft, double speedRight){
+    };
+
+    public default void setFlywheelCurrentLimit(double limit){
     };
 
     public default boolean checkIfTolerance(double left,double right, double tolerance){

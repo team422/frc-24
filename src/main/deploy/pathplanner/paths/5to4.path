@@ -80,11 +80,28 @@
           ]
         }
       }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.05,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Shoot"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "globalConstraints": {
     "maxVelocity": 5.5,
-    "maxAcceleration": 1.8,
+    "maxAcceleration": 3.8,
     "maxAngularVelocity": 360.0,
     "maxAngularAcceleration": 240.0
   },
@@ -99,5 +116,5 @@
     "rotation": -155.63994396204453,
     "velocity": 0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

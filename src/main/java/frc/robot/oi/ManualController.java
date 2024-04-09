@@ -1,20 +1,22 @@
 package frc.robot.oi;
 
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class ManualController {
-    CommandXboxController m_controller;
+    CommandPS4Controller m_controller;
     public ManualController(int port) {
-        m_controller = new CommandXboxController(port);
+        m_controller = new CommandPS4Controller(port);
     }
 
     public double getShooterStick() {
-        return m_controller.getLeftTriggerAxis();
+        return 0.0;
     }
 
     public double getFeederStick() {
-        return m_controller.getRightTriggerAxis();
+        return 0.0;
     }
 
     public double climberStick() {
@@ -22,45 +24,45 @@ public class ManualController {
     }
 
     public Trigger cimberLockToggle() {
-        return m_controller.a();
+        return new Trigger(()->false);
     }
 
     public Trigger intakeUpDegrees() {
-        return m_controller.b();
+        return new Trigger(()->false);
     }
 
     public Trigger intakeDownDegrees() {
-        return m_controller.x();
+        return new Trigger(()->false);
     }
 
     public Trigger finalShoot() {
-        return m_controller.rightBumper();
+        return m_controller.R1();
     }
 
     public Trigger maxSpeedShooter() {
-        return m_controller.y();
+        return new Trigger(()->false);
     }
 
 
     public Trigger amp(){
-        return m_controller.leftBumper();
+        return m_controller.L1();
     }
 
     public Trigger sourceIntake(){
-        return  m_controller.x();
+        return  m_controller.square();
     }
 
 
     public Trigger toggleBeamBreakOne() {
-        return m_controller.povUp();
+        return new Trigger(()->false);
     }
 
     public Trigger toggleBeamBreakTwo() {
-        return m_controller.povRight();
+        return new Trigger(()->false);
     }
 
     public Trigger beambreakGamePiece() {
-        return m_controller.povDown();
+        return new Trigger(()->false);
     }
 
     public Trigger zeroAmp() {
@@ -68,7 +70,11 @@ public class ManualController {
     }
 
     public Trigger preRev(){
-        return m_controller.leftTrigger();
+        return m_controller.L2();
+    }
+
+    public void setRumble(double value, RumbleType type){
+        m_controller.getHID().setRumble(type,value);
     }
 
 }

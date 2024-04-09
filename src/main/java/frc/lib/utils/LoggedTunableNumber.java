@@ -110,9 +110,9 @@ public class LoggedTunableNumber {
      */
     public static void ifChanged(
             int id, Consumer<double[]> action, LoggedTunableNumber... tunableNumbers) {
-        if (Arrays.stream(tunableNumbers).anyMatch(tunableNumber -> tunableNumber.hasChanged(id))) {
-            action.accept(Arrays.stream(tunableNumbers).mapToDouble(LoggedTunableNumber::get).toArray());
-        }
+            if (Arrays.stream(tunableNumbers).anyMatch(tunableNumber -> tunableNumber.hasChanged(id))) {
+                action.accept(Arrays.stream(tunableNumbers).mapToDouble(LoggedTunableNumber::get).toArray());
+            }
     }
 
     /** Runs action if any of the tunableNumbers have changed */

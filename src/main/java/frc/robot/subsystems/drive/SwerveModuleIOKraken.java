@@ -9,6 +9,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
@@ -150,13 +151,13 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         canCfg.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
         canCfg.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         // canCfg.MagnetSensor.MagnetOffset = 0.0;
-        m_turnEncoder.getConfigurator().apply(canCfg);
         // setTurnPID(.3, 0, 0);
         if(Robot.isSimulation()){
-        // turnConfig.Feedback.SensorToMechanismRatio = 1;
-        // turnConfig.Feedback.RotorToSensorRatio = 150/7;
+            // turnConfig.Feedback.SensorToMechanismRatio = 1;
+            // turnConfig.Feedback.RotorToSensorRatio = 150/7;
         }else {
             // turnConfig.Feedback.SensorToMechanismRatio = 1;
+            m_turnEncoder.getConfigurator().apply(canCfg);
             turnConfig.Feedback.SensorToMechanismRatio = 1;
             turnConfig.Feedback.RotorToSensorRatio = 7/150 ;
         }
@@ -226,6 +227,14 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         
     }
 
+    public void lowerCurrentLimits(){
+        CurrentLimitsConfigs driveLimits = new CurrentLimitsConfigs();
+        m_driveMotor.getConfigurator().refresh(driveLimits);
+        driveLimits.SupplyCurrentLimit = 45;
+        m_driveMotor.getConfigurator().apply(driveLimits);
+    }
+
+
     
     public void simulationPeriodic(){
 
@@ -240,11 +249,12 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         mDriveSim.update(0.02);
         mTurnSim.update(0.02);
 
-        m_driveMotor.getSimState().setRawRotorPosition(mDriveSim.getAngularPositionRotations() * ModuleConstants.kDriveConversionFactor);
-        m_turnMotor.getSimState().setRawRotorPosition(mTurnSim.getAngularPositionRotations());
-        m_turnEncoder.getSimState().setRawPosition(mTurnSim.getAngularPositionRotations());
-        m_driveMotor.getSimState().setRotorVelocity(mDriveSim.getAngularVelocityRPM() * ModuleConstants.kDriveConversionFactor/60.0);
-        m_turnMotor.getSimState().setRotorVelocity(mTurnSim.getAngularVelocityRPM()/60.0);
+        // dont use with command drive train
+        // m_driveMotor.getSimState().setRawRotorPosition(mDriveSim.getAngularPositionRotations() * ModuleConstants.kDriveConversionFactor);
+        // m_turnMotor.getSimState().setRawRotorPosition(mTurnSim.getAngularPositionRotations());
+        // m_turnEncoder.getSimState().setRawPosition(mTurnSim.getAngularPositionRotations());
+        // m_driveMotor.getSimState().setRotorVelocity(mDriveSim.getAngularVelocityRPM() * ModuleConstants.kDriveConversionFactor/60.0);
+        // m_turnMotor.getSimState().setRotorVelocity(mTurnSim.getAngularVelocityRPM()/60.0);
 
 
 
@@ -398,6 +408,12 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         // throw new UnsupportedOperationException("Unimplemented method 'getAbsoluteState'");
     }
 
+
+    @Override
+    public void setCurrentLimit(double limit) {
+        driveConfig.CurrentLimits.SupplyCurrentLimit = limit;
+        m_driveMotor.getConfigurator().apply(driveConfig.CurrentLimits,0.1);
+    }
 
     @Override
     public void setVoltage(double voltageDrive, double voltageTurn) {

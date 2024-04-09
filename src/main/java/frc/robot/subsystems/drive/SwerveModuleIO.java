@@ -70,6 +70,10 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
     return 0.0;
   }
 
+  default public void setCurrentLimit(double limit){
+    return;
+  }
+
   public double getVoltage();
 
   public double getDriveCurrent();
@@ -106,6 +110,10 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
   }
 
   public default void setDriveFF(double ks, double kv, double ka){
+    return;
+  }
+
+  public default void lowerCurrentLimits(){
     return;
   }
 

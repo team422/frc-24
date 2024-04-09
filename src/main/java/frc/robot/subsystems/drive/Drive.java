@@ -19,6 +19,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveControlRequestParameters;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -45,6 +46,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
@@ -206,6 +209,8 @@ private SwerveSetpoint currentSetpoint =
   /** Creates a new Drive. */
   public Drive(GyroIO gyro, Pose2d startPose,CommandSwerveDrivetrain commandSwerveDrivetrain, SwerveModuleIO... modules) {
     m_CommandSwerveDrivetrain = commandSwerveDrivetrain;
+    m_CommandSwerveDrivetrain.configNeutralMode(NeutralModeValue.Coast);
+
     m_modules = modules;
     m_gyro = gyro;
     m_gyroInputs = new GyroInputsAutoLogged();
@@ -286,6 +291,12 @@ private SwerveSetpoint currentSetpoint =
     // speeds.omegaRadiansPerSecond = -speeds.omegaRadiansPerSecond;
     Logger.recordOutput("Drive/DriveToPieceSpeeds", DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds));
     m_driveToPieceSpeeds = speeds;
+  }
+
+  public void lowerCurrentLimits(){
+    for(int i = 0;i<=3;i++){
+      m_modules[i].lowerCurrentLimits();
+    }
   }
 
   public void ffPeriodic() {
@@ -386,12 +397,12 @@ private SwerveSetpoint currentSetpoint =
         // public Rotation2d operatorForwardDirection;
         // public double updatePeriod;
         // SwerveRequest request = new SwerveRequest();
+        m_desChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(m_desChassisSpeeds,getPose().getRotation());
         Logger.recordOutput("RobotVelocity/DesiredVelocity X", m_desChassisSpeeds.vxMetersPerSecond);
         Logger.recordOutput("RobotVelocity/DesiredVelocity y", m_desChassisSpeeds.vyMetersPerSecond);
         Logger.recordOutput("RobotVelocity/DesiredVelocity Theta", m_desChassisSpeeds.omegaRadiansPerSecond);
-        m_desChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(m_desChassisSpeeds,getPose().getRotation());
         SwerveRequest request = new SwerveRequest.FieldCentric().withVelocityX(m_desChassisSpeeds.vxMetersPerSecond).withVelocityY(m_desChassisSpeeds.vyMetersPerSecond).withRotationalRate(m_desChassisSpeeds.omegaRadiansPerSecond).withDriveRequestType(DriveRequestType.Velocity).withSteerRequestType(SteerRequestType.MotionMagicExpo);
-
+        Logger.recordOutput("Drive/WheelsAttempt", m_CommandSwerveDrivetrain.getState().ModuleTargets);
         m_CommandSwerveDrivetrain.applyRequest(request);
         
     
@@ -406,6 +417,7 @@ private SwerveSetpoint currentSetpoint =
     Logger.recordOutput("Drive/DesiredSpeedsOptimized",m_CommandSwerveDrivetrain.getTargetStates());
     Logger.recordOutput("Drive/currentSpeeds",m_CommandSwerveDrivetrain.getModuleStates());
     Logger.recordOutput("Drive/CTREPos",m_CommandSwerveDrivetrain.getState().Pose);
+    
 
 
     // Logger.getInstance().recordOutput("Drive/DesiredModuleStates", moduleStates);
@@ -794,6 +806,7 @@ private SwerveSetpoint currentSetpoint =
     m_autoAlignController.setP(DriveConstants.AutoAlignP.get());
     m_autoAlignController.setD(DriveConstants.AutoAlignD.get());
   },DriveConstants.AutoAlignP,DriveConstants.AutoAlignD);
+  if(Robot.isReal()){
   LoggedTunableNumber.ifChanged(hashCode(), ()->{
 
     
@@ -826,7 +839,7 @@ LoggedTunableNumber.ifChanged(hashCode(), ()->{
     m_CommandSwerveDrivetrain.getModule(3).getSteerMotor().getConfigurator().apply(configs);
 
 },ModuleConstants.kTurningKP,ModuleConstants.kTurningKI,ModuleConstants.kTurningKD,ModuleConstants.kTurningKS, ModuleConstants.kTurningKV, ModuleConstants.kTurningKA,ModuleConstants.FLkTurningP,ModuleConstants.FLkTurningI, ModuleConstants.FLkTurningD,ModuleConstants.FRkTurningP,ModuleConstants.FRkTurningI, ModuleConstants.FRkTurningD,ModuleConstants.BLkTurningP,ModuleConstants.BLkTurningI, ModuleConstants.BLkTurningD,ModuleConstants.BRkTurningP,ModuleConstants.BRkTurningI, ModuleConstants.BRkTurningD);
-
+  }
     
 // odometryLock.lock();
 //     // Read timestamps from odometry thread and fake sim timestamps
@@ -1079,10 +1092,10 @@ LoggedTunableNumber.ifChanged(hashCode(), ()->{
                 0.0));
     Logger.recordOutput("Odometry/Robot3d", robotPose3d);
     Logger.recordOutput("Odometry/sketchy odo", m_poseEstimator.getEstimatedPosition());
-    if (RobotConstants.AScopeLogging) {
-      FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
-          DriveConstants.kModuleTranslations);
-    }
+    // if (RobotConstants.AScopeLogging) {
+    //   FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
+    //       DriveConstants.kModuleTranslations);
+    // }
     if (m_lastFPGATimestamp < Timer.getFPGATimestamp()) {
       m_lastFPGATimestamp = Timer.getFPGATimestamp() + 1;
       resetFirmware();
@@ -1102,15 +1115,17 @@ LoggedTunableNumber.ifChanged(hashCode(), ()->{
     double gyroDelta = getChassisSpeeds().omegaRadiansPerSecond;
     double ts = Timer.getFPGATimestamp();
     Logger.recordOutput("Drive/Pose", getPose());
-    Logger.recordOutput("Drive/ModuleStates", getModuleStates());
-    Logger.recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
+    // Logger.recordOutput("Drive/ModuleStates", getModuleStates());
+    // Logger.recordOutput("Drive/ModuleAbsoluteStates", getModuleAbsoluteStates());
     if (RobotConstants.AScopeLogging) {
-      FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
+      FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), m_CommandSwerveDrivetrain.getModuleStates(),
           DriveConstants.kModuleTranslations);
     }
     double deltaTime = ts - m_simGyroLastUpdated;
+    Logger.recordOutput("DeltaTimeDrive",deltaTime);
 
-    m_gyro.addAngle(Rotation2d.fromRadians(gyroDelta * deltaTime));
+    // m_gyro.addAngle(Rotation2d.fromRadians(gyroDelta * deltaTime));
+    // m_gyro.setAngle(m_CommandSwerveDrivetrain.getPigeon2())
     m_simGyroLastUpdated = ts;
     m_CommandSwerveDrivetrain.updateSimState(0.02,  RobotController.getBatteryVoltage());
   }
@@ -1325,8 +1340,13 @@ LoggedTunableNumber.ifChanged(hashCode(), ()->{
   }
 
   public void setWheelIdleBrake(boolean mode) {
-    for (SwerveModuleIO m_io : m_modules) {
-      m_io.setBrakeMode(mode);
+    // for (SwerveModuleIO m_io : m_modules) {
+    //   m_io.setBrakeMode(mode);
+    // }
+    if(mode){
+      m_CommandSwerveDrivetrain.configNeutralMode(NeutralModeValue.Brake);
+    }else{
+      m_CommandSwerveDrivetrain.configNeutralMode(NeutralModeValue.Coast);
     }
   }
 

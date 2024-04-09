@@ -13,6 +13,9 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.RobotState;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ShooterMathConstants;
 
@@ -175,10 +178,23 @@ public class ShooterMath {
 
     public ArrayList<Double> getShooterMetersPerSecond(double distance){
         ArrayList<Double> vals = new ArrayList<>();
-        vals.add(m_shootSpeedLeft.get(distance));
-        vals.add(m_shootSpeedRight.get(distance));
+        DriverStation.getAlliance().ifPresentOrElse((Alliance alliance)->{
+
+        if(alliance.equals(Alliance.Blue)){
+            vals.add(m_shootSpeedLeft.get(distance));
+            vals.add(m_shootSpeedRight.get(distance));
+        }else{
+            vals.add(m_shootSpeedRight.get(distance));
+            vals.add(m_shootSpeedLeft.get(distance));
+        }
+        }, ()->{
+            vals.add(m_shootSpeedLeft.get(distance));
+            vals.add(m_shootSpeedRight.get(distance));
+        });
         return vals;
     }
+
+    
 
 
     public double getDistanceFromTarget(Pose2d pose,Translation3d target){

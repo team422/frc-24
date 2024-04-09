@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter;
 
+import java.util.HashMap;
+
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.littletonrobotics.junction.Logger;
 
@@ -13,8 +15,10 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
 import frc.lib.utils.LoggedTunableNumber;
+import frc.lib.utils.SubsystemProfiles;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.IntakeConstants;
@@ -22,12 +26,13 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShooterConstants.FlywheelConstants;
 import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
 import frc.robot.subsystems.shooter.pivot.PivotIOInputsAutoLogged;
+import frc.robot.subsystems.drive.Drive.DriveProfiles;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIO;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOInputsAutoLogged;
 import frc.robot.subsystems.shooter.pivot.PivotIO;
 import frc.robot.subsystems.shooter.pivot.PivotIO.PivotIOInputs;
 
-public class Shooter extends ProfiledSubsystem {
+public class Shooter extends SubsystemBase {
     PivotIO m_pivotIO;
     FlywheelIO m_flywheelIO;
     PivotIOInputsAutoLogged m_inputsPivot;
@@ -47,6 +52,12 @@ public class Shooter extends ProfiledSubsystem {
         intaking,notIntaking
 
     }
+
+    private SubsystemProfiles m_profiles;
+
+    public enum ShooterProfile {
+        slowRev, activeShooting, notReving
+    }
     public ShooterIsIntaking isIntaking;
 
 
@@ -55,6 +66,8 @@ public class Shooter extends ProfiledSubsystem {
         super();
         m_pivotIO = pivotIO;
         m_flywheelIO = flywheelIO;
+        Class<? extends Enum<?>> profileEnumClass = ShooterProfile.class;
+        m_profiles = new SubsystemProfiles(profileEnumClass,new HashMap<>(), ShooterProfile.activeShooting);
         m_desiredAngle = ShooterPivotConstants.homeAngle;
         setpointState = new TrapezoidProfile.State(m_desiredAngle.getRadians(), 0);
           motionProfile =
@@ -78,8 +91,17 @@ public class Shooter extends ProfiledSubsystem {
         m_pivotIO.clearI();
     }
 
+    public void setFlywheelCurrentLimit(double limit){
+        m_flywheelIO.setFlywheelCurrentLimit(limit);
+    }
+
+    public void setPivotCurrentLimit(double limit){
+        m_pivotIO.setPivotCurrentLimit(limit);
+    }
+
     @Override
     public void periodic() {
+        
         double start = HALUtil.getFPGATime();
         LoggedTunableNumber.ifChanged(hashCode(), (()->{
             new ArmFeedforward(ShooterPivotConstants.kPivotkS.get(),ShooterPivotConstants.kPivotkG.get(), ShooterPivotConstants.kPivotkV.get(), ShooterPivotConstants.kPivotkA.get());
@@ -120,7 +142,11 @@ public class Shooter extends ProfiledSubsystem {
             }
             else{
                 m_pivotIO.runSetpoint(m_desiredAngle, 0);
+                m_flywheelIO.setProfile(m_profiles.getCurrentProfile());
+
+                
             }
+            Logger.recordOutput("Shooter/ShooterState",m_profiles.getCurrentProfile().toString());
             Logger.recordOutput("LoggedRobot/ShooterPeriodic", (HALUtil.getFPGATime()-start)/1000);
     }
 
@@ -188,5 +214,9 @@ public class Shooter extends ProfiledSubsystem {
         // }
         // return false;
 
+    }
+
+    public void setProfile(Enum<?> profile){
+        m_profiles.setCurrentProfile(profile);
     }
 }

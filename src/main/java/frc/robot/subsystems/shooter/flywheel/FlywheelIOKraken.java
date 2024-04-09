@@ -28,6 +28,7 @@ import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.ShooterConstants.FlywheelConstants;
+import frc.robot.subsystems.shooter.Shooter.ShooterProfile;
 
 public class FlywheelIOKraken implements FlywheelIO {
 
@@ -61,9 +62,11 @@ public class FlywheelIOKraken implements FlywheelIO {
     private  SimpleMotorFeedforward mFeedforwardRight = new SimpleMotorFeedforward(1, 0, 0);
   private  DCMotorSim m_simLeft = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 1.0/2, 0.005);
     private  DCMotorSim m_simRight = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 1.0/2, 0.005);
+    TalonFXConfiguration config;
 
 
 
+    private Enum<?> lastProfile;
 
 
 
@@ -71,16 +74,16 @@ public class FlywheelIOKraken implements FlywheelIO {
         m_krakenLeft = new TalonFX(motorID1, "rio");
         m_krakenRight = new TalonFX(motorID2, "rio");
         
+        config = new TalonFXConfiguration();
 
-
-        TalonFXConfiguration config = new TalonFXConfiguration();
+        
         config.CurrentLimits.SupplyCurrentLimit = 65.0;
         config.CurrentLimits.StatorCurrentLimit = 150.0;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.Feedback.SensorToMechanismRatio = Constants.ShooterConstants.FlywheelConstants.kFlywheelGearRatio;
 
         // Controller config;
@@ -147,6 +150,25 @@ public class FlywheelIOKraken implements FlywheelIO {
         return rpm;
 
     }
+    @Override
+    public void setProfile(Enum<?> profile){
+        
+        if(lastProfile == null){
+            lastProfile = profile;
+        }else if(profile != lastProfile){
+            lastProfile = profile;
+            if(profile.equals(ShooterProfile.activeShooting)){
+
+            } else if(profile.equals(ShooterProfile.notReving)){
+                m_krakenLeft.stopMotor();
+                m_krakenRight.stopMotor();
+            }else if(profile.equals(ShooterProfile.slowRev)){
+
+
+            }
+        }
+
+    }
 
     public double RPMtoMetersPerSecond(double RPM){
         double diameter = FlywheelConstants.kFlywheelDiameter;
@@ -158,33 +180,28 @@ public class FlywheelIOKraken implements FlywheelIO {
     }
 
     @Override
-    public void setDesiredSpeed(double speed) {
-        double rpm = metersPerSecondToRPM(speed);
-        
-        m_krakenLeft.setControl(velocityControl.withVelocity(rpm/60.0));
-        m_krakenRight.setControl(velocityControl.withVelocity((rpm*0.95)/60.0));
-        
-
-    }
-
-    @Override
     public void setDesiredSpeedWithSpin(double speedLeft, double speedRight){
         // Logger.recordOutput("Speed Right PID ",mControllerLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0, m_krakenLeft.getRotorVelocity().getValueAsDouble()));
         Logger.recordOutput("Speed Left Velocity", m_krakenLeft.getRotorVelocity().getValueAsDouble());
-        Logger.recordOutput("Speed Left Acceleration", m_krakenRight.getAcceleration().getValueAsDouble());
+        Logger.recordOutput("Speed Left Acceleration", m_krakenLeft.getAcceleration().getValueAsDouble());
         Logger.recordOutput("Speed Left desired", metersPerSecondToRPM(speedLeft)/60.0);
-        Logger.recordOutput("Speed Feedforward Voltage",mFeedforwardRight.calculate(metersPerSecondToRPM(speedLeft)/60.0));
+        Logger.recordOutput("Speed Left Feedforward Voltage",mFeedforwardLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0));
         // Logger.recordOutput("Speed Left PID ",mControllerLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0, m_krakenRight.getRotorVelocity().getValueAsDouble()));
         Logger.recordOutput("Speed Right Velocity", m_krakenRight.getRotorVelocity().getValueAsDouble());
         Logger.recordOutput("Speed Right Acceleration", m_krakenRight.getAcceleration().getValueAsDouble());
         Logger.recordOutput("Speed Right desired", metersPerSecondToRPM(speedRight)/60.0);
-        Logger.recordOutput("Speed Feedforward Voltage",mFeedforwardRight.calculate(metersPerSecondToRPM(speedLeft)/60.0));
+        Logger.recordOutput("Speed Right Feedforward Voltage",mFeedforwardRight.calculate(metersPerSecondToRPM(speedLeft)/60.0));
 
         // m_krakenLeft.setControl(velocityControl.withVelocity(metersPerSecondToRPM(speedLeft)/60.0));
         // m_krakenRight.setControl(velocityControl.withVelocity((metersPerSecondToRPM(speedRight))/60.0));
         // m_krakenRight.setControl(new TorqueCurrentFOC(15));
-        m_krakenRight.setControl(new VoltageOut(mFeedforwardRight.calculate(metersPerSecondToRPM(speedRight)/60.0,((m_krakenRight.getRotorVelocity().getValueAsDouble()-metersPerSecondToRPM(speedRight)/60.0))*FlywheelConstants.kFlywheelAccel.get())+mController.calculate(metersPerSecondToRPM(speedRight)/60.0, m_krakenRight.getRotorVelocity().getValueAsDouble())));
-        m_krakenLeft.setControl(new VoltageOut(mFeedforwardLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0,((m_krakenLeft.getRotorVelocity().getValueAsDouble()-metersPerSecondToRPM(speedLeft)/60.0))*FlywheelConstants.kFlywheelAccel.get())+mControllerLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0, m_krakenLeft.getRotorVelocity().getValueAsDouble())));
+        if(lastProfile.equals(ShooterProfile.slowRev)){
+            m_krakenRight.setControl(new VoltageOut(mFeedforwardRight.calculate(metersPerSecondToRPM(speedRight)/60.0)).withUpdateFreqHz(0.0));
+            m_krakenLeft.setControl(new VoltageOut(mFeedforwardLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0)).withUpdateFreqHz(0.0));
+        } else if (lastProfile.equals(ShooterProfile.activeShooting)){
+            m_krakenRight.setControl(new VoltageOut(mFeedforwardRight.calculate(metersPerSecondToRPM(speedRight)/60.0,((m_krakenRight.getRotorVelocity().getValueAsDouble()-metersPerSecondToRPM(speedRight)/60.0))*FlywheelConstants.kFlywheelAccel.get())+mController.calculate(metersPerSecondToRPM(speedRight)/60.0, m_krakenRight.getRotorVelocity().getValueAsDouble())));
+            m_krakenLeft.setControl(new VoltageOut(mFeedforwardLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0,((m_krakenLeft.getRotorVelocity().getValueAsDouble()-metersPerSecondToRPM(speedLeft)/60.0))*FlywheelConstants.kFlywheelAccel.get())+mControllerLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0, m_krakenLeft.getRotorVelocity().getValueAsDouble())));
+        }
 
     }
 
@@ -223,12 +240,12 @@ public class FlywheelIOKraken implements FlywheelIO {
             inputs.secondMotorConnected = m_krakenRight.isAlive();
 
             inputs.PositionRads = Units.rotationsToRadians(Position.getValueAsDouble());
-            inputs.VelocityRpm = Velocity.getValueAsDouble() * 60.0;
+            inputs.VelocityRpm = VelocityLeft.getValueAsDouble() * 60.0;
             inputs.AppliedVolts = AppliedVolts.getValueAsDouble();
             inputs.OutputCurrent = m_krakenRight.getSupplyCurrent().getValueAsDouble();
             inputs.TempCelsius = TempCelsius.getValueAsDouble();
             inputs.PositionRadsLeft  = Units.rotationsToRadians(PositionLeft.getValueAsDouble());
-            inputs.VelocityRpmLeft = VelocityLeft.getValueAsDouble() * 60.0;
+            inputs.VelocityRpmLeft = Velocity.getValueAsDouble() * 60.0;
             inputs.VelocityLeft = m_krakenLeft.getRotorVelocity().getValueAsDouble();
             inputs.Velocity = m_krakenRight.getRotorVelocity().getValueAsDouble();
             inputs.AppliedVoltsLeft = AppliedVolts.getValueAsDouble();
@@ -266,6 +283,14 @@ public class FlywheelIOKraken implements FlywheelIO {
     // Logger.recordOutput("Delta", m_krakenLeft.getRotorVelocity().getValueAsDouble() - left);
     // Logger.recordOutput("Delta Right", m_krakenRight.getRotorVelocity().getValueAsDouble() - right);
     return Math.abs(m_krakenLeft.getRotorVelocity().getValueAsDouble() - left) < tolerance && Math.abs(m_krakenRight.getRotorVelocity().getValueAsDouble() -right) < tolerance;
+
+  }
+
+  @Override
+  public void setFlywheelCurrentLimit(double limit){
+    config.CurrentLimits.SupplyCurrentLimit = limit;
+    m_krakenLeft.getConfigurator().apply(config.CurrentLimits, 1.0);
+    m_krakenRight.getConfigurator().apply(config.CurrentLimits, 1.0);
 
   }
 }

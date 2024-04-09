@@ -133,6 +133,7 @@ private final PositionTorqueCurrentFOC positionControl =
         
     }
 
+
     public void simulationPeriodic() {
         if (m_timeout > 0 && m_timeout < Timer.getFPGATimestamp()) {
             if (m_beamBreakSimState == BeambreakSimState.TRIGGERED) {
@@ -155,6 +156,9 @@ private final PositionTorqueCurrentFOC positionControl =
 
     @Override
     public boolean inContactWithGamePiece() {
+        if(Robot.isSimulation()){
+            return NoteVisualizer.getHasNote();
+        }
         return !m_initialBeamBreak.get() && !m_finalBeamBreak.get();
     }
 
@@ -169,10 +173,10 @@ private final PositionTorqueCurrentFOC positionControl =
     public void manageState(IndexerState state) {
 
         if(!m_initialBeamBreak.get()){
-            Logger.recordOutput("Rumble", 0.1);
-            RobotState.getInstance().setDriverRumble(0.1,RumbleType.kBothRumble);
+            // Logger.recordOutput("Rumble", 0.1);
+            // RobotState.getInstance().setDriverRumble(0.1,RumbleType.kBothRumble);
         }else{
-            RobotState.getInstance().setDriverRumble(0.0, RumbleType.kBothRumble);
+            // RobotState.getInstance().setDriverRumble(0.0, RumbleType.kBothRumble);
         }
 
         if (state == IndexerState.IDLE) {
@@ -208,6 +212,9 @@ private final PositionTorqueCurrentFOC positionControl =
                 m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
                 m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
             }else{
+                if (autoTimerShot == -1){
+                    autoTimerShot = Timer.getFPGATimestamp() + 1.;
+                } 
                 m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
                 m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
             }
@@ -223,13 +230,13 @@ private final PositionTorqueCurrentFOC positionControl =
             // }
             // }
             
-            if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
+            // if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
                 if(autoTimerShot < Timer.getFPGATimestamp()){
                     RobotState.getInstance().setIndexer(IndexerState.IDLE);
                     RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
                     autoTimerShot = -1;
                 }
-        }
+        // }
 
         } else if (state == IndexerState.BACKTOINTAKE){
             // m_falconFirst.setControl(positionControl.withPosition());

@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3579474922430235,
-      "y": 5.126988678456524
+      "x": 1.357195276430994,
+      "y": 3.2015537414959643
     },
-    "rotation": 166.0534804521933
+    "rotation": 125.7877515086884
   },
   "command": {
     "type": "sequential",
@@ -14,31 +14,13 @@
         {
           "type": "named",
           "data": {
-            "name": "AutoFender"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "deployIntake"
+            "name": "AutoShoot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "0to3"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "3to2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2to1"
+            "pathName": "0to6"
           }
         },
         {
@@ -50,7 +32,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "1to5"
+            "pathName": "stage5stage"
           }
         },
         {
@@ -62,7 +44,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "5to4"
+            "pathName": "stage7stage"
           }
         },
         {

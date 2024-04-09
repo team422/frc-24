@@ -186,11 +186,18 @@ public class AprilTagVision extends VirtualSubsystem {
         double avgDistance = totalDistance / tagPoses.size();
         // System.out.println(System.currentTimeMillis());
         // Add observation to list
-        double xyStdDev = xyStdDevCoefficient.get() * Math.pow(avgDistance, 2.0) / tagPoses.size();
+        double xyStdDev = 1;
+        if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
+          xyStdDev = 3.3 * xyStdDevCoefficient.get() * Math.pow(avgDistance, 2.0) / tagPoses.size();
+        }else{
+          xyStdDev = xyStdDevCoefficient.get() * Math.pow(avgDistance, 2.0) / tagPoses.size();
+        }
         double thetaStdDev =
             useVisionRotation
                 ? thetaStdDevCoefficient.get() * Math.pow(avgDistance, 2.0) / tagPoses.size()
                 : Double.POSITIVE_INFINITY;
+        Logger.recordOutput("AprilTagVision/Inst" + instanceIndex + "/STDX", xyStdDev);
+        Logger.recordOutput("AprilTagVision/Inst" + instanceIndex + "/STDT", thetaStdDev);
         allVisionObservations.add(
             new VisionObservation(
                 robotPose, timestamp, VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev)));
@@ -202,6 +209,7 @@ public class AprilTagVision extends VirtualSubsystem {
             "AprilTagVision/Inst" + instanceIndex + "/LatencySecs",
             Timer.getFPGATimestamp() - timestamp);
         Logger.recordOutput("AprilTagVision/Inst" + instanceIndex + "/RobotPose", robotPose);
+        
         Logger.recordOutput("AprilTagVision/Inst" + instanceIndex + "/RobotPose3d", robotPose3d);
         Logger.recordOutput(
             "AprilTagVision/Inst" + instanceIndex + "/TagPoses", tagPoses.toArray(Pose3d[]::new));
@@ -241,6 +249,7 @@ public class AprilTagVision extends VirtualSubsystem {
     // if(allVisionObservations.size()>1){
     //   allVisionObservations = allVisionObservations.subList(0, 1);
     // }
+    
     allVisionObservations.stream()
         .sorted(Comparator.comparingDouble(VisionObservation::timestamp))
         .forEach(RobotState.getInstance()::addVisionObservation);

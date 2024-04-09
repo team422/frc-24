@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.hal.HALUtil;
@@ -49,6 +50,7 @@ public class Robot extends LoggedRobot {
     // } catch (JsonProcessingException e) {
     //   throw new RuntimeException("Failed to serialize AprilTag layout JSON for Northstar");
     // }
+      PathfindingCommand.warmupCommand();
 
     if (Robot.isSimulation()) {
       DriverStation.silenceJoystickConnectionWarning(true);

@@ -11,6 +11,7 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
 // import frc.robot.subsystems.drive.PhoenixOdometryThread;
 // import frc.robot.subsystems.drive.PhoenixOdometryThread;
@@ -31,11 +32,12 @@ public class GyroIOPigeon implements GyroIO {
     yaw = m_gyro.getYaw();
     yaw.setUpdateFrequency(DriveConstants.kOdometryFrequency);
     yawVelocity = m_gyro.getAngularVelocityZWorld();
-
+    if(Robot.isReal()){
     m_gyro.getConfigurator().apply(new Pigeon2Configuration());
     m_gyro.getConfigurator().setYaw(0.0);
     yaw.setUpdateFrequency(DriveConstants.kOdometryFrequency);
     yawVelocity.setUpdateFrequency(250.0);
+    }
     // Pigeon2Configurator m_gyroConfig = m_gyro.getConfigurator();
 
     // Pigeon2Configuration gyroConfig = new Pigeon2Configuration();
@@ -92,7 +94,9 @@ if (phoenixDrive) {
   @Override
   public void addAngle(Rotation2d angle) {
     // m_gyro.add(angle.getDegrees());
+    if(Robot.isReal()){
     m_gyroConfig.setYaw(angle.plus(m_gyro.getRotation2d()).getDegrees());
+    }
 
   }
 

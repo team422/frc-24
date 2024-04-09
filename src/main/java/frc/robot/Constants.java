@@ -29,6 +29,7 @@ import frc.robot.utils.swerve.ModuleLimits;
 
 public final class Constants {
     public static final boolean tuningMode = true;
+    // public static final TunableNumber tuning = new TunableNumber("Tuning Enabled", 0,"Tuning");
     public static final boolean fullManualShooterAndPivotSpeedControls = false;
     public static final boolean fullManualIntakePivotAndSpeedControls = false;
     public static final double loopPeriodSecs = 0.02;
@@ -78,8 +79,8 @@ public final class Constants {
     public static final int servoPort2 = 8;
 
     // beambreak ports
-    public static final int beamBreakPort = 7;
-    public static final int beamBreakPort2 = 8;
+    public static final int beamBreakPort = 8;
+    public static final int beamBreakPort2 = 7;
 
     public static final int shooterLeft = 35;
     public static final int shooterRight = 36;
@@ -148,9 +149,9 @@ public final class Constants {
       public static final double kIdleSpeedFar = 21;
       public static final LoggedTunableNumber kFlywheelSpeedLeft = new LoggedTunableNumber("Flywheel Speed Left", 0.0, "Shooter");
       public static final LoggedTunableNumber kFlywheelSpeedRight = new LoggedTunableNumber("Flywheel Speed Right", 0.0, "Shooter");
-      public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 8.00000, "Amp");
-      public static final LoggedTunableNumber kFlywheelHockeyPuck = new LoggedTunableNumber("Flywheel hockey puck speed", 11, "Hockey Puck");
-      public static final LoggedTunableNumber kSourceIntakeSpeed =  new LoggedTunableNumber("Source intake speed", -5, "Source Intake");
+      public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 5.70000, "Amp");
+      public static final LoggedTunableNumber kFlywheelHockeyPuck = new LoggedTunableNumber("Flywheel hockey puck speed", 9.5, "Hockey Puck");
+      public static final LoggedTunableNumber kSourceIntakeSpeed =  new LoggedTunableNumber("Source intake speed", -20, "Source Intake");
       public static final LoggedTunableNumber kSourceIntakeStopTime = new LoggedTunableNumber("Source intake Stop time", .4, "Source Intake");
     }
 
@@ -185,7 +186,7 @@ public final class Constants {
 
       
       public static final Rotation2d maxAngle = Rotation2d.fromDegrees(77); 
-      public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Shooter Amp Angle",46.000000, "Amp");
+      public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Shooter Amp Angle",50.000000, "Amp");
       public static final Rotation2d kAmpBottom = Rotation2d.fromDegrees(50);
       public static final Rotation2d minAngle = Rotation2d.fromDegrees(15);
       public static final Rotation2d homeAngle = Rotation2d.fromDegrees(36);
@@ -223,9 +224,9 @@ public final class Constants {
 
 
   public static final class AmpConstants {
-    public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Amp Shot", 190.0, "Amp");
-    public static final LoggedTunableNumber kAmpAngle = new LoggedTunableNumber("Amp Angle",190.0, "Amp");
-    public static final LoggedTunableNumber kAmpP = new LoggedTunableNumber("Amp P", 8.0, "Amp");
+    public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Amp Shot", 196.0, "Amp");
+    public static final LoggedTunableNumber kAmpAngle = new LoggedTunableNumber("Amp Angle",196.0, "Amp");
+    public static final LoggedTunableNumber kAmpP = new LoggedTunableNumber("Amp P", 6.0, "Amp");
     public static final LoggedTunableNumber kAmpI = new LoggedTunableNumber("Amp I", 0.0, "Amp");
     public static final LoggedTunableNumber kAmpD = new LoggedTunableNumber("Amp D", 0.0, "Amp");
   }
@@ -241,6 +242,7 @@ public final class Constants {
     public static final double kWheelRadius = Units.inchesToMeters(13.2582521472);
     public static final double kWheelBase = Units.inchesToMeters(18.75);
     public static final double kTrackWidth = Units.inchesToMeters(18.75);
+    
     public static Translation2d[] kModuleTranslations = {
         new Translation2d(kWheelBase / 2.0, kTrackWidth / 2.0), // front left
         new Translation2d(kWheelBase / 2.0, -kTrackWidth / 2.0), // front right
@@ -271,6 +273,13 @@ public final class Constants {
     public static final LoggedTunableNumber kHeadingP = new LoggedTunableNumber("kHeadingP", 1.000 , "Drive");
     public static final LoggedTunableNumber kHeadingI = new LoggedTunableNumber("kHeadingI", 0.000 , "Drive");
     public static final LoggedTunableNumber kHeadingD = new LoggedTunableNumber("kHeadingD", 0.030000 , "Drive");
+    public static final LoggedTunableNumber kHolonomicXYP = new LoggedTunableNumber("kHolnomicXYP",1.,"Drive");
+    public static final LoggedTunableNumber kHolonomicXYI = new LoggedTunableNumber("kHolnomicXYI",.0,"Drive");
+    public static final LoggedTunableNumber kHolonomicXYD = new LoggedTunableNumber("kHolnomicXYD",.0,"Drive");
+    public static final LoggedTunableNumber kHolonomicThetaP = new LoggedTunableNumber("kHolnomicThetaP",.08,"Drive");
+    public static final LoggedTunableNumber kHolonomicThetaI = new LoggedTunableNumber("kHolnomicThetaI",.0,"Drive");
+    public static final LoggedTunableNumber kHolonomicThetaD = new LoggedTunableNumber("kHolnomicThetaD",.0,"Drive");
+    
   }
 
   public static final class ModuleConstants {
@@ -310,8 +319,8 @@ public final class Constants {
 
 
 
-    public static final LoggedTunableNumber kDriveKS = new LoggedTunableNumber("Drive KS", 0.3, "Drive");
-    public static final LoggedTunableNumber kDriveKV = new LoggedTunableNumber("Drive KV", .12, "Drive");
+    public static final LoggedTunableNumber kDriveKS = new LoggedTunableNumber("Drive KS", 0.27937, "Drive");
+    public static final LoggedTunableNumber kDriveKV = new LoggedTunableNumber("Drive KV", .12595, "Drive");
     public static final LoggedTunableNumber kDriveKA = new LoggedTunableNumber("Drive KA", 0, "Drive");
 
     public static final LoggedTunableNumber kTurningKS = new LoggedTunableNumber("Turning KS", 0.3, "Drive");
@@ -336,7 +345,7 @@ public final class Constants {
 
     public static final double kWheelDiameterMeters = Units.inchesToMeters(1.945*2); // 0.09398; // 3.7 in
 
-    public static final double kDriveGearRatio = 5.35714286; // OLD 6.75
+    public static final double kDriveGearRatio = 6.12244897959; // OLD 6.75
     public static final double kDriveConversionFactor = ((kDriveGearRatio/ ((Units.inchesToMeters(4) * Math.PI) )));
     public static final double kDriveConversionFactorSim = 1/(Units.inchesToMeters(4)*Math.PI);
     // public static final double kDriveConversionFactor = 1 / 22.0409;

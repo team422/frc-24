@@ -78,6 +78,10 @@ public class NoteVisualizer {
     }
   }
 
+  public static boolean getHasNote(){
+    return hasNote;
+  }
+
   /**
    * Take note from staged note
    *

@@ -88,7 +88,7 @@ public class AutoFactory extends Command {
         RobotState.getInstance().setIndexer(IndexerState.SHOOTING);
       }
     }));
-    NamedCommands.registerCommand("ShootFinal", Commands.run(()->{
+    NamedCommands.registerCommand("ShootFinal", Commands.runOnce(()->{
         RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kNothing);
         RobotState.getInstance().m_shooter.setPivotAngle(Rotation2d.fromDegrees(28.5));
         RobotState.getInstance().m_shooter.setFlywheelSpeedWithSpin(11.0, 14.0);
@@ -96,19 +96,15 @@ public class AutoFactory extends Command {
         // RobotState.getInstance().setIndexer(IndexerState.SHOOTING);
     }));
     
-    // NamedCommands.registerCommand("AutoShoot",Commands.runOnce(()->{
-    //   System.out.println("AutoShoot");
-    
-    // }));
 
-    // (Pose2d pose)->{return;}, // Method to reset odometry (will be called if your auto has a starting pose)
+
     AutoBuilder.configureHolonomic(
         m_drive::getPose, // Robot pose supplier
         (Pose2d pose)->{},
         m_drive::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         m_drive::driveAuto, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                    new PIDConstants(.6, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(2.5, 0.0, 0.0), // Translation PID constants
                     new PIDConstants(4, 1.6, 0.0), // Rotation PID constants
                     5.6, // Max module speed, in m/s
                     0.4, // Drive base radius in meters. Distance from robot center to furthest module.
