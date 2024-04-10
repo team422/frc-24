@@ -3,17 +3,16 @@ package frc.robot.subsystems.drive;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.subsystems.drive.ctre.SwerveDrivetrain;
+import frc.robot.subsystems.drive.ctre.SwerveModule;
+import frc.robot.subsystems.drive.ctre.SwerveRequest;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem

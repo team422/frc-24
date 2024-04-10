@@ -739,6 +739,24 @@
           "name": "deployIntake"
         }
       }
+    },
+    {
+      "timestamp": 2.608847331424408,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "hasNote"
+        }
+      }
+    },
+    {
+      "timestamp": 0.2,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Shoot"
+        }
+      }
     }
   ]
 }

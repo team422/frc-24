@@ -6,6 +6,7 @@ import java.util.HashMap;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.FieldConstants;
+import frc.robot.RobotState;
 import frc.robot.Constants.AutoRuns;
 
 public class AutoScanLoop {
@@ -27,18 +28,29 @@ public class AutoScanLoop {
     }
 
     public static Pose2d shoot(Note note) {
-        switch(note){
-            case FOUR:
-            case FIVE:
+        // switch(note){
+        //     case FOUR:
+        //     case FIVE:
+        //     return AutoRuns.farSourceWingShot;
+        //     case SIX:
+        //     case SEVEN:
+        //     return AutoRuns.underStageShot;
+        //     case EIGHT:
+        //     return AutoRuns.ampSideWingShot;
+        // }
+        // return null;
+        if(RobotState.getInstance().getEstimatedPose().getY()< 1.4){
             return AutoRuns.farSourceWingShot;
-            case SIX:
-            case SEVEN:
+        } else if(RobotState.getInstance().getEstimatedPose().getY() < 5){
             return AutoRuns.underStageShot;
-            case EIGHT:
+        } else {
             return AutoRuns.ampSideWingShot;
         }
-        return null;
+        
     }
+
+    
+    
 
     public static Note getClosestNote(Pose2d pose) {
         Note closestNote = null;

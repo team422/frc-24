@@ -7396,7 +7396,7 @@
             "eventMarkers": [
                 {
                     "name": "Marker",
-                    "target": 0,
+                    "target": "first",
                     "trajTargetIndex": 0,
                     "targetTimestamp": 0,
                     "offset": 1.5,
@@ -7406,9 +7406,126 @@
                             "name": "deployIntake"
                         }
                     }
+                },
+                {
+                    "name": "Marker",
+                    "target": 1,
+                    "trajTargetIndex": 1,
+                    "targetTimestamp": 2.308847331424408,
+                    "offset": 0.3,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": "hasNote"
+                        }
+                    }
+                },
+                {
+                    "name": "Marker",
+                    "target": 4,
+                    "trajTargetIndex": 4,
+                    "targetTimestamp": 5.415726369707238,
+                    "offset": 0.2,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": "hasNote"
+                        }
+                    }
+                },
+                {
+                    "name": "Marker",
+                    "target": 6,
+                    "trajTargetIndex": 6,
+                    "targetTimestamp": 8.327434572846679,
+                    "offset": 0.2,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": "hasNote"
+                        }
+                    }
+                },
+                {
+                    "name": "Marker",
+                    "target": 9,
+                    "trajTargetIndex": 9,
+                    "targetTimestamp": 11.189209858805748,
+                    "offset": 0.2,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": "hasNote"
+                        }
+                    }
+                },
+                {
+                    "name": "Marker",
+                    "target": 0,
+                    "trajTargetIndex": 0,
+                    "targetTimestamp": 0,
+                    "offset": 0.2,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": "Shoot"
+                        }
+                    }
+                },
+                {
+                    "name": "Marker",
+                    "target": 2,
+                    "trajTargetIndex": 2,
+                    "targetTimestamp": 3.8799053909798804,
+                    "offset": 0.2,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": "Shoot"
+                        }
+                    }
+                },
+                {
+                    "name": "Marker",
+                    "target": 7,
+                    "trajTargetIndex": 7,
+                    "targetTimestamp": 9.704600098810625,
+                    "offset": 0.2,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": "Shoot"
+                        }
+                    }
+                },
+                {
+                    "name": "Marker",
+                    "target": 5,
+                    "trajTargetIndex": 5,
+                    "targetTimestamp": 6.9726970025563535,
+                    "offset": 0.2,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": "Shoot"
+                        }
+                    }
+                },
+                {
+                    "name": "Marker",
+                    "target": 5,
+                    "trajTargetIndex": 11,
+                    "targetTimestamp": 12.785387282370985,
+                    "offset": 0.4,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": "deployIntake"
+                        }
+                    }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         }
     },
     "splitTrajectoriesAtStopPoints": true,

@@ -328,7 +328,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
     //   }
     // }
     // difference between estimate and vision pose
-    m_drive.addVisionMeasurement(observation.visionPose(), observation.timestamp(),observation.stdDevs());
+    m_drive.addVisionMeasurement(observation);
     
     // System.out.println(observation.stdDevs());
     // Transform2d transform = new Transform2d(estimateAtTime, observation.visionPose());
@@ -369,7 +369,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
       }
     }
     for(int i = 0; i< activeShooting.length;i++){
-      if(activeShooting[i] == action){
+      if(activeShooting[i] == action){  
         m_shooter.setProfile(ShooterProfile.activeShooting);
       }
     }
@@ -378,6 +378,9 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
       if(noRevActions[i] == action){
         m_shooter.setProfile(ShooterProfile.notReving);
       }
+    }
+    if(curAction == RobotCurrentAction.kAutoIntake){
+      m_drive.setProfile(DriveProfiles.kDefault);
     }
     // if(action == RobotCurrentAction.kStow){
     //   if (curAction == RobotCurrentAction.kAutoIntake){
@@ -1055,7 +1058,7 @@ private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
           //     m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
           // }
           if (closestNote == null) {
-            m_drive.setProfile(DriveProfiles.kDefault);
+            // m_drive.setProfile(DriveProfiles.kDefault);
             return ;
           }
 

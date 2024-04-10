@@ -516,6 +516,8 @@ public final class Constants {
     public static final Pose2d ampSideWingShot = new Pose2d(3.87,2.76,Rotation2d.fromDegrees(139.53));
 
 
+    
+
     // queue possibilties
 
 

@@ -1,30 +1,22 @@
 package frc.robot.subsystems.drive;
 
-import java.sql.Driver;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.IntStream;
 
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.SteerRequestType;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveControlRequestParameters;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.hal.HALUtil;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
@@ -35,20 +27,15 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.geometry.Twist3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -70,12 +57,14 @@ import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.RobotState.VisionObservation;
 import frc.robot.Robot;
 import frc.robot.RobotState;
+import frc.robot.subsystems.drive.ctre.SwerveRequest;
+import frc.robot.subsystems.drive.ctre.SwerveModule.DriveRequestType;
+import frc.robot.subsystems.drive.ctre.SwerveModule.SteerRequestType;
 import frc.robot.subsystems.drive.gyro.GyroIO;
 import frc.robot.subsystems.drive.gyro.GyroInputsAutoLogged;
-import frc.robot.utils.EqualsUtil;
-import frc.robot.utils.swerve.ModuleLimits;
 import frc.robot.utils.swerve.SwerveSetpoint;
 import frc.robot.utils.swerve.SwerveSetpointGenerator;
 
@@ -286,6 +275,11 @@ private SwerveSetpoint currentSetpoint =
     }
   }
 
+  public void setModuleCurrentLimit(double moduleCurrentLimit) {
+    for (SwerveModuleIO module : m_modules) {
+      module.setCurrentLimit(moduleCurrentLimit);
+    }
+  }
 
   public void setDriveToPieceChassisSpeeds(ChassisSpeeds speeds) {
     // speeds.omegaRadiansPerSecond = -speeds.omegaRadiansPerSecond;
@@ -759,9 +753,9 @@ private SwerveSetpoint currentSetpoint =
     return Math.abs(wheelSpeed - averageWheelSpeeds) / wheelSpeed;
   }
 
-  public void addVisionMeasurement(Pose2d pose, double timeStamp, Matrix<N3,N1> stds  ){
+  public void addVisionMeasurement(VisionObservation observation){
     // System.out.println("Adding vision measurement");
-    m_CommandSwerveDrivetrain.addVisionMeasurement(pose, timeStamp, stds);
+    m_CommandSwerveDrivetrain.addVisionMeasurement(observation);
     // m_poseEstimator.addVisionMeasurement(pose, timeStamp, stds);
   }
 

@@ -26,6 +26,16 @@ public class AutoBuilderManager {
 
     // order of notes to go to
 
+    public enum AutoState {
+        STARTING,
+        SCANNING,
+        SHOOTING,
+        DRIVING_TO_NOTE,
+        ENDING_DRIVING,
+        ENDING_SHOOTING,
+        ENDING
+    }
+
     public Note[] notes;
 
     // notes at the end
@@ -222,15 +232,7 @@ public class AutoBuilderManager {
         
     }
 
-    public enum AutoState {
-        STARTING,
-        SCANNING,
-        SHOOTING,
-        DRIVING_TO_NOTE,
-        ENDING_DRIVING,
-        ENDING_SHOOTING,
-        ENDING
-    }
+    
 
     public void reset(){
         currAutoState = AutoState.STARTING;
