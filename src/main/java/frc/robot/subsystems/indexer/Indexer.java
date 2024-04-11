@@ -20,6 +20,8 @@ public class Indexer extends ProfiledSubsystem {
     }
 
     IndexerState m_state = IndexerState.IDLE;
+
+    public boolean m_fullSend = false;
     // IDLE means that there is no piece in the indexer so no beam breaks are triggered
     // INTAKING means that the initial beam break is triggered but the final beam break is not
     // INDEXING means that it has been moved to the final beam break

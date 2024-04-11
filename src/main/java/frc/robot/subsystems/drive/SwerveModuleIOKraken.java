@@ -118,7 +118,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         m_turnEncoder = cancoderId;
 
         driveConfig = new TalonFXConfiguration();
-        driveConfig.CurrentLimits.SupplyCurrentLimit = 65.0;
+        driveConfig.CurrentLimits.SupplyCurrentLimit = 60.0;
         driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         driveConfig.CurrentLimits.StatorCurrentLimit = 150;
         driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;

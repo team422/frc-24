@@ -3,59 +3,54 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.085731105132553,
-        "y": 6.5992729741280565
+        "x": 1.2549335163008561,
+        "y": 5.533937432764572
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.085731105132553,
-        "y": 6.5992729741280565
-      },
-      "isLocked": false,
-      "linkedName": "shoot left wing"
-    },
-    {
-      "anchor": {
-        "x": 7.884135372065387,
-        "y": 5.759187249401285
-      },
-      "prevControl": {
-        "x": 7.449289478936101,
-        "y": 5.933671625062744
-      },
-      "nextControl": {
-        "x": 8.318981265194676,
-        "y": 5.584702873739826
+        "x": 2.2549335163008553,
+        "y": 5.533937432764572
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.821861716333727,
-        "y": 4.565004286258573
+        "x": 2.7588108760776344,
+        "y": 5.533937432764572
       },
       "prevControl": {
-        "x": 6.944438381064263,
-        "y": 3.3907763797670456
+        "x": 1.7588108760776344,
+        "y": 5.533937432764572
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "underStageShort"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.95,
-      "rotationDegrees": 180.0,
-      "rotateFast": false
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [
     {
       "name": "New Event Marker",
-      "waypointRelativePos": 1.4,
+      "waypointRelativePos": 0.7,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "fullSOTMClose"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.0,
       "command": {
         "type": "parallel",
         "data": {
@@ -86,41 +81,24 @@
           ]
         }
       }
-    },
-    {
-      "name": "New Event Marker",
-      "waypointRelativePos": 0.35,
-      "command": {
-        "type": "parallel",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "deployIntake"
-              }
-            }
-          ]
-        }
-      }
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 1.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 5.0,
+    "maxAcceleration": 5.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 171.48090438004988,
+    "velocity": 1.0,
+    "rotation": -179.6915709805858,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "AutoBuilder Testing Paths",
   "previewStartingState": {
-    "rotation": -167.2007068006779,
+    "rotation": 178.7570511245593,
     "velocity": 0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

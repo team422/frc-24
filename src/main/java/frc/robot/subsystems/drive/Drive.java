@@ -1085,7 +1085,7 @@ LoggedTunableNumber.ifChanged(hashCode(), ()->{
                 0.0,
                 0.0));
     Logger.recordOutput("Odometry/Robot3d", robotPose3d);
-    Logger.recordOutput("Odometry/sketchy odo", m_poseEstimator.getEstimatedPosition());
+    // Logger.recordOutput("Odometry/sketchy odo", m_poseEstimator.getEstimatedPosition());
     // if (RobotConstants.AScopeLogging) {
     //   FieldUtil.getDefaultField().setSwerveRobotPose(getPose(), getModuleStates(),
     //       DriveConstants.kModuleTranslations);
@@ -1285,6 +1285,10 @@ LoggedTunableNumber.ifChanged(hashCode(), ()->{
     // return m_DrivePoseEstimator.getEstimatedPosition();
     return m_CommandSwerveDrivetrain.getState().Pose;
     // return RobotState.getInstance().getEstimatedPose();
+  }
+
+  public Pose2d getPoseTimeAgo(double time){
+    return m_CommandSwerveDrivetrain.getPoseTimeAgo(time);
   }
 
   public void brake() {

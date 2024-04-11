@@ -16,43 +16,95 @@
     },
     {
       "anchor": {
-        "x": 7.974516955467734,
-        "y": 2.3342885005316583
+        "x": 7.864574675993714,
+        "y": 2.329418892906414
       },
       "prevControl": {
-        "x": 7.515608476381492,
-        "y": 2.2995507288538493
+        "x": 6.409551753692968,
+        "y": 2.080039556065632
       },
       "nextControl": {
-        "x": 8.426400706968082,
-        "y": 2.3684945248260596
+        "x": 8.933445028180097,
+        "y": 2.5126147556736664
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.38719974789827,
-        "y": 2.435718864237974
+        "x": 4.586616118697924,
+        "y": 4.6014669579890635
       },
       "prevControl": {
-        "x": 4.994475450041587,
-        "y": 1.8653809174959046
+        "x": 5.48349490847266,
+        "y": 4.40173386474224
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "right wing shot"
+      "linkedName": "underStageClose"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1,
+      "waypointRelativePos": 0.6,
       "rotationDegrees": -171.60861140743154,
       "rotateFast": false
     }
   ],
   "constraintZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.75,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "AutoIntake"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.1,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Shoot"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 1.4,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Align"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.5,
     "maxAcceleration": 3.7,
@@ -61,11 +113,11 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 141.03740942558684,
+    "rotation": 167.4703543637445,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "allPointToPointPaths",
+  "folder": null,
   "previewStartingState": {
     "rotation": 136.1277613271914,
     "velocity": 0

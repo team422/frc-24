@@ -134,6 +134,7 @@ public final class Constants {
       public static final double kFlywheelDiameter = Units.inchesToMeters(4);
       public static final LoggedTunableNumber kFlywheelP = new LoggedTunableNumber("Flywheel P", -0.035000, "Shooter");
       public static final LoggedTunableNumber kFlywheelI = new LoggedTunableNumber("Flywheel I", 0.0, "Shooter");
+      public static final LoggedTunableNumber kFlywheelISIM = new LoggedTunableNumber("Flywheel I SIM", 0.0, "Shooter");
       public static final LoggedTunableNumber kFlywheelD = new LoggedTunableNumber("Flywheel D", 0.0003, "Shooter");
       public static final LoggedTunableNumber kFlywheelKSLeft = new LoggedTunableNumber("Flywheel KS Left", 0.270000, "Shooter");
       public static final LoggedTunableNumber kFlywheelKVLeft = new LoggedTunableNumber("Flywheel KV Left", 0.125000, "Shooter");
@@ -191,6 +192,8 @@ public final class Constants {
       public static final Rotation2d minAngle = Rotation2d.fromDegrees(15);
       public static final Rotation2d homeAngle = Rotation2d.fromDegrees(36);
       public static final Rotation2d kFenderAngle = Rotation2d.fromDegrees(57);// 57
+      public static final LoggedTunableNumber kCloseThreeAngle = new LoggedTunableNumber("CloseThreeAngle", 33,"Shooter"); 
+      
 
       public static final double maxSpeed = 1.0;
       public static final double maxAcceleration = 1.0;
@@ -273,10 +276,10 @@ public final class Constants {
     public static final LoggedTunableNumber kHeadingP = new LoggedTunableNumber("kHeadingP", 1.000 , "Drive");
     public static final LoggedTunableNumber kHeadingI = new LoggedTunableNumber("kHeadingI", 0.000 , "Drive");
     public static final LoggedTunableNumber kHeadingD = new LoggedTunableNumber("kHeadingD", 0.030000 , "Drive");
-    public static final LoggedTunableNumber kHolonomicXYP = new LoggedTunableNumber("kHolnomicXYP",1.,"Drive");
+    public static final LoggedTunableNumber kHolonomicXYP = new LoggedTunableNumber("kHolnomicXYP",0.3,"Drive");
     public static final LoggedTunableNumber kHolonomicXYI = new LoggedTunableNumber("kHolnomicXYI",.0,"Drive");
     public static final LoggedTunableNumber kHolonomicXYD = new LoggedTunableNumber("kHolnomicXYD",.0,"Drive");
-    public static final LoggedTunableNumber kHolonomicThetaP = new LoggedTunableNumber("kHolnomicThetaP",.08,"Drive");
+    public static final LoggedTunableNumber kHolonomicThetaP = new LoggedTunableNumber("kHolnomicThetaP",.3,"Drive");
     public static final LoggedTunableNumber kHolonomicThetaI = new LoggedTunableNumber("kHolnomicThetaI",.0,"Drive");
     public static final LoggedTunableNumber kHolonomicThetaD = new LoggedTunableNumber("kHolnomicThetaD",.0,"Drive");
     

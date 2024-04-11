@@ -76,6 +76,8 @@ public class SwerveDrivetrain {
     protected Rotation2d m_fieldRelativeOffset;
     protected Rotation2d m_operatorForwardDirection;
 
+    
+
     protected SwerveRequest m_requestToApply = new SwerveRequest.Idle();
     protected SwerveControlRequestParameters m_requestParameters = new SwerveControlRequestParameters();
 
@@ -103,6 +105,7 @@ public class SwerveDrivetrain {
         public SwerveModuleState[] ModuleTargets;
         /** The measured odometry update period, in seconds */
         public double OdometryPeriod;
+        public Pose2d PoseTimeAgo;
     }
 
     protected Consumer<SwerveDriveState> m_telemetryFunction = null;
@@ -243,6 +246,7 @@ public class SwerveDrivetrain {
                     m_cachedState.SuccessfulDaqs = SuccessfulDaqs;
                     m_cachedState.Pose = m_odometry.getEstimatedPose();
                     m_cachedState.speeds = speeds;
+                    m_cachedState.PoseTimeAgo = m_odometry.getPoseTimeAgo();
                     m_cachedState.OdometryPeriod = averageLoopTime;
 
                     if (m_cachedState.ModuleStates == null) {
@@ -539,6 +543,10 @@ public class SwerveDrivetrain {
         } finally {
             m_stateLock.readLock().unlock();
         }
+    }
+
+    public Pose2d getPoseTimeAgo(double time){
+        return m_cachedState.PoseTimeAgo; 
     }
 
     /**

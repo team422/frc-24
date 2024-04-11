@@ -328,7 +328,7 @@ public class RobotContainer {
     List<String> paths = PathPlannerUtil.getExistingPaths();
     for (String path : paths) {
       m_autoChooser.addOption(path, m_autoFactory.getAutoCommand(path).andThen(Commands.runOnce(()->{
-        // RobotState.getInstance().mUpdatingAutoBuilder = true;
+        RobotState.getInstance().mUpdatingAutoBuilder = true;
       })));
     }
     m_autoChooser.addOption(
@@ -607,7 +607,7 @@ public class RobotContainer {
       m_drive.setWheelIdleBrake(false);
     })).schedule();
     
-    RobotState.getInstance().getAutoBuilderManager().reset();
+    RobotState.getInstance().resetAutoBuilder();
   }
 
   public void disabledPeriodic(){
@@ -652,8 +652,8 @@ public class RobotContainer {
     NoteVisualizer.resetAutoNotes();
     NoteVisualizer.showAllNotes();
     }
-    return m_autoChooser.get();
-    // return m_scoutNumber.get().andThen(m_scoutingChooser.get()).andThen(m_endChooser.get()).andThen(m_autoChooser.get());
+    // return m_autoChooser.get();
+    return m_scoutNumber.get().andThen(m_scoutingChooser.get()).andThen(m_endChooser.get()).andThen(m_autoChooser.get());
     // return Commands.print("No autonomous command configured");
   }
 }

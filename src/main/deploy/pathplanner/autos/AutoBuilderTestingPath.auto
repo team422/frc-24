@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.403278392494285,
-      "y": 5.097493900563782
+      "x": 1.2921484038433764,
+      "y": 5.653420975959599
     },
-    "rotation": 155.01661156358537
+    "rotation": 179.21141281342724
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "0to3S"
+            "pathName": "AutoBuilderFirstPath"
           }
         }
       ]

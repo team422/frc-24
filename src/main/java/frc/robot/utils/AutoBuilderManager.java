@@ -53,7 +53,7 @@ public class AutoBuilderManager {
 
     public Pose2d endingPose = new Pose2d(7.76,1.13,new Rotation2d());
 
-    public double nextDriveTime = -1;
+    public double nextDriveTime = 0;
 
     
 
@@ -166,15 +166,19 @@ public class AutoBuilderManager {
                 break;
             case SHOOTING:
                 // Start Shooter/ Set pivot??
+                Pose2d PoseToShootAt = AllianceFlipUtil.apply(AutoScanLoop.shoot(notes[currentNote]));
+                RobotState.getInstance().actualAutoShootAtPositionPose = PoseToShootAt;
                 RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoShootAtPosition);
-                RobotState.getInstance().actualAutoShootAtPositionPose = AllianceFlipUtil.apply(AutoScanLoop.shoot(notes[currentNote]));
                 Logger.recordOutput("nextDriveTime",nextDriveTime);
                 if(nextDriveTime < Timer.getFPGATimestamp() && nextDriveTime != -1){
                 notesShot++;
                 
                 Logger.recordOutput("next drive time","Hit next drive time");
                 currAutoState = AutoState.SCANNING;
-                mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(AllianceFlipUtil.apply(getNextNotePosition(false)), DriveConstants.kDriveToPieceSpeed, false, RobotState.getInstance());
+                if(mDriveToPiece !=null){
+                    mDriveToPiece.cancel();
+                }
+                mDriveToPiece = RobotState.getInstance().getAutoFactory().generateTrajectoryToPose(PoseToShootAt, DriveConstants.kDriveToPieceSpeed, false, RobotState.getInstance());
                 mDriveToPiece.schedule();
                 RobotState.getInstance().getDrive().setProfile(DriveProfiles.kAutoPiecePickup);
                 
@@ -212,7 +216,7 @@ public class AutoBuilderManager {
                 //      Generate path to next note in queue
                 
             
-        
+                break;
             default:
                 break;
         }

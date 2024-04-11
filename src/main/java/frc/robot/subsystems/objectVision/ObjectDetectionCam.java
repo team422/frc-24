@@ -101,7 +101,7 @@ public class ObjectDetectionCam extends VirtualSubsystem {
                         noteTransforms.add(noteTranslation);
 
                         // add current position to positions array
-                        Pose3d currentPose = new Pose3d(frc.robot.RobotState.getInstance().getEstimatedPose());
+                        Pose3d currentPose = new Pose3d(frc.robot.RobotState.getInstance().getPoseTimeAgo(.5));
                         currentPose = currentPose.transformBy(GeomUtil.pose3dToTransform3d(ObjectDetectionVisionConstants.cameraPoses[i]));
 
                         

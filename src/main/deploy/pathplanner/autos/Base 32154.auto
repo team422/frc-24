@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.352276309463333,
-      "y": 5.170316412061395
+      "x": 1.2763914620966497,
+      "y": 5.310093843226904
     },
-    "rotation": 159.22602888713263
+    "rotation": 179.03573956362976
   },
   "command": {
     "type": "sequential",
@@ -74,6 +74,6 @@
       ]
     }
   },
-  "folder": "Base Paths",
+  "folder": null,
   "choreoAuto": false
 }

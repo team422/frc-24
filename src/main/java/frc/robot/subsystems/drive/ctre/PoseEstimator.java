@@ -5,6 +5,12 @@
 
 package frc.robot.subsystems.drive.ctre;
 
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -25,13 +31,6 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.RobotState.VisionObservation;
-
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
-
-import org.littletonrobotics.junction.Logger;
 
 /**
  * This class wraps {@link Odometry} to fuse latency-compensated vision measurements with encoder
@@ -56,6 +55,8 @@ public class PoseEstimator<T extends WheelPositions<T>> {
   
   private static final double kBufferDuration = 1.5;
   private final TimeInterpolatableBuffer<Pose2d> m_poseBuffer =
+  TimeInterpolatableBuffer.createBuffer(kBufferDuration);
+  private final TimeInterpolatableBuffer<Pose2d> m_poseEstimatedBuffer = 
   TimeInterpolatableBuffer.createBuffer(kBufferDuration);
 
 
@@ -145,6 +146,7 @@ public class PoseEstimator<T extends WheelPositions<T>> {
     // Reset state estimate and error covariance
     m_odometry.resetPosition(gyroAngle, wheelPositions, poseMeters);
     m_poseBuffer.clear();
+    m_poseEstimatedBuffer.clear();
   }
 
   /**
@@ -153,6 +155,15 @@ public class PoseEstimator<T extends WheelPositions<T>> {
    * @return The estimated robot pose in meters.
    */
   public Pose2d getEstimatedPose() {
+    return estimatedPose;
+  }
+
+  public Pose2d getPoseTimeAgo(){
+    if(m_poseEstimatedBuffer.getSample(MathSharedStore.getTimestamp()-0.25).isPresent()){
+    Logger.recordOutput("PoseTimeAgo", m_poseEstimatedBuffer.getSample(MathSharedStore.getTimestamp()-0.25).get());
+
+      return m_poseEstimatedBuffer.getSample(MathSharedStore.getTimestamp()-0.25).get();
+    }
     return estimatedPose;
   }
 
@@ -195,43 +206,37 @@ public class PoseEstimator<T extends WheelPositions<T>> {
     }
     Logger.recordOutput("Odometry/SAMPLE IS EMPTY", false);
 
-    Transform2d sampleToOdometryTransform = new Transform2d(getEstimatedPose(), odometryPose);
-    Transform2d odometryToSampleTransform = new Transform2d(odometryPose,getEstimatedPose());
+    Transform2d sampleToOdometryTransform = new Transform2d(odometryPose, sample.get());
+    Transform2d odometryToSampleTransform = new Transform2d(sample.get(),odometryPose);
 
     Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
+    // System.out.println(estimateAtTime);
+    // System.out.println(observation.visionPose());
+
 
     double[] r = new double[3];
 
     for(int i=0;i<3;++i){
         r[i] = observation.stdDevs().get(i, 0) *( observation.stdDevs().get(i, 0));
     }
-
-    Matrix<N3,N3> visionK = new Matrix<>(Nat.N3(),Nat.N3());
-
-
-    for(int row = 0; row < 3; ++row){
-        double stdDev = qStdDevs.get(row,0);
-        if(stdDev == 0.0){
-            visionK.set(row,row,0.0);
-        } else{
-            visionK.set(row, row, stdDev / (stdDev + Math.sqrt(stdDev * r[row])));
-
-        }
+    Matrix<N3, N3> visionK = new Matrix<>(Nat.N3(), Nat.N3());
+    for (int row = 0; row < 3; ++row) {
+      double stdDev = qStdDevs.get(row, 0);
+      if (stdDev == 0.0) {
+        visionK.set(row, row, 0.0);
+      } else {
+        visionK.set(row, row, stdDev / (stdDev + Math.sqrt(stdDev * r[row])));
+      }
     }
+    // System.out.println(visionK);
     
+    // System.out.println(observation.stdDevs());
     Transform2d transform = new Transform2d(estimateAtTime, observation.visionPose());
 
     Matrix<N3,N1> kTimesTransform = visionK.times(VecBuilder.fill(transform.getX(),transform.getY(),transform.getRotation().getRadians()));
-    System.out.println(kTimesTransform);
-    Transform2d scaleTransform =
-    new Transform2d(kTimesTransform.get(0,0),kTimesTransform.get(1, 0),Rotation2d.fromRadians(kTimesTransform.get(2, 0)));
-    System.out.println(scaleTransform);
+    Transform2d scaleTransform = new Transform2d(kTimesTransform.get(0,0),kTimesTransform.get(1, 0),Rotation2d.fromRadians(kTimesTransform.get(2, 0)));
+    // System.out.println(scaleTransform);
     estimatedPose = estimateAtTime.plus(scaleTransform).plus(sampleToOdometryTransform);
-
-
-
-
-
   }
 
   /**
@@ -302,12 +307,15 @@ public class PoseEstimator<T extends WheelPositions<T>> {
     odometryPose = odometryPose.exp(twist);
 
 
-    m_poseBuffer.addSample(
+    m_poseBuffer.addSample( 
         currentTimeSeconds,odometryPose);
 
         
 
     estimatedPose = estimatedPose.exp(twist);
+    m_poseEstimatedBuffer.addSample( 
+        currentTimeSeconds,estimatedPose);
+
     return estimatedPose;
   }
 

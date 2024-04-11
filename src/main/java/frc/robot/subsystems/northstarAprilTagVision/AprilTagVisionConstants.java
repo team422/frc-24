@@ -18,8 +18,8 @@ public class AprilTagVisionConstants {
   public static final double targetLogTimeSecs = 0.1;
   public static final double fieldBorderMargin = 0.5;
   public static final double zMargin = 0.75;
-  public static final LoggedTunableNumber xyStdDevCoefficient = new LoggedTunableNumber("xyStdDevCoefficient", 0.015,"Cameras");
-  public static final LoggedTunableNumber thetaStdDevCoefficient = new LoggedTunableNumber("thetaStdDevCoefficient", 0.1,"Cameras");;
+  public static final LoggedTunableNumber xyStdDevCoefficient = new LoggedTunableNumber("xyStdDevCoefficient", 0.005,"Cameras");
+  public static final LoggedTunableNumber thetaStdDevCoefficient = new LoggedTunableNumber("thetaStdDevCoefficient", 0.01,"Cameras");;
 
   public static final Pose3d[] cameraPoses =
     new Pose3d[] {

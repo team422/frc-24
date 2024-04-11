@@ -17,7 +17,9 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -59,11 +61,14 @@ private final PositionTorqueCurrentFOC positionControl =
 
     DigitalInput m_initialBeamBreak;
     DigitalInput m_finalBeamBreak;
+    PowerDistribution pdp;
 
     DIOSim m_initialBeamBreakSim;
     DIOSim m_finalBeamBreakSim;
 
     double m_timeout = -1;
+
+    boolean hadNote = true;
 
     private final VelocityTorqueCurrentFOC velocityControl = new VelocityTorqueCurrentFOC(0.0);
     // private final PositionVoltage positionControl = new PositionVoltage(0.0);
@@ -81,6 +86,7 @@ private final PositionTorqueCurrentFOC positionControl =
         m_falconFirst = new TalonFX(motorID);
         m_config = m_falconFirst.getConfigurator();
         m_slot0 = new Slot0Configs();
+        pdp = new PowerDistribution();
         m_slot0.kP = Constants.IndexerConstants.kIndexerP.get();
         m_slot0.kI = Constants.IndexerConstants.kIndexerI.get();
         m_slot0.kD = Constants.IndexerConstants.kIndexerD.get();
@@ -159,7 +165,15 @@ private final PositionTorqueCurrentFOC positionControl =
         if(Robot.isSimulation()){
             return NoteVisualizer.getHasNote();
         }
-        return !m_initialBeamBreak.get() && !m_finalBeamBreak.get();
+        Logger.recordOutput("is browning out",RobotController.getEnabled5V());
+        if (!RobotController.getEnabled5V()){
+         
+            
+        }
+        else{
+            hadNote = !m_initialBeamBreak.get() && !m_finalBeamBreak.get();
+        }
+        return hadNote;
     }
 
 
@@ -171,7 +185,11 @@ private final PositionTorqueCurrentFOC positionControl =
 
     @Override
     public void manageState(IndexerState state) {
-
+        if(RobotState.getInstance().m_indexer.m_fullSend == true){
+            m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
+            m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
+            RobotState.getInstance().m_indexer.m_fullSend = false;
+        }
         if(!m_initialBeamBreak.get()){
             // Logger.recordOutput("Rumble", 0.1);
             // RobotState.getInstance().setDriverRumble(0.1,RumbleType.kBothRumble);
@@ -218,17 +236,17 @@ private final PositionTorqueCurrentFOC positionControl =
                 m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
                 m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
             }
-            // if (m_finalBeamBreak.get()) {
-            //     if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
-            //         RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
-            //         RobotState.getInstance().setIndexer(IndexerState.IDLE);
-            //     }else{
-            //     RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
-            //     Commands.waitSeconds(.5).andThen(Commands.runOnce(()->{
-            //         RobotState.getInstance().setIndexer(IndexerState.IDLE);
-            //     })).schedule();
-            // }
-            // }
+            if (m_finalBeamBreak.get()) {
+                if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
+                    RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
+                    RobotState.getInstance().setIndexer(IndexerState.IDLE);
+                }else{
+                RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
+                Commands.waitSeconds(.5).andThen(Commands.runOnce(()->{
+                    RobotState.getInstance().setIndexer(IndexerState.IDLE);
+                })).schedule();
+            }
+            }
             
             // if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
                 if(autoTimerShot < Timer.getFPGATimestamp()){

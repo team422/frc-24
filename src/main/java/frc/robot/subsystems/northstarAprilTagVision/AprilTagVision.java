@@ -249,6 +249,11 @@ public class AprilTagVision extends VirtualSubsystem {
     // if(allVisionObservations.size()>1){
     //   allVisionObservations = allVisionObservations.subList(0, 1);
     // }
+
+    int maxObservations = 10;
+    if(allVisionObservations.size()>maxObservations){
+      allVisionObservations = allVisionObservations.subList(0, 10);
+    }
     
     allVisionObservations.stream()
         .sorted(Comparator.comparingDouble(VisionObservation::timestamp))

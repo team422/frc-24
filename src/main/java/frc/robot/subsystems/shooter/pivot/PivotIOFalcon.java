@@ -78,7 +78,7 @@ public class PivotIOFalcon implements PivotIO {
 
     // private DCMotorSim m_pivotSim = new DCMotorSim(DCMotor.getFalcon500Foc(2),ShooterPivotConstants.gearboxRatio, 55.5);
     // FOR SIM ONLY
-    private SingleJointedArmSim m_armSim = new SingleJointedArmSim(DCMotor.getFalcon500Foc(2), ShooterPivotConstants.gearboxRatio,.02,.06,Rotation2d.fromDegrees(11).getRadians(),Rotation2d.fromDegrees(84).getRadians(),true,Rotation2d.fromDegrees(11).getRadians());
+    private SingleJointedArmSim m_armSim = new SingleJointedArmSim(DCMotor.getFalcon500Foc(2), ShooterPivotConstants.gearboxRatio,.02,.06,Rotation2d.fromDegrees(11).getRadians(),Rotation2d.fromDegrees(84).getRadians(),false,Rotation2d.fromDegrees(11).getRadians());
     private CANcoder m_canCoder;
     TalonFXConfiguration leaderConfig = new TalonFXConfiguration();
 

@@ -60,8 +60,8 @@ public class FlywheelIOKraken implements FlywheelIO {
     private final PIDController mControllerLeft = new PIDController(1, 0, 0);
     private  SimpleMotorFeedforward mFeedforwardLeft = new SimpleMotorFeedforward(1, 0, 0);
     private  SimpleMotorFeedforward mFeedforwardRight = new SimpleMotorFeedforward(1, 0, 0);
-  private  DCMotorSim m_simLeft = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 1.0/2, 0.005);
-    private  DCMotorSim m_simRight = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 1.0/2, 0.005);
+  private  DCMotorSim m_simLeft = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 1.0/2.0, 0.001);
+    private  DCMotorSim m_simRight = new DCMotorSim(DCMotor.getKrakenX60Foc(1), 1.0/2.0, .001);
     TalonFXConfiguration config;
 
 
@@ -196,11 +196,20 @@ public class FlywheelIOKraken implements FlywheelIO {
         // m_krakenRight.setControl(velocityControl.withVelocity((metersPerSecondToRPM(speedRight))/60.0));
         // m_krakenRight.setControl(new TorqueCurrentFOC(15));
         if(lastProfile.equals(ShooterProfile.slowRev)){
+            if(Robot.isReal()){
             m_krakenRight.setControl(new VoltageOut(mFeedforwardRight.calculate(metersPerSecondToRPM(speedRight)/60.0)).withUpdateFreqHz(0.0));
             m_krakenLeft.setControl(new VoltageOut(mFeedforwardLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0)).withUpdateFreqHz(0.0));
+            }
+            
         } else if (lastProfile.equals(ShooterProfile.activeShooting)){
+            if(Robot.isReal()){
             m_krakenRight.setControl(new VoltageOut(mFeedforwardRight.calculate(metersPerSecondToRPM(speedRight)/60.0,((m_krakenRight.getRotorVelocity().getValueAsDouble()-metersPerSecondToRPM(speedRight)/60.0))*FlywheelConstants.kFlywheelAccel.get())+mController.calculate(metersPerSecondToRPM(speedRight)/60.0, m_krakenRight.getRotorVelocity().getValueAsDouble())));
             m_krakenLeft.setControl(new VoltageOut(mFeedforwardLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0,((m_krakenLeft.getRotorVelocity().getValueAsDouble()-metersPerSecondToRPM(speedLeft)/60.0))*FlywheelConstants.kFlywheelAccel.get())+mControllerLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0, m_krakenLeft.getRotorVelocity().getValueAsDouble())));
+            }else{
+
+                m_krakenRight.setControl(new VoltageOut(mController.calculate( metersPerSecondToRPM(speedRight)/60.0,m_krakenRight.getRotorVelocity().getValueAsDouble())));
+                m_krakenLeft.setControl(new VoltageOut(mControllerLeft.calculate(metersPerSecondToRPM(speedLeft)/60.0,m_krakenLeft.getRotorVelocity().getValueAsDouble())));
+            }
         }
 
     }
@@ -216,14 +225,19 @@ public class FlywheelIOKraken implements FlywheelIO {
         // controllerConfig.kS = FlywheelConstants.kFlywheelKS.get();
         // controllerConfig.kV = FlywheelConstants.kFlywheelKV.get();
         // controllerConfig.kA = FlywheelConstants.kFlywheelKA.get();
+        if(Robot.isReal()){
         mControllerLeft.setPID(FlywheelConstants.kFlywheelP.get(), FlywheelConstants.kFlywheelI.get(), FlywheelConstants.kFlywheelD.get());
         mController.setPID(FlywheelConstants.kFlywheelP.get(), FlywheelConstants.kFlywheelI.get(), FlywheelConstants.kFlywheelD.get());
+        }else{
+            mControllerLeft.setPID(FlywheelConstants.kFlywheelP.get(), FlywheelConstants.kFlywheelISIM.get(), FlywheelConstants.kFlywheelD.get());
+        mController.setPID(FlywheelConstants.kFlywheelP.get(), FlywheelConstants.kFlywheelISIM.get(), FlywheelConstants.kFlywheelD.get());
+        }
         mFeedforwardLeft = new SimpleMotorFeedforward(FlywheelConstants.kFlywheelKSLeft.get(),FlywheelConstants.kFlywheelKVLeft.get(),FlywheelConstants.kFlywheelKALeft.get());
         mFeedforwardRight = new SimpleMotorFeedforward(FlywheelConstants.kFlywheelKSRight.get(),FlywheelConstants.kFlywheelKVRight.get(),FlywheelConstants.kFlywheelKARight.get());
 
         m_krakenLeft.getConfigurator().apply(controllerConfigLeft,1.0);
         m_krakenRight.getConfigurator().apply(controllerConfigRight,1.0);
-        }, FlywheelConstants.kFlywheelP,FlywheelConstants.kFlywheelI,FlywheelConstants.kFlywheelD,FlywheelConstants.kFlywheelKARight,FlywheelConstants.kFlywheelKSRight,FlywheelConstants.kFlywheelKVRight,FlywheelConstants.kFlywheelKVLeft,FlywheelConstants.kFlywheelKSLeft,FlywheelConstants.kFlywheelKALeft);
+        }, FlywheelConstants.kFlywheelP,FlywheelConstants.kFlywheelISIM,FlywheelConstants.kFlywheelI,FlywheelConstants.kFlywheelD,FlywheelConstants.kFlywheelKARight,FlywheelConstants.kFlywheelKSRight,FlywheelConstants.kFlywheelKVRight,FlywheelConstants.kFlywheelKVLeft,FlywheelConstants.kFlywheelKSLeft,FlywheelConstants.kFlywheelKALeft);
             inputs.firstMotorConnected =
             BaseStatusSignal.refreshAll(
                 Position,

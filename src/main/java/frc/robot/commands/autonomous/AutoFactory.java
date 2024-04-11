@@ -95,6 +95,10 @@ public class AutoFactory extends Command {
         
         // RobotState.getInstance().setIndexer(IndexerState.SHOOTING);
     }));
+
+    NamedCommands.registerCommand("fullSOTMClose",Commands.runOnce(()->{
+        RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoShootClose);
+    }));
     
 
 
@@ -108,7 +112,7 @@ public class AutoFactory extends Command {
                     new PIDConstants(4, 1.6, 0.0), // Rotation PID constants
                     5.6, // Max module speed, in m/s
                     0.4, // Drive base radius in meters. Distance from robot center to furthest module.
-                    new ReplanningConfig(false,false,.7,1 ) // Default path replanning config. See the API for the options here
+                    new ReplanningConfig(false,true,.7,1 ) // default path replanning config. See the API for the options here
             ),
             () -> {
               // Boolean supplier that controls when the path will be mirrored for the red alliance

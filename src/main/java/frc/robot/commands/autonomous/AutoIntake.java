@@ -13,10 +13,10 @@ public class AutoIntake extends Command {
         // Called when the command is initially scheduled.
         @Override
         public void initialize() {
-            frc.robot.RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoIntake);
+            frc.robot.RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoAutoIntake);
         }
         @Override
         public boolean isFinished() {
-            return frc.robot.RobotState.getInstance().curAction != RobotCurrentAction.kAutoIntake;
+            return frc.robot.RobotState.getInstance().curAction != RobotCurrentAction.kAutoAutoIntake;
         }
 }

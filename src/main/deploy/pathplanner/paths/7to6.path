@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.38719974789827,
-        "y": 2.435718864237974
+        "x": 4.821861716333727,
+        "y": 4.565004286258573
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.62814634958314,
-        "y": 5.188314062289891
+        "x": 7.210899135339937,
+        "y": 3.6812694780414077
       },
       "isLocked": false,
-      "linkedName": "right wing shot"
+      "linkedName": "underStageShort"
     },
     {
       "anchor": {
@@ -102,7 +102,7 @@
             {
               "type": "named",
               "data": {
-                "name": "deployIntake"
+                "name": "AutoIntake"
               }
             }
           ]
@@ -158,7 +158,7 @@
   "reversed": false,
   "folder": "allPointToPointPaths",
   "previewStartingState": {
-    "rotation": 150.9582787680436,
+    "rotation": 174.23307084990688,
     "velocity": 0
   },
   "useDefaultConstraints": false
