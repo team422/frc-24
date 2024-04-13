@@ -41,15 +41,13 @@ public class DriverControlsDualFlightStick implements DriverControls {
   }
 
   @Override
-  public Trigger wristUp() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'wristUp'");
+  public Trigger wristStow() {
+    return new Trigger(() -> false);
   }
 
   @Override
-  public Trigger wristDown() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'wristDown'");
+  public Trigger wristDeploy() {
+    return new Trigger(() -> false);
   }
 
 }

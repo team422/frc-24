@@ -73,20 +73,12 @@ public class RobotContainer {
     // m_operatorControls.climbUp().whileTrue(m_climber.moveCommand(ClimbConstants.kClimbUpSpeed.get()));
     // m_operatorControls.climbDown().whileTrue(m_climber.moveCommand(-ClimbConstants.kClimbDownSpeed.get()));
 
-    m_driverControls.wristUp().onTrue(
-      m_wrist.moveUpCommand()
+    m_driverControls.wristDeploy().onTrue(
+      m_wrist.setDesiredAngleCommand(WristConstants.kWristDeployAngle)
     );
 
-    m_driverControls.wristDown().onTrue(
-      m_wrist.moveDownCommand()
-    );
-
-    m_driverControls.wristDown().onFalse(
-      m_wrist.stopCommand()
-    );
-
-    m_driverControls.wristUp().onFalse(
-      m_wrist.stopCommand()
+    m_driverControls.wristStow().onTrue(
+      m_wrist.setDesiredAngleCommand(WristConstants.kWristStowAngle)
     );
 
   }
@@ -123,7 +115,7 @@ public class RobotContainer {
       //     ClimbConstants.kMinHeight, ClimbConstants.kMaxHeight);
     }
 
-    m_wrist = new Wrist(new WristIONeo(WristConstants.kPort), WristConstants.kVoltage);
+    m_wrist = new Wrist(new WristIONeo(WristConstants.kPort), WristConstants.wristController);
 
     // m_robotState = RobotState.startInstance(m_drive, null, null, m_shooter, null, null, m_intake);
   }

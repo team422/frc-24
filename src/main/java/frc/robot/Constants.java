@@ -177,6 +177,14 @@ public final class Constants {
     public static final class WristConstants {
       public static final int kPort = 3;
       public static final double kVoltage = 6.0;
+
+      public static final double kWristP = 5.0;
+      public static final double kWristI = 0.0;
+      public static final double kWristD = 0.0;
+      public static final PIDController wristController = new PIDController(kWristP, kWristI, kWristD);
+
+      public static final Rotation2d kWristDeployAngle = Rotation2d.fromDegrees(0);
+      public static final Rotation2d kWristStowAngle = Rotation2d.fromDegrees(100);
     }
 
     public static final class OIConstants {

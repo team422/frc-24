@@ -38,13 +38,13 @@ public class DriverControlsXboxController implements DriverControls {
   }
 
   @Override
-  public Trigger wristUp() {
-    return m_controller.povUp();
+  public Trigger wristStow() {
+    return m_controller.rightBumper();
   }
 
   @Override
-  public Trigger wristDown() {
-    return m_controller.povDown();
+  public Trigger wristDeploy() {
+    return m_controller.leftBumper();
   }
 
 }

@@ -12,8 +12,8 @@ public interface DriverControls {
   // TESTING
   public Trigger setShooter45();
 
-  public Trigger wristUp();
+  public Trigger wristStow();
 
-  public Trigger wristDown();
+  public Trigger wristDeploy();
 
 }
