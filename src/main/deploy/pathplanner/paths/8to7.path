@@ -32,12 +32,12 @@
     },
     {
       "anchor": {
-        "x": 4.586616118697924,
-        "y": 4.6014669579890635
+        "x": 1.3517714045232012,
+        "y": 5.1885516041252675
       },
       "prevControl": {
-        "x": 5.48349490847266,
-        "y": 4.40173386474224
+        "x": 2.2486501942979373,
+        "y": 4.988818510878444
       },
       "nextControl": null,
       "isLocked": false,
@@ -63,7 +63,7 @@
             {
               "type": "named",
               "data": {
-                "name": "AutoIntake"
+                "name": "AutoIntakeScanLeft"
               }
             }
           ]
@@ -98,6 +98,23 @@
               "type": "named",
               "data": {
                 "name": "Align"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.4,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "deployIntake"
               }
             }
           ]

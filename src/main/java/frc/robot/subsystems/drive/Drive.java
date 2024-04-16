@@ -287,9 +287,9 @@ private SwerveSetpoint currentSetpoint =
     m_driveToPieceSpeeds = speeds;
   }
 
-  public void lowerCurrentLimits(){
+  public void setCurrentLimits(double limit){
     for(int i = 0;i<=3;i++){
-      m_modules[i].lowerCurrentLimits();
+      m_CommandSwerveDrivetrain.getModule(i).setSwerveModuleCurrentLimit(limit);
     }
   }
 

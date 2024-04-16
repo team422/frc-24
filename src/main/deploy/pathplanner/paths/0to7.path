@@ -48,12 +48,12 @@
     },
     {
       "anchor": {
-        "x": 4.821861716333727,
-        "y": 4.565004286258573
+        "x": 4.3807069377312775,
+        "y": 4.761649335645486
       },
       "prevControl": {
-        "x": 6.112304652064661,
-        "y": 3.852469786412787
+        "x": 5.671149873462212,
+        "y": 4.0491148357997
       },
       "nextControl": null,
       "isLocked": false,
@@ -139,7 +139,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "allPointToPointPaths",
+  "folder": null,
   "previewStartingState": {
     "rotation": 120.25670001473217,
     "velocity": 0

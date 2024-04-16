@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotState;
@@ -26,6 +27,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.commands.shooting.ShootAtPositionWithVelocity;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.Drive.DriveProfiles;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
 import frc.robot.subsystems.intake.Intake;
 
@@ -70,6 +72,11 @@ public class AutoFactory extends Command {
       RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoRevAndAutoAlign);
 
     }));
+    NamedCommands.registerCommand("StayStill",Commands.runOnce(()->{
+      RobotState.getInstance().getDrive().setProfile(DriveProfiles.kDefault);
+      RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kStow);
+      RobotState.getInstance().getDrive().drive(new ChassisSpeeds(0,0,0));
+    }));
 
     NamedCommands.registerCommand("Shoot", Commands.runOnce(()->{
       RobotState.getInstance().setIndexer(IndexerState.SHOOTING);
@@ -81,6 +88,10 @@ public class AutoFactory extends Command {
       RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
       RobotState.getInstance().setShooterSpeed(0);
     }));
+    NamedCommands.registerCommand("2SecondLimit",Commands.waitSeconds(1).andThen(Commands.runOnce(()->{
+      RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
+      RobotState.getInstance().getDrive().setProfile(DriveProfiles.kTrajectoryFollowing);
+    })));
 
     NamedCommands.registerCommand("revCommand",Commands.none());
     NamedCommands.registerCommand("ShootEnd", Commands.run(()->{
@@ -99,6 +110,22 @@ public class AutoFactory extends Command {
     NamedCommands.registerCommand("fullSOTMClose",Commands.runOnce(()->{
         RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoShootClose);
     }));
+    NamedCommands.registerCommand("AutoIntakeScanLeft",Commands.runOnce(()->{
+      if(DriverStation.getAlliance().get().equals(Alliance.Red)){
+        RobotState.getInstance().autoIntakeLeftOrRight = -1;
+      }else{
+        RobotState.getInstance().autoIntakeLeftOrRight = 1;
+      }
+      // RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoAutoIntake);
+    }).andThen(new AutoIntake()));
+    NamedCommands.registerCommand("AutoIntakeScanRight",Commands.runOnce(()->{
+      if(DriverStation.getAlliance().get().equals(Alliance.Red)){
+        RobotState.getInstance().autoIntakeLeftOrRight = 1;
+      }else{
+        RobotState.getInstance().autoIntakeLeftOrRight = -1;
+      }
+      // RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoAutoIntake);
+    }).andThen(new AutoIntake()));
     
 
 
@@ -112,7 +139,7 @@ public class AutoFactory extends Command {
                     new PIDConstants(4, 1.6, 0.0), // Rotation PID constants
                     5.6, // Max module speed, in m/s
                     0.4, // Drive base radius in meters. Distance from robot center to furthest module.
-                    new ReplanningConfig(false,true,.7,1 ) // default path replanning config. See the API for the options here
+                    new ReplanningConfig(true,true,1.7,1 ) // default path replanning config. See the API for the options here
             ),
             () -> {
               // Boolean supplier that controls when the path will be mirrored for the red alliance
@@ -170,8 +197,8 @@ public class AutoFactory extends Command {
     // Command autoCommand = AutoBuilder.followPath(auto);
     Command autoCommand = AutoBuilder.buildAuto(nameString);
 
-    // return autoCommand.andThen(m_drive.brakeCommand());
-    return Commands.sequence(m_drive.brakeCommand(), autoCommand.andThen(m_drive.brakeCommand()));
+    return autoCommand.andThen(m_drive.brakeCommand());
+    // return Commands.sequence(m_drive.brakeCommand(), autoCommand.andThen(m_drive.brakeCommand()));
   }
 
 

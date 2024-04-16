@@ -54,12 +54,14 @@ import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.led.Led;
+import frc.robot.subsystems.led.Led.LedState;
 import frc.robot.subsystems.northstarAprilTagVision.SimVisionSystem;
 import frc.robot.subsystems.objectVision.ObjectDetectionCam;
 import frc.robot.subsystems.objectVision.ObjectDetectionIODepth;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterIsIntaking;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOKraken;
+import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.shooter.pivot.PivotIOFalcon;
 import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.AutoBuilderManager;
@@ -286,6 +288,7 @@ public class RobotContainer {
         m_drive.setProfile(DriveProfiles.kDefault);
         Logger.recordOutput("stow Trigger 5", Timer.getFPGATimestamp());
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+        m_indexer.setState(IndexerState.IDLE);
       }));
       m_testingController.zeroAmp().whileTrue(Commands.runOnce((()->{
         m_intake.isAmpZeroing = true;
@@ -295,6 +298,7 @@ public class RobotContainer {
         m_intake.isAmpZeroing =false;
         m_amp.m_state = AmpState.PositionFollowing;
       }));
+      
       m_driverControls.ampBackTrigger().whileTrue(Commands.runOnce(()->{
         m_indexer.setState(IndexerState.BACKTOINTAKE);
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kNoteBackToIntake);
@@ -434,7 +438,7 @@ public class RobotContainer {
     // Logger.recordOutput("kShooterBackRight", new Pose3d(FieldConstants.kShooterBackRight, new Rotation3d(0, 0, 0)));
     // Logger.recordOutput("kShooterFrontLeft", new Pose3d(FieldConstants.kShooterFrontLeft, new Rotation3d(0, 0, 0)));
     // Logger.recordOutput("kShooterFrontRight", new Pose3d(FieldConstants.kShooterFrontRight, new Rotation3d(0, 0, 0)));
-    // m_led = new Led(Ports.ledPort, 20);
+    m_led = new Led(Ports.ledPort, 20);
 
     
 
@@ -485,10 +489,10 @@ public class RobotContainer {
     }
     else{
       m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) ,new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort) );
-      
+      // m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim());
     m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
     m_amp = new Amp(new AmpIOFalcon(Ports.ampMotor));
-      // m_shooter = new Shooter(new frc.robot.subsystems.shooter.pivot.PivotIOSim(), new FlywheelIOSim());
+      // m_shooter = new Shooter(new frc.robot.subsystems.shooter.pivot.PivotIOSim(), new FlywheelIOSim);
     //   SwerveModuleIO[] m_swerveModuleIOs = {
     //     new SwerveModuleIOMK4iSparkMax(Constants.Ports.leftFrontDrivingMotorPort, Ports.leftFrontTurningMotorPort,
     //         Ports.leftFrontCanCoderPort),
@@ -542,12 +546,12 @@ public class RobotContainer {
         m_drive = new Drive(new GyroIOPigeon(22,new Rotation2d(),true),new Pose2d(),m_CommandSwerveDrivetrain,m_SwerveModuleIOs);
         // m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_0",frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionConstants.cameraIds[0]));
       }
-      m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_0",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_1",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_2",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_3",""));
-      m_objectDetectionCams = new ObjectDetectionCam(new ObjectDetectionIODepth(""));
+      m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_0",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_1",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_3",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_2",""));
+      m_objectDetectionCams = new ObjectDetectionCam(new ObjectDetectionIODepth("ObjectDetectionIntakeLeft"),new ObjectDetectionIODepth("ObjectDetectionCamera"));
 
     
     
-    m_robotState = RobotState.startInstance(m_drive, m_climb, m_indexer,m_shooter, m_objectDetectionCams, m_aprilTagVision, m_intake,this::getAutoFactory,m_driverControls,m_amp,m_autoBuilderManager,m_testingController);
+    m_robotState = RobotState.startInstance(m_drive, m_climb, m_indexer,m_shooter, m_objectDetectionCams, m_aprilTagVision, m_intake,this::getAutoFactory,m_driverControls,m_amp,m_led,m_autoBuilderManager,m_testingController);
     // m_TebInterfacer = new NetworkTablesTEBInterfacer("teb");
   }
 
@@ -601,12 +605,13 @@ public class RobotContainer {
   }
 
   public void onDisabled(){
+    // RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoShoot);
     Commands.runOnce(()->{
       m_drive.setWheelIdleBrake(true);
     }).andThen(Commands.waitSeconds(3)).andThen(Commands.runOnce(()->{
       m_drive.setWheelIdleBrake(false);
-    })).schedule();
-    
+    })).ignoringDisable(true).schedule();
+    m_led.setState(LedState.DISABLED); 
     RobotState.getInstance().resetAutoBuilder();
   }
 
@@ -620,6 +625,7 @@ public class RobotContainer {
     m_drive.setWheelIdleBrake(false);
     if(edu.wpi.first.wpilibj.RobotState.isTeleop()){
       m_drive.setProfile(DriveProfiles.kDefault);
+      RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kStow);
 
       
       // Commands.runOnce(()->{
@@ -627,11 +633,15 @@ public class RobotContainer {
       // }).andThen(Commands.waitSeconds(1)).andThen(()->{
       //   m_amp.m_state = AmpState.PositionFollowing;
       // }).schedule();
-      m_drive.lowerCurrentLimits();
+      m_drive.setCurrentLimits(70);
       m_drive.drive(new ChassisSpeeds(0,0,0));
       new TeleopControllerNoAugmentation(m_drive,()->m_driverControls.getDriveForward(),()->m_driverControls.getDriveLeft() , ()-> m_driverControls.getDriveRotation(), DriveConstants.controllerDeadzone).schedule();
 
+    }else{
+      
+      m_drive.setCurrentLimits(100);
     }
+    m_led.setState(LedState.NO_GAME_PIECE);
     m_robotState.mUpdatingAutoBuilder = false;
     
   }

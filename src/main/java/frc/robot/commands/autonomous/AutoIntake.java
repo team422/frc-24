@@ -17,6 +17,7 @@ public class AutoIntake extends Command {
         }
         @Override
         public boolean isFinished() {
+            
             return frc.robot.RobotState.getInstance().curAction != RobotCurrentAction.kAutoAutoIntake;
         }
 }

@@ -124,6 +124,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         driveConfig.Voltage.PeakForwardVoltage = 12.0;
         driveConfig.Voltage.PeakReverseVoltage = 12.0;
+        driveConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0.04;
         
         turnConfig = new TalonFXConfiguration();
         turnConfig.CurrentLimits.SupplyCurrentLimit = 30.0;
@@ -224,7 +225,6 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
     if(Robot.isSimulation()){
         m_turnEncoder.setPosition(0.0);
     }
-        
     }
 
     public void lowerCurrentLimits(){

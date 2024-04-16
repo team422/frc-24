@@ -227,6 +227,20 @@ public class SwerveModule {
         m_speedAt12VoltsMps = constants.SpeedAt12VoltsMps;
     }
 
+
+    public void setSwerveModuleCurrentLimit(double limit){
+        TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
+        m_driveMotor.getConfigurator().refresh(talonConfigs);
+        talonConfigs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+
+        talonConfigs.TorqueCurrent.PeakForwardTorqueCurrent = limit;
+        talonConfigs.TorqueCurrent.PeakReverseTorqueCurrent = -limit;
+        talonConfigs.CurrentLimits.StatorCurrentLimit = limit;
+        talonConfigs.CurrentLimits.StatorCurrentLimitEnable = true;
+        StatusCode response = m_driveMotor.getConfigurator().apply(talonConfigs);
+    }
+
     /**
      * Gets the state of this module and passes it back as a
      * SwerveModulePosition object with latency compensated values.

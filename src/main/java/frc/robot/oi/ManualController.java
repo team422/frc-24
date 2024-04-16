@@ -52,6 +52,10 @@ public class ManualController {
         return  m_controller.square();
     }
 
+    public Trigger hasNoteOverride(){
+        return m_controller.share();
+    }
+
 
     public Trigger toggleBeamBreakOne() {
         return new Trigger(()->false);

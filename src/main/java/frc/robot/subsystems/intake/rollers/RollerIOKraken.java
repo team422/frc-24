@@ -21,7 +21,7 @@ public class RollerIOKraken implements RollerIO {
         config = m_motor.getConfigurator();
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs();
         currentLimits.SupplyCurrentLimit = 40;
-        currentLimits.StatorCurrentLimit = 150.0;
+        currentLimits.StatorCurrentLimit = 80.0;
         currentLimits.StatorCurrentLimitEnable = true;
         currentLimits.SupplyTimeThreshold = 0.4;
         currentLimits.SupplyCurrentLimitEnable = true;
@@ -34,10 +34,13 @@ public class RollerIOKraken implements RollerIO {
 
     @Override
     public void updateInputs(RollerIOInputs inputs) {
+        inputs.currentDelta = m_motor.getSupplyCurrent().getValueAsDouble() - inputs.outputCurrent;
         inputs.curVelocity = getVelocity();
         inputs.voltage = m_motor.getMotorVoltage().getValueAsDouble();
         inputs.outputCurrent = m_motor.getSupplyCurrent().getValueAsDouble();
+        inputs.acceleration = m_motor.getAcceleration().getValueAsDouble();
         inputs.desiredSpeeds = m_speed;
+
         // m_motor.setVoltage(-getSpeed.get()*12);
     }
 

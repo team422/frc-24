@@ -39,12 +39,13 @@ public class AutoScanLoop {
         //     return AutoRuns.ampSideWingShot;
         // }
         // return null;
-        if(RobotState.getInstance().getEstimatedPose().getY()< 1.4){
-            return AutoRuns.farSourceWingShot;
-        } else if(RobotState.getInstance().getEstimatedPose().getY() < 5){
+        double robotPose = AllianceFlipUtil.apply(RobotState.getInstance().getEstimatedPose()).getY();
+        if(robotPose < 1.4){
+            return AutoRuns.ampSideWingShot;
+        } else if(robotPose < 5.0){
             return AutoRuns.underStageShot;
         } else {
-            return AutoRuns.ampSideWingShot;
+            return AutoRuns.farSourceWingShot;
         }
         
     }

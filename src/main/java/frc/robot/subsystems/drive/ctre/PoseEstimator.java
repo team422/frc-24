@@ -159,10 +159,10 @@ public class PoseEstimator<T extends WheelPositions<T>> {
   }
 
   public Pose2d getPoseTimeAgo(){
-    if(m_poseEstimatedBuffer.getSample(MathSharedStore.getTimestamp()-0.25).isPresent()){
-    Logger.recordOutput("PoseTimeAgo", m_poseEstimatedBuffer.getSample(MathSharedStore.getTimestamp()-0.25).get());
+    if(m_poseEstimatedBuffer.getSample(MathSharedStore.getTimestamp()-0.2).isPresent()){
+    // Logger.recordOutput("PoseTimeAgo", m_poseEstimatedBuffer.getSample(MathSharedStore.getTimestamp()-0.2).get());
 
-      return m_poseEstimatedBuffer.getSample(MathSharedStore.getTimestamp()-0.25).get();
+      return m_poseEstimatedBuffer.getSample(MathSharedStore.getTimestamp()-0.2).get();
     }
     return estimatedPose;
   }

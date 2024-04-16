@@ -9,15 +9,17 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Quaternion;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import frc.lib.utils.GeomUtil;
 import frc.lib.utils.VirtualSubsystem;
-import frc.robot.Robot;
-import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.Vision;
+import frc.robot.Constants.Vision.ObjectDetection;
 import frc.robot.subsystems.objectVision.ObjectDetectionIO.ObjectDetectionVisionIOInputs;
 
 public class ObjectDetectionCam extends VirtualSubsystem {
@@ -27,7 +29,8 @@ public class ObjectDetectionCam extends VirtualSubsystem {
 
   private final Map<Integer, Double> lastFrameTimes = new HashMap<>();
 
-  private ArrayList<Pose3d> positions = new ArrayList<Pose3d>();
+  private ArrayList<Pose2d> positions = new ArrayList<Pose2d>();
+  private ArrayList<Pose2d> allPoses = new ArrayList<Pose2d>();
 
   private Integer loses = 0;
 
@@ -54,25 +57,26 @@ public class ObjectDetectionCam extends VirtualSubsystem {
             Logger.processInputs("ObjectDetectionVision/Inst" + i, inputs[i]);
           }
 
-
+          allPoses.clear();
           for (int i = 0; i <io.length; i++){
             lastFrameTimes.put(i, Timer.getFPGATimestamp());
             ArrayList<Transform3d> noteTransforms = new ArrayList<Transform3d>();
             var values = inputs[i].objects;
             Logger.recordOutput("Number of values", values.length);
+            
             if (values.length == 0) {
                 positions.clear();
               }
                 for (int j = 0; j < values.length; j++) {
                     double[] object = values[j];
-                    if (object.length % 7 != 0) {
+                    if (object.length % 4 != 0) {
                         continue;
                     }
                     // object is a double array of length a multiple of 7
                     // each 7 elements represent the x, y, z, tW, tX, tY, tZ of a detected object
                     ArrayList<Double[]> objectList = new ArrayList<Double[]>();
-                    for (int k = 0; k < object.length; k+=7) {
-                        Double[] objectArray = {object[k], object[k+1], object[k+2], object[k+3], object[k+4], object[k+5], object[k+6]};
+                    for (int k = 0; k < object.length; k+=4) {
+                        Double[] objectArray = {object[k], object[k+1], object[k+2], object[k+3]};
                         objectList.add(objectArray);
                     }
                     // if(positions.size() > objectList.size()){
@@ -86,34 +90,54 @@ public class ObjectDetectionCam extends VirtualSubsystem {
                     // }
                     positions.clear();
                     for (Double[] objectArray : objectList) {
-                        double x = objectArray[0];
-                        double y = objectArray[1];
-                        double z = objectArray[2];
-                        double tW = objectArray[3];
-                        double tX = objectArray[4];
-                        double tY = objectArray[5];
-                        double tZ = objectArray[6];
-                        double[] translation = {x, y, z};
-                        double[] rotation = {tW, tX, tY, tZ};
+                        // double x = objectArray[0];
+                        // double y = objectArray[1];
+                        // double z = objectArray[2];
+                        // double tW = objectArray[3];
+                        // double tX = objectArray[4];
+                        // double tY = objectArray[5];
+                        // double tZ = objectArray[6];
+                        double xmin = objectArray[0];
+                        double xmax = objectArray[1];
+                        double ymin = objectArray[2];
+                        double ymax = objectArray[3];
+                        double xavg = 2*((xmin+xmax)/2)-1;
+                        // double[] translation = {x, y, z};
+                        double h = Units.inchesToMeters(26.413);
+                        double minDepressionAngle = Units.degreesToRadians(Vision.ObjectDetection.angleMin.get());
+                        double maxDepressionAngle = Units.degreesToRadians(Vision.ObjectDetection.angleDepression.get());
+                        double thetaM = Units.degreesToRadians(j);
+                        double thetam = Units.degreesToRadians(j);
+                        // double[] rotation = {tW, tX, tY, tZ};
+                        double x = h * Math.tan(maxDepressionAngle - (ymin+ymax/2)*(maxDepressionAngle - minDepressionAngle));
+                        double bottomXAcross = 1/2;
+                        double topXAcross = 3.0/2;
+                        double y = -xavg*(ObjectDetection.distanceFar.get()-((ymin+ymax)/2)*(ObjectDetection.distanceFar.get()-ObjectDetection.distanceClose.get()));
 
-                        Transform3d noteTranslation = new Transform3d(new Translation3d(translation[0], translation[1], translation[2]), new Rotation3d(new Quaternion(0,0,0,0)));
+                        Logger.recordOutput("NoteXDistance",x);
+                        Logger.recordOutput("NoteYDistance",y);
+                        // Transform3d noteTranslation = new Transform3d(new Translation3d(translation[0], translation[1], translation[2]), new Rotation3d(new Quaternion(0,0,0,0)));
 
-                        noteTransforms.add(noteTranslation);
+                        // noteTransforms.add(noteTranslation);
 
                         // add current position to positions array
-                        Pose3d currentPose = new Pose3d(frc.robot.RobotState.getInstance().getPoseTimeAgo(.5));
+                        Pose3d currentPose = new Pose3d(frc.robot.RobotState.getInstance().getPoseTimeAgo(0.2));
                         currentPose = currentPose.transformBy(GeomUtil.pose3dToTransform3d(ObjectDetectionVisionConstants.cameraPoses[i]));
+                        Logger.recordOutput("Camera Pose",currentPose);
+                        Pose2d twoDimensionalPose = new Pose2d(currentPose.getX(),currentPose.getY(),Rotation2d.fromRadians(currentPose.getRotation().getAngle()));
+                        Transform2d noteTranslation = new Transform2d(x,y,new Rotation2d());
 
                         
 
                         
-                        Pose3d fPose = new Pose3d(currentPose.plus(noteTranslation).getTranslation(),currentPose.plus(noteTranslation).getRotation().plus(new Rotation3d(0,0,0)));
+                        Pose2d fPose = new Pose2d(twoDimensionalPose.plus(noteTranslation).getTranslation(),new Rotation2d());
                         positions.add(fPose);
                     }
+                    allPoses.addAll(positions);
                 }
 
                 // log the positions
-                Logger.recordOutput("ObjectDetectionVision/Inst" , positions.toArray(Pose3d[]::new));
+                Logger.recordOutput("ObjectDetectionVision/Inst" , allPoses.toArray(Pose2d[]::new));
           }
 
 
@@ -135,18 +159,18 @@ public class ObjectDetectionCam extends VirtualSubsystem {
     }
 
     public Pose2d getClosestNote() {
-        if (positions.size() == 0) {
+        if (allPoses.size() == 0) {
             return null;
         }
         else {
             Pose2d currentPose = frc.robot.RobotState.getInstance().getEstimatedPose();
             Pose2d closestNote = new Pose2d();
             double closestDistance = Double.MAX_VALUE;
-            for (Pose3d note : positions) {
-                double distance = note.getTranslation().toTranslation2d().getDistance(currentPose.getTranslation());
+            for (Pose2d note : allPoses) {
+                double distance = note.getTranslation().getDistance(currentPose.getTranslation());
                 if (distance < closestDistance) {
                     closestDistance = distance;
-                    closestNote = new Pose2d(note.getTranslation().getX(), note.getTranslation().getY(), note.getRotation().toRotation2d());
+                    closestNote = new Pose2d(note.getTranslation().getX(), note.getTranslation().getY(), note.getRotation());
                 }
             }
             return closestNote;
@@ -155,10 +179,10 @@ public class ObjectDetectionCam extends VirtualSubsystem {
    
   }
   public Pose2d[] getAllNotes(){
-    Pose2d[] notes = new Pose2d[positions.size()];
-    for (int i = 0; i < positions.size(); i++) {
-        Pose3d note = positions.get(i);
-        notes[i] = new Pose2d(note.getTranslation().getX(), note.getTranslation().getY(), note.getRotation().toRotation2d());
+    Pose2d[] notes = new Pose2d[allPoses.size()];
+    for (int i = 0; i < allPoses.size(); i++) {
+        Pose2d note = allPoses.get(i);
+        notes[i] = new Pose2d(note.getTranslation().getX(), note.getTranslation().getY(), note.getRotation());
     }
     return notes;
 }

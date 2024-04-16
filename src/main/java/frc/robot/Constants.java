@@ -104,9 +104,9 @@ public final class Constants {
     public static final double intakeSpeed = 0.75;
     public static final double intakeSpeedToMPS = 1 * Units.inchesToMeters(1.5) * Math.PI;
     public static final double pivotGearRatio = 36.0/16;
-    public static final Rotation2d kIntakeMaxMovedAngle = Rotation2d.fromDegrees(79);
-    public static final Rotation2d kIntakeMaxAngle = Rotation2d.fromDegrees(115);
-    public static final Rotation2d kIntakeMinAngle = Rotation2d.fromDegrees(10);
+    public static final Rotation2d kIntakeMaxMovedAngle = Rotation2d.fromDegrees(90);
+    public static final Rotation2d kIntakeMaxAngle = Rotation2d.fromDegrees(110);
+    public static final Rotation2d kIntakeMinAngle = Rotation2d.fromDegrees(7);
     public static final Rotation2d kIntakeHomeAngle = Rotation2d.fromDegrees(29);
     public static final Rotation2d kAmpAngle = Rotation2d.fromDegrees(70);
 
@@ -121,6 +121,9 @@ public final class Constants {
     public static final LoggedTunableNumber kIntakeP = new LoggedTunableNumber("Intake P", .8, "Intake");
     public static final LoggedTunableNumber kIntakeI = new LoggedTunableNumber("Intake I", 0.0, "Intake");
     public static final LoggedTunableNumber kIntakeD = new LoggedTunableNumber("Intake D", 0.05, "Intake");
+    public static final LoggedTunableNumber kIntakeKS = new LoggedTunableNumber("Intake KS", 0.0,"Intake FF");
+    public static final LoggedTunableNumber kIntakeKA = new LoggedTunableNumber("Intake KA", 0.0,"Intake FF");
+    public static final LoggedTunableNumber kIntakeKG = new LoggedTunableNumber("Intake KG", 0.0,"Intake FF");
 
 
   public static final class IntakeConstants {
@@ -145,7 +148,7 @@ public final class Constants {
       public static final LoggedTunableNumber kFlywheelAccel = new LoggedTunableNumber("Flywheel Accel", 0, "Shooter");
 
       public static final double kMaxSpeed = 100;
-      public static final double kIdleSpeed = 21;
+      public static final double kIdleSpeed = 14;
       public static final double kIdleSpeedClose = 12;
       public static final double kIdleSpeedFar = 21;
       public static final LoggedTunableNumber kFlywheelSpeedLeft = new LoggedTunableNumber("Flywheel Speed Left", 0.0, "Shooter");
@@ -193,7 +196,7 @@ public final class Constants {
       public static final Rotation2d homeAngle = Rotation2d.fromDegrees(36);
       public static final Rotation2d kFenderAngle = Rotation2d.fromDegrees(57);// 57
       public static final LoggedTunableNumber kCloseThreeAngle = new LoggedTunableNumber("CloseThreeAngle", 33,"Shooter"); 
-      
+
 
       public static final double maxSpeed = 1.0;
       public static final double maxAcceleration = 1.0;
@@ -269,17 +272,17 @@ public final class Constants {
     public static final boolean useTorqueCurrentFOC = true;
     public static final boolean useMotionMagic = false;
     public static final Matrix<N3, N1> odometryStateStdDevs = new Matrix<>(VecBuilder.fill(0.003, 0.003, 0.0002));
-    public static final PathConstraints kAutoAlignToAmpSpeed = new PathConstraints(5.9,2.0,2,2);
+    public static final PathConstraints kAutoAlignToAmpSpeed = new PathConstraints(1.0,2.0,2,2);
     public static final PathConstraints kDriveToPieceSpeed = new PathConstraints(3.5,1.0,1,1);
     public static final LoggedTunableNumber AutoAlignP = new LoggedTunableNumber("Auto Align P", 6., "Drive");
     public static final LoggedTunableNumber AutoAlignD = new LoggedTunableNumber("Auto Align D", 0.0, "Drive");
     public static final LoggedTunableNumber kHeadingP = new LoggedTunableNumber("kHeadingP", 1.000 , "Drive");
     public static final LoggedTunableNumber kHeadingI = new LoggedTunableNumber("kHeadingI", 0.000 , "Drive");
     public static final LoggedTunableNumber kHeadingD = new LoggedTunableNumber("kHeadingD", 0.030000 , "Drive");
-    public static final LoggedTunableNumber kHolonomicXYP = new LoggedTunableNumber("kHolnomicXYP",0.3,"Drive");
+    public static final LoggedTunableNumber kHolonomicXYP = new LoggedTunableNumber("kHolnomicXYP",0.24,"Drive");
     public static final LoggedTunableNumber kHolonomicXYI = new LoggedTunableNumber("kHolnomicXYI",.0,"Drive");
     public static final LoggedTunableNumber kHolonomicXYD = new LoggedTunableNumber("kHolnomicXYD",.0,"Drive");
-    public static final LoggedTunableNumber kHolonomicThetaP = new LoggedTunableNumber("kHolnomicThetaP",.3,"Drive");
+    public static final LoggedTunableNumber kHolonomicThetaP = new LoggedTunableNumber("kHolnomicThetaP",.45,"Drive");
     public static final LoggedTunableNumber kHolonomicThetaI = new LoggedTunableNumber("kHolnomicThetaI",.0,"Drive");
     public static final LoggedTunableNumber kHolonomicThetaD = new LoggedTunableNumber("kHolnomicThetaD",.0,"Drive");
     
@@ -429,6 +432,7 @@ public final class Constants {
     public static final double cubicC = 10.3972;
     public static final double cubicD = 1.85749;
 
+    public static final LoggedTunableNumber allowedDistance = new LoggedTunableNumber("Allowed Vision distance", 5, "Shooter Math") ;
 
     // error cubic constants
     public static final double errorCubicA = -0.00000216579;
@@ -460,31 +464,12 @@ public final class Constants {
     }
 
     public static final class ObjectDetection {
+      public static final LoggedTunableNumber distanceClose = new LoggedTunableNumber("distance close width", 0.56,"Objectmagic");
+      public static final LoggedTunableNumber distanceFar = new LoggedTunableNumber("distance far width", 1.5,"Objectmagic");
+      public static final LoggedTunableNumber angleDepression = new LoggedTunableNumber("angle Max", 78,"Objectmagic");
+      public static final LoggedTunableNumber angleMin = new LoggedTunableNumber("angle min", 52.25,"Objectmagic");
 
-    }
-
-    public static final class ClimbConstants {
-      public static final double kClimbGearRatio = 10.5;
-      public static final double kClimbBarrierDiameter = Units.inchesToMeters(1.5);
-
-      public static final double kMaxVelocity = 15;
-      public static final double kMaxAcceleration = 20;
-      public static final double kMinHeight = 0.0;
-      public static final double kMaxHeight = 3.0;
-
-      public static final TunableNumber kClimbP = new TunableNumber("Climb P", 10, "Climb");
-      public static final TunableNumber kClimbI = new TunableNumber("Climb I", 0.05, "Climb");
-      public static final TunableNumber kClimbD = new TunableNumber("Climb D", 1, "Climb");
-
-      public static final TunableNumber kClimbUpSpeed = new TunableNumber("Climber Up Speed", 0.1, "Climb");
-      public static final TunableNumber kClimbDownSpeed = new TunableNumber("Climber Down Speed", 0.3, "Climb");
-    }
-
-    public static final class OIConstants {
-      public static final int kDriverLeftDriveStickPort = 0;
-      public static final int kDriverRightDriveStickPort = 1;
-
-      public static final double kDualFlightStickDeadzone = 0.3;
+      
     }
   }
 

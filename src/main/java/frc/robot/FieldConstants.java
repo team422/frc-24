@@ -20,7 +20,7 @@ public class FieldConstants {
 
   public static final Translation3d topRightSpeaker =
         new Translation3d(
-            Units.inchesToMeters(0),
+            Units.inchesToMeters(0.0),
             Units.inchesToMeters(238.815),
             Units.inchesToMeters(83.091));
 
@@ -49,9 +49,10 @@ public class FieldConstants {
     public final static double aprilTagWidth = Units.inchesToMeters(6.5);
     public final static AprilTagFieldLayout field = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
 
-    public static final Pose2d kAmpBlue = new Pose2d(1.749, 7.82, new Rotation2d(90));
-    public static final Pose2d kDailedShot = new Pose2d(4.32, 2.65, new Rotation2d(145.00));
+    public static final Pose2d kAmpBlue = new Pose2d(1.749, 7.82, Rotation2d.fromDegrees(90));
+    public static final Pose2d kDailedShot = new Pose2d(2.95, 4.08, new Rotation2d(145.00));
     public static final Translation2d kCorner = new Translation2d(0, 7.82);
+    public static final Translation2d kFeederAim = new Translation2d(1,6.82);
 
     public static final AprilTagFieldLayout getAprilTags(){
         return field;

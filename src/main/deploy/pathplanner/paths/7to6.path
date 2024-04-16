@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.821861716333727,
-        "y": 4.565004286258573
+        "x": 4.3807069377312775,
+        "y": 4.761649335645486
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.210899135339937,
-        "y": 3.6812694780414077
+        "x": 6.769744356737488,
+        "y": 3.87791452742832
       },
       "isLocked": false,
       "linkedName": "underStageShort"
@@ -32,12 +32,12 @@
     },
     {
       "anchor": {
-        "x": 4.821861716333727,
-        "y": 4.565004286258573
+        "x": 4.3807069377312775,
+        "y": 4.761649335645486
       },
       "prevControl": {
-        "x": 6.234879324078502,
-        "y": 3.9753462702391102
+        "x": 5.793724545476053,
+        "y": 4.171991319626023
       },
       "nextControl": null,
       "isLocked": false,
@@ -102,7 +102,7 @@
             {
               "type": "named",
               "data": {
-                "name": "AutoIntake"
+                "name": "AutoIntakeScanLeft"
               }
             }
           ]
@@ -156,7 +156,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "allPointToPointPaths",
+  "folder": null,
   "previewStartingState": {
     "rotation": 174.23307084990688,
     "velocity": 0

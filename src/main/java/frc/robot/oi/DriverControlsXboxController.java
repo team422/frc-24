@@ -51,7 +51,7 @@ public class DriverControlsXboxController implements DriverControls {
   @Override
   public Trigger goToIntakePosition(){
     // return new Trigger(()->m_controller.getR2Axis()>0.1);
-    return m_controller.R2();
+    return m_controller.circle();
   }
 
   @Override
@@ -82,7 +82,7 @@ public class DriverControlsXboxController implements DriverControls {
 
   @Override
   public Trigger autoIntake(){
-    return m_controller.circle();
+    return m_controller.R2();
   }
 
   @Override

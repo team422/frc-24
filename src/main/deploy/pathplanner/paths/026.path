@@ -1,0 +1,109 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.3045534475684337,
+        "y": 5.571783767413689
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.1249788007268324,
+        "y": 5.551585256247437
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.9004346339461913,
+        "y": 5.571783767413689
+      },
+      "prevControl": {
+        "x": 2.36688380453684,
+        "y": 5.5823601531818445
+      },
+      "nextControl": {
+        "x": 3.38576145045782,
+        "y": 5.562163308870423
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.537598034426838,
+        "y": 4.176217737050859
+      },
+      "prevControl": {
+        "x": 5.235271194388543,
+        "y": 4.059201559172349
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": 179.38009524966606,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "deployIntake"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.25,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "fullSOTMClose"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.5,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 5.0,
+    "rotation": 176.9802711552697,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "FineDance",
+  "previewStartingState": {
+    "rotation": 178.91201810465253,
+    "velocity": 0
+  },
+  "useDefaultConstraints": false
+}

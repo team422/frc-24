@@ -17,6 +17,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
@@ -165,13 +166,21 @@ private final PositionTorqueCurrentFOC positionControl =
         if(Robot.isSimulation()){
             return NoteVisualizer.getHasNote();
         }
-        Logger.recordOutput("is browning out",RobotController.getEnabled5V());
-        if (!RobotController.getEnabled5V()){
+        if(!DriverStation.isFMSAttached()){
+            if(RobotState.getInstance().hasNoteOverride()){
+                return true;
+            }
+        }
+        Logger.recordOutput("Brownout/getEnabled5V",RobotController.getEnabled5V());
+        Logger.recordOutput("Brownout/isBrownedOut",RobotController.isBrownedOut());
+        Logger.recordOutput("Brownout/getCurrent5V",RobotController.getCurrent5V());
+        Logger.recordOutput("Brownout/getVoltage5V",RobotController.getVoltage5V());
+        if (RobotController.isBrownedOut()){
          
             
         }
         else{
-            hadNote = !m_initialBeamBreak.get() && !m_finalBeamBreak.get();
+            hadNote = !m_initialBeamBreak.get() || !m_finalBeamBreak.get();
         }
         return hadNote;
     }

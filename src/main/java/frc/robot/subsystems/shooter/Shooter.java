@@ -132,6 +132,7 @@ public class Shooter extends SubsystemBase {
                 
             }
             else if (Constants.fullManualShooterAndPivotSpeedControls){
+                m_flywheelIO.setProfile(ShooterProfile.activeShooting);
                 Rotation2d m_ang = Rotation2d.fromRadians(MathUtil.clamp(
                 Rotation2d.fromDegrees(ShooterPivotConstants.kShooterAngle.get()).getRadians(),
                       ShooterPivotConstants.minAngle.getRadians(),

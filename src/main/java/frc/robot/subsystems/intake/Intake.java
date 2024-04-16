@@ -86,6 +86,11 @@ public class Intake extends ProfiledSubsystem {
         // m_PivotIO.setDesiredAngle(m_PivotIO.getAngle().plus(Rotation2d.fromDegrees(degrees)));
     }
 
+    public boolean hasNote(){
+        return m_rollerInputs.acceleration > 50;
+
+    }
+
 
     public void setIntakeSpeed(double speed) {
         m_rollerIO.setVoltage(speed);

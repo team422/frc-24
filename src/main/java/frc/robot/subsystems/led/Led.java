@@ -5,6 +5,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
 
@@ -12,12 +13,18 @@ public class Led extends ProfiledSubsystem {
     private AddressableLED m_LEDStrip;
     private AddressableLEDBuffer m_LEDStripBuffer;
     private LedState m_state;
+    private double m_gamepieceTimeout = -1;
+    private int m_gamepieceFlashCount = 0;
 
     public static enum LedState {
         OFF,
         NO_GAME_PIECE,
+        FLASHING,
+        AUTO_DRIVING_TO_NOTE,
         GAME_PIECE,
-        SHOOTER_READY
+        SHOOTER_READY,
+        DISABLED,
+        
     }
 
     public Led(int port, int length) {
@@ -31,8 +38,23 @@ public class Led extends ProfiledSubsystem {
     @Override
     public void periodic() {
         double start = HALUtil.getFPGATime();
+
+        m_LEDStrip.setData(m_LEDStripBuffer);
+
+        if (m_state == LedState.FLASHING && m_gamepieceTimeout != -1 && m_gamepieceTimeout < Timer.getFPGATimestamp()) {
+        // if (m_state == LedState.FLASHING) {
+            // flash sequence
+            if (m_LEDStripBuffer.getLED(0).equals(Color.kBlack)) {
+                setSolidColor(Color.kGreen);
+            } else {
+                setSolidColor(Color.kBlack);
+            }
+            m_gamepieceTimeout = Timer.getFPGATimestamp() + 0.1;
+        }
+
         Logger.recordOutput("LED/State", m_state.toString());
         Logger.recordOutput("LED/Color", m_LEDStripBuffer.getLED(0).toString());
+        
         Logger.recordOutput("LoggedRobot/LEDPeriodic", (HALUtil.getFPGATime()-start)/1000);
     }
 
@@ -45,7 +67,10 @@ public class Led extends ProfiledSubsystem {
         Logger.recordOutput("LoggedRobot/LEDTime", (HALUtil.getFPGATime()-start)/1000);
     }
 
-    public void updateState(LedState state) {
+    public void setState(LedState state) {
+        if (state == m_state) {
+            return;
+        }
         switch (state) {
             case OFF:
                 setSolidColor(Color.kBlack);
@@ -53,14 +78,27 @@ public class Led extends ProfiledSubsystem {
             case NO_GAME_PIECE:
                 setSolidColor(Color.kRed);
                 break;
+            case FLASHING:
+                m_gamepieceFlashCount = 0;
+                m_gamepieceTimeout = Timer.getFPGATimestamp() + 0.1;
+                break;
             case GAME_PIECE:
-                setSolidColor(Color.kYellow);
+                setSolidColor(Color.kGreen);
                 break;
             case SHOOTER_READY:
-                setSolidColor(new Color(0x00 / 255.0, 0xb2 / 255.0, 0x59 / 255.0));
-                // mech tech green
-                // values divided by 255.0 to convert to 0-1 range, there was an issue with the values being ints last year
+                setSolidColor(Color.kBlue);
+                break;
+            case DISABLED:
+                setSolidColor(Color.kMagenta);
+                break;
+            case AUTO_DRIVING_TO_NOTE:
+                setSolidColor(Color.kYellow);
                 break;
         }
+        m_state = state;
+    }
+
+    public LedState getState() {
+        return m_state;
     }
 }

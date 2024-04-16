@@ -11,6 +11,8 @@ public interface RollerIO extends LoggedIO<RollerIO.RollerIOInputs> {
         public double voltage;
         public double outputCurrent;
         public double desiredSpeeds;
+        public double acceleration;
+        public double currentDelta;
     }
 
     public void setVoltage(double voltage);

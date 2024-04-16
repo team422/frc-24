@@ -23,7 +23,7 @@ public class ObjectDetectionIODepth implements ObjectDetectionIO {
 //   private final Alert disconnectedAlert;
 
   public ObjectDetectionIODepth(String instanceId) {
-    var northstarTable = NetworkTableInstance.getDefault().getTable("ObjectDetectionCamera");
+    var northstarTable = NetworkTableInstance.getDefault().getTable(instanceId);
 
     // var configTable = northstarTable.getSubTable("config");
     // configTable.getStringTopic("camera_id").publish().set(cameraId);
