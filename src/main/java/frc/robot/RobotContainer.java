@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,8 +37,8 @@ import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsXboxController;
 import frc.robot.oi.ManualController;
 import frc.robot.subsystems.amp.Amp;
-import frc.robot.subsystems.amp.AmpIOFalcon;
 import frc.robot.subsystems.amp.Amp.AmpState;
+import frc.robot.subsystems.amp.AmpIOFalcon;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.ClimbIOTalon;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
@@ -47,9 +46,9 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DriveProfiles;
 import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.subsystems.drive.SwerveModuleIOKraken;
+import frc.robot.subsystems.drive.SwerveModuleIOSim;
 import frc.robot.subsystems.drive.generatedConstants.TunerConstants;
 import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
-import frc.robot.subsystems.drive.gyro.GyroIOSim;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
 import frc.robot.subsystems.intake.Intake;
@@ -61,7 +60,6 @@ import frc.robot.subsystems.objectVision.ObjectDetectionIODepth;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterIsIntaking;
 import frc.robot.subsystems.shooter.flywheel.FlywheelIOKraken;
-import frc.robot.subsystems.shooter.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.shooter.pivot.PivotIOFalcon;
 import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.AutoBuilderManager;
@@ -457,21 +455,21 @@ public class RobotContainer {
       m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
       CommandSwerveDrivetrain m_CommandSwerveDrivetrain = new CommandSwerveDrivetrain(TunerConstants.DrivetrainConstants, TunerConstants.FrontLeft, TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);
       SwerveModuleIO[] m_SwerveModuleIOs = {
-        new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(0).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(0).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(0).getCANcoder(), false),
-          // new SwerveModuleIOSim(),
-          new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(1).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(1).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(1).getCANcoder(), false),
+        // new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(0).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(0).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(0).getCANcoder(), false),
+          new SwerveModuleIOSim(),
+          // new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(1).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(1).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(1).getCANcoder(), false),
           // new SwerveModuleIOKraken(7, 8, 9, false),
-          // new SwerveModuleIOSim(),
-          new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(2).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(2).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(2).getCANcoder(), false),
+          new SwerveModuleIOSim(),
+          // new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(2).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(2).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(2).getCANcoder(), false),
           // new SwerveModuleIOKraken(4,5, 6, false),
-          // new SwerveModuleIOSim(),
-          new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(3).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(3).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(3).getCANcoder(), false),
+          new SwerveModuleIOSim(),
+          // new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(3).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(3).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(3).getCANcoder(), false),
         // new SwerveModuleIOMK4Talon(1,2,3),
         // new SwerveModuleIOKraken(1,2,3,false),
         // new SwerveModuleIOKraken(4,5, 6, false),
         // new SwerveModuleIOKraken(7, 8, 9, false),
         // new SwerveModuleIOKraken(10, 11, 12, false),
-        // new SwerveModuleIOSim(),
+        new SwerveModuleIOSim(),
         // new SwerveModuleIOMK4Talon(4,5,6),
         // new SwerveModuleIOSim(),
         // new SwerveModuleIOMK4Talon(7,8,9),

@@ -17,37 +17,25 @@
         },
         {
           "decKey": 69,
-          "incKey": 82
+          "incKey": 82,
+          "keyRate": 0.009999999776482582
         }
       ],
-      "axisCount": 5,
-      "buttonCount": 17,
+      "axisCount": 3,
+      "buttonCount": 4,
       "buttonKeys": [
         90,
         88,
         67,
-        86,
-        -1,
-        -1,
-        66,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1
+        86
       ],
       "povConfig": [
         {
-          "key0": 328,
+          "key0": 56,
           "key135": 323,
           "key180": 322,
           "key225": 321,
-          "key270": 52,
+          "key270": 324,
           "key315": 327,
           "key45": 329,
           "key90": 326

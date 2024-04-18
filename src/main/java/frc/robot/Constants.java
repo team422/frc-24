@@ -325,8 +325,8 @@ public final class Constants {
 
 
 
-    public static final LoggedTunableNumber kDriveKS = new LoggedTunableNumber("Drive KS", 0.27937, "Drive");
-    public static final LoggedTunableNumber kDriveKV = new LoggedTunableNumber("Drive KV", .12595, "Drive");
+    public static final LoggedTunableNumber kDriveKS = new LoggedTunableNumber("Drive KS", 0.28637, "Drive");
+    public static final LoggedTunableNumber kDriveKV = new LoggedTunableNumber("Drive KV", .12202, "Drive");
     public static final LoggedTunableNumber kDriveKA = new LoggedTunableNumber("Drive KA", 0, "Drive");
 
     public static final LoggedTunableNumber kTurningKS = new LoggedTunableNumber("Turning KS", 0.3, "Drive");

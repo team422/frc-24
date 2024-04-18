@@ -23,13 +23,13 @@ public class ObjectDetectionVisionConstants {
       Units.inchesToMeters(14.92279767),
       Units.inchesToMeters(26.03562025),
       new Rotation3d(0.0, Units.degreesToRadians(20), 0.0)
-      .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(190)))),
+      .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(180)))),
               new Pose3d(
                   Units.inchesToMeters(-6.38586819),
                   Units.inchesToMeters(-14.92279767),
                   Units.inchesToMeters(26.03562025),
                   new Rotation3d(0.0, Units.degreesToRadians(20), 0.0)
-                  .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(100)))),
+                  .rotateBy(new Rotation3d(0.0, 0.0, Units.degreesToRadians(180)))),
                       
                   
                 

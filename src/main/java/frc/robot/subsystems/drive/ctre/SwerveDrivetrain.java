@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.RobotState.VisionObservation;
 import frc.robot.subsystems.drive.ctre.SwerveRequest.SwerveControlRequestParameters;
+import frc.robot.utils.AllianceFlipUtil;
 
 /**
  * Swerve Drive class utilizing CTR Electronics' Phoenix 6 API.
@@ -469,6 +470,17 @@ public class SwerveDrivetrain {
         }
     }
 
+    public void seedFieldRelative(Rotation2d offset) {
+        try {
+            m_stateLock.writeLock().lock();
+
+            m_fieldRelativeOffset = getState().Pose.getRotation().plus(offset);
+
+        } finally {
+            m_stateLock.writeLock().unlock();
+        }
+    }
+
     /**
      * Takes the {@link SwerveRequest.ForwardReference#RedAlliance} perpective direction
      * and treats it as the forward direction for
@@ -493,8 +505,9 @@ public class SwerveDrivetrain {
     public void seedFieldRelative(Pose2d location) {
         try {
             m_stateLock.writeLock().lock();
-
-            m_odometry.resetPosition(Rotation2d.fromDegrees(m_yawGetter.getValue()), m_modulePositions, location);
+            Rotation2d newGyroAngle = AllianceFlipUtil.apply(Rotation2d.fromDegrees(180));
+            m_pigeon2.setYaw(newGyroAngle.getDegrees());
+            m_odometry.resetPosition(newGyroAngle, m_modulePositions, location);
             /* We need to update our cached pose immediately so that race conditions don't happen */
             m_cachedState.Pose = location;
         } finally {
