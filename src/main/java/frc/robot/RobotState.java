@@ -97,11 +97,12 @@ public class RobotState {
   public Pose2d[] last3VisionUpdates = new Pose2d[1];
   public int visionNumber = 0;
   public double startedTryingToShoot = -1;
+  public boolean m_autoForceShoot = false;
 
   public enum RobotCurrentAction {
     kStow, kIntake, kShootFender, kRevAndAlign, kShootWithAutoAlign, kAmpLineup, kAmpShoot, kAutoIntake, kAutoShoot,
     kPathPlanner, kVomit, kTune, kHockeyPuck, kGamePieceLock, kAutoFender, kNoteBackToIntake, kAutoSOTM, kDailedShot,
-    kAutoShootAtPosition, kAutoRevAndAutoAlign, kSourceIntake, kNothing, kAutoAutoIntake, kAutoShootClose
+    kAutoShootAtPosition, kAutoRevAndAutoAlign, kSourceIntake, kNothing, kAutoAutoIntake, kAutoShootClose,kSourceShot
   }
 
   public RobotCurrentAction[] preRevActions = {
@@ -118,7 +119,7 @@ public class RobotState {
       RobotCurrentAction.kHockeyPuck, RobotCurrentAction.kAutoFender, RobotCurrentAction.kAutoSOTM,
       RobotCurrentAction.kDailedShot, RobotCurrentAction.kAutoShootAtPosition, RobotCurrentAction.kAutoRevAndAutoAlign,
       RobotCurrentAction.kNothing, RobotCurrentAction.kRevAndAlign, RobotCurrentAction.kAutoShootClose,
-      RobotCurrentAction.kHockeyPuck
+      RobotCurrentAction.kHockeyPuck,RobotCurrentAction.kSourceIntake,RobotCurrentAction.kSourceShot
   };
 
   public Pose2d actualAutoShootAtPositionPose;
@@ -479,6 +480,10 @@ public class RobotState {
 
   }
 
+  public void setAutoShootOverride(Boolean forceShoot){
+    m_autoForceShoot = forceShoot;
+  }
+
   public Rotation2d getMaxIntakeAngle() {
     // first get desired angle of the shooter
     Rotation2d shooterAngle = m_shooter.getPivotAngle();
@@ -590,7 +595,7 @@ public class RobotState {
     Logger.recordOutput("Current State Space", curAction);
     DynamicCurrentLimitsManager.getInstance().update();
     if (mUpdatingAutoBuilder) {
-      mAutoBuilderManager.update();
+      // mAutoBuilderManager.update();
     }
     if (intakeStowTime != -1 && intakeStowTime < Timer.getFPGATimestamp()) {
       intakeStowTime = -1;
@@ -750,8 +755,7 @@ public class RobotState {
       boolean headingWithinTolerance = (Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0))
           .getDegrees()) < m_shooterMath.calculateShootingHeadingTolerance(shootingDistance));
       boolean speedWithinTolerance = (Math.abs(actualSpeed.vxMetersPerSecond) < 1.
-          && Math.abs(actualSpeed.vyMetersPerSecond) < 1. && Math.abs(actualSpeed.omegaRadiansPerSecond) < m_shooterMath
-              .calculateShootingHeadingTolerance(shootingDistance) / 10.0);
+          && Math.abs(actualSpeed.vyMetersPerSecond) < 1. && Math.abs(actualSpeed.omegaRadiansPerSecond) < 0.2);
       // boolean withinVisionTolerance =
       // averageVisionPoses().getTranslation().getDistance(getEstimatedPose().getTranslation())
       // < Units.inchesToMeters(ShooterMathConstants.allowedDistance.get());
@@ -988,7 +992,25 @@ public class RobotState {
       m_drive.setDriveTurnOverride(mRotations.get(0));
       ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
 
-    } else if (curAction == RobotCurrentAction.kAmpLineup) {
+    } else if (curAction == RobotCurrentAction.kSourceShot){
+      Pose2d predPose = getPredictedPose(0.0, 0.0);
+      Translation2d finalTarget = AllianceFlipUtil.apply(frc.robot.FieldConstants.kSourceMidShot);
+      double distance = m_shooterMath.getDistanceFromTarget(predPose,
+          new Translation3d(finalTarget.getX(), finalTarget.getY(), 0));
+      ArrayList<Rotation2d> mRotations = m_shooterMath.setNextShootingPoseAndVelocityFeeder(predPose, robotVelocity,
+          new Translation3d(finalTarget.getX(), finalTarget.getY(), 0.0));
+      ArrayList<Double> mSpeeds = m_shooterMath.getShooterMetersPerSecondFeeder(distance);
+      // double speed =
+      // m_shooterMath.getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose,FieldConstants.kShooterCenter));
+
+      m_drive.setProfile(DriveProfiles.kAutoAlign);
+
+      m_shooter.setFlywheelSpeedWithSpin(mSpeeds.get(0), mSpeeds.get(1));
+      m_shooter.setPivotAngle(mRotations.get(1));
+      // m_shooter.setPivotAngle(mRotations.get(1));
+      m_drive.setDriveTurnOverride(mRotations.get(0));
+    }
+    else if (curAction == RobotCurrentAction.kAmpLineup) {
 
       if (stowAmpTimer == null) {
         stowAmpTimer = new Timer();
@@ -1043,7 +1065,7 @@ public class RobotState {
         // m_shooter.setFlywheelSpeedWithSpin(ShooterConstants.FlywheelConstants.kIdleSpeedFar,ShooterConstants.FlywheelConstants.kIdleSpeedFar);
       }
       m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
-      m_indexer.setState(Indexer.IndexerState.INTAKING);
+      // m_indexer.setState(Indexer.IndexerState.INTAKING);
 
     } else if (curAction == RobotCurrentAction.kAutoShoot) {
       // first we stop
@@ -1089,6 +1111,7 @@ public class RobotState {
       Logger.recordOutput("ReadyToShoot/HeadingInTolerance", headingWithinTolerance);
       Logger.recordOutput("ReadyToShoot/SpeedWithinTolerance", speedWithinTolerance);
       // Logger.recordOutput("ReadyToShoot/VisionInTolerance",withinVisionTolerance);
+      
       if (headingWithinTolerance && pivotInTolerance && speedWithinTolerance && flywheelInTolerance) {
         m_indexer.setState(Indexer.IndexerState.SHOOTING);
         RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
@@ -1206,8 +1229,13 @@ public class RobotState {
           m_drive.setProfile(DriveProfiles.kDefault);
           // if(Math.abs(getEstimatedPose().getRotation().minus(Rotation2d.fromDegrees(0)).getDegrees())<90){
           // if(DriverStation.getAlliance().get().equals(Alliance.Blue)){
+            if(DriverStation.getAlliance().get().equals(Alliance.Red)){
           m_drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(0.0, autoIntakeLeftOrRight * -1,
               Rotation2d.fromDegrees(autoIntakeLeftOrRight * 90).getRadians(), getEstimatedPose().getRotation()));
+            }else{
+              m_drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(0.0, autoIntakeLeftOrRight * 1,
+              Rotation2d.fromDegrees(autoIntakeLeftOrRight * 90).getRadians(), getEstimatedPose().getRotation()));
+            }
           // } else {
           // m_drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(0.0,
           // autoIntakeLeftOrRight *1, Rotation2d.fromDegrees(autoIntakeLeftOrRight
@@ -1272,7 +1300,7 @@ public class RobotState {
       Logger.recordOutput("Second", (m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(3))));
       ChassisSpeeds actualSpeed = m_drive.getChassisSpeeds();
       if ((m_shooter.isPivotWithinTolerance(mRotations.get(1), Rotation2d.fromDegrees(6)))
-          && m_shooter.isWithinToleranceWithSpin(10, 10, 1)) {
+          && m_shooter.isWithinToleranceWithSpin(10, 10, 3.)) {
         m_indexer.setState(Indexer.IndexerState.SHOOTING);
         // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
         setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
@@ -1298,7 +1326,7 @@ public class RobotState {
       Pose2d closestNote = m_objectDetectionCams.getClosestNote();
 
       if (m_indexer.inContactWithGamePiece()) {
-        setRobotCurrentAction(RobotCurrentAction.kStow);
+        // setRobotCurrentAction(RobotCurrentAction.kStow);
         m_drive.setProfile(DriveProfiles.kDefault);
         return;
       }
@@ -1331,7 +1359,7 @@ public class RobotState {
       m_led.setState(LedState.AUTO_DRIVING_TO_NOTE);
       if (m_intake.hasNote()) {
         m_drive.setDriveToPieceChassisSpeeds(new ChassisSpeeds());
-        setRobotCurrentAction(RobotCurrentAction.kStow);
+        // setRobotCurrentAction(RobotCurrentAction.kStow);
         m_drive.setProfile(DriveProfiles.kDefault);
       }
       Logger.recordOutput("Turn angle", robotToPiece.getAngle().minus(getEstimatedPose().getRotation()));

@@ -248,7 +248,7 @@ private final PositionTorqueCurrentFOC positionControl =
             if (m_finalBeamBreak.get()) {
                 if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
                     RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
-                    RobotState.getInstance().setIndexer(IndexerState.IDLE);
+                    RobotState.getInstance().setIndexer(IndexerState.INTAKING);
                 }else{
                 RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
                 Commands.waitSeconds(.5).andThen(Commands.runOnce(()->{

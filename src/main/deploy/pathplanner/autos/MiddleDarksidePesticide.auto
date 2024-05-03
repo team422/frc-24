@@ -2,39 +2,15 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.4636536089861394,
-      "y": 5.214720796322721
+      "x": 1.270677204431332,
+      "y": 2.771307907231199
     },
-    "rotation": 177.7336136647592
+    "rotation": 114.56601945931264
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoFender"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "06just"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoIntakeScanLeftDeadline"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "6shoot"
-          }
-        },
         {
           "type": "named",
           "data": {
@@ -44,7 +20,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "61"
+            "pathName": "08just"
           }
         },
         {
@@ -54,15 +30,9 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "AutoShoot"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "12jsut"
+            "pathName": "8shoot"
           }
         },
         {
@@ -70,9 +40,9 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "wait",
                 "data": {
-                  "name": "AutoIntakeScanLeft"
+                  "waitTime": 0.5
                 }
               },
               {
@@ -80,23 +50,55 @@
                 "data": {
                   "name": "AutoShoot"
                 }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "farshotMiddle6"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "AutoIntakeScanRight"
+                }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "AutoIntakeScanLeft"
+                  "name": "2SecondLimit"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "6farshot"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.5
                 }
               },
               {
                 "type": "named",
                 "data": {
                   "name": "AutoShoot"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "StayStill"
                 }
               }
             ]

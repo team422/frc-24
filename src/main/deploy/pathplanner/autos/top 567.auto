@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3045534475684337,
-      "y": 4.9866410440541475
+      "x": 0.9895680037519334,
+      "y": 6.9544275219278004
     },
-    "rotation": -179.48521447362592
+    "rotation": -151.97450048839679
   },
   "command": {
     "type": "sequential",
@@ -14,13 +14,13 @@
         {
           "type": "named",
           "data": {
-            "name": "AutoFender"
+            "name": "AutoShoot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "026"
+            "pathName": "start5Run"
           }
         },
         {
@@ -32,7 +32,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "6shoot"
+            "pathName": "5shoot"
           }
         },
         {
@@ -44,25 +44,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "61"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoIntakeScanLeft"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoShoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "13"
+            "pathName": "5shoot6"
           }
         },
         {
@@ -72,9 +54,21 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "6shootShort"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "AutoShoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "stageEnd"
           }
         }
       ]

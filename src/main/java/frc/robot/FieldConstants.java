@@ -53,6 +53,9 @@ public class FieldConstants {
     public static final Pose2d kDailedShot = new Pose2d(2.95, 4.08, new Rotation2d(145.00));
     public static final Translation2d kCorner = new Translation2d(0, 7.82);
     public static final Translation2d kFeederAim = new Translation2d(1,6.82);
+    public static final Translation2d kSourceMidShot = new Translation2d(8.04,2);
+    
+
 
     public static final AprilTagFieldLayout getAprilTags(){
         return field;

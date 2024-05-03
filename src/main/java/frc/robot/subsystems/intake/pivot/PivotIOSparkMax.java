@@ -35,7 +35,7 @@ public class PivotIOSparkMax implements IntakePivotIO {
         m_motor = new CANSparkMax(motorID, MotorType.kBrushless);
         m_encoder = m_motor.getAbsoluteEncoder(Type.kDutyCycle);
         m_encoder.setPositionConversionFactor(Constants.IntakeConstants.pivotGearRatio);
-        m_encoder.setZeroOffset(Rotation2d.fromDegrees(0).getRadians());
+        m_encoder.setZeroOffset(Rotation2d.fromDegrees(124).getRadians());
         m_motor.setIdleMode(IdleMode.kBrake);
 
         m_desiredAngle = Rotation2d.fromRadians(m_encoder.getPosition());

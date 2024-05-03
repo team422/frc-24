@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.38719974789827,
-        "y": 2.435718864237974
+        "x": 2.9215270333114196,
+        "y": 3.069678432555395
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.604053066567672,
-        "y": 1.6027365623962022
+        "x": 4.138380351980821,
+        "y": 2.2366961307136233
       },
       "isLocked": false,
-      "linkedName": "right wing shot"
+      "linkedName": "RightVeryClose"
     },
     {
       "anchor": {

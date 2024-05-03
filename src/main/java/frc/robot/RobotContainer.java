@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Timer;
@@ -115,8 +116,12 @@ public class RobotContainer {
     
   }
 
+  public void lowerCurrentLimits(){
+    m_drive.setCurrentLimits(70);
+  }
   public void configureCommands(){
     // m_drive.setDefaultCommand();
+    DataLogManager.logNetworkTables(true);
     
     m_driverControls.resetFieldCentric().onTrue(Commands.runOnce(()->m_drive.resetPose(new Pose2d(m_robotState.getEstimatedPose().getTranslation(),AllianceFlipUtil.apply(Rotation2d.fromDegrees(180))))));
   
@@ -234,6 +239,8 @@ public class RobotContainer {
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
         m_robotState.setDriveType(DriveProfiles.kDefault);
       }));
+
+      
 
       m_driverControls.fenderShot().onTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kShootFender);
@@ -405,6 +412,7 @@ public class RobotContainer {
   
   public void onDSConnected(){
     configureAutonomous();
+    m_drive.setModuleCurrentLimit(70);
     if (Robot.isSimulation()) {
       m_simVisionSystems = new SimVisionSystem[4];
       for (int i = 0; i < 4; i++) {
@@ -604,11 +612,11 @@ public class RobotContainer {
 
   public void onDisabled(){
     // RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoShoot);
-    Commands.runOnce(()->{
-      m_drive.setWheelIdleBrake(true);
-    }).andThen(Commands.waitSeconds(3)).andThen(Commands.runOnce(()->{
-      m_drive.setWheelIdleBrake(false);
-    })).ignoringDisable(true).schedule();
+    // Commands.runOnce(()->{
+    //   m_drive.setWheelIdleBrake(true);
+    // }).andThen(Commands.waitSeconds(3)).andThen(Commands.runOnce(()->{
+    //   m_drive.setWheelIdleBrake(false);
+    // })).ignoringDisable(true).schedule();
     m_led.setState(LedState.DISABLED); 
     RobotState.getInstance().resetAutoBuilder();
   }
@@ -620,7 +628,9 @@ public class RobotContainer {
   public void onEnabled(){
     // m_robotState.updateTestScheduler();
     m_shooter.clearI();
-    m_drive.setWheelIdleBrake(false);
+    if(!DriverStation.isFMSAttached()){
+    // m_drive.setWheelIdleBrake(false);
+    }
     if(edu.wpi.first.wpilibj.RobotState.isTeleop()){
       m_drive.setProfile(DriveProfiles.kDefault);
       RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kStow);
@@ -631,13 +641,13 @@ public class RobotContainer {
       // }).andThen(Commands.waitSeconds(1)).andThen(()->{
       //   m_amp.m_state = AmpState.PositionFollowing;
       // }).schedule();
-      m_drive.setCurrentLimits(70);
+      // m_drive.setCurrentLimits(70);
       m_drive.drive(new ChassisSpeeds(0,0,0));
       new TeleopControllerNoAugmentation(m_drive,()->m_driverControls.getDriveForward(),()->m_driverControls.getDriveLeft() , ()-> m_driverControls.getDriveRotation(), DriveConstants.controllerDeadzone).schedule();
 
     }else{
       
-      m_drive.setCurrentLimits(100);
+      // m_drive.setCurrentLimits(100);
     }
     m_led.setState(LedState.NO_GAME_PIECE);
     m_robotState.mUpdatingAutoBuilder = false;

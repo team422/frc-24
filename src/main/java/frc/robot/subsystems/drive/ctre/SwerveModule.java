@@ -238,7 +238,7 @@ public class SwerveModule {
         talonConfigs.TorqueCurrent.PeakReverseTorqueCurrent = -limit;
         talonConfigs.CurrentLimits.StatorCurrentLimit = limit;
         talonConfigs.CurrentLimits.StatorCurrentLimitEnable = true;
-        StatusCode response = m_driveMotor.getConfigurator().apply(talonConfigs);
+        m_driveMotor.getConfigurator().apply(talonConfigs);
     }
 
     /**

@@ -3,53 +3,43 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.4636536089861394,
-        "y": 5.214720796322721
+        "x": 1.3575119988781643,
+        "y": 2.7596467470814856
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3416478228483415,
-        "y": 4.642799237344799
+        "x": 4.179588183778082,
+        "y": 2.7464235849121215
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.410676799294775,
-        "y": 4.73753883935464
+        "x": 6.2947002762878075,
+        "y": 4.033425248988979
       },
       "prevControl": {
-        "x": 3.9537650789455983,
-        "y": 4.883270755358913
-      },
-      "nextControl": {
-        "x": 4.813537004831777,
-        "y": 4.609046644867014
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 6.2556642346740565,
-        "y": 4.178761261934289
-      },
-      "prevControl": {
-        "x": 5.132091353337116,
-        "y": 4.333994851353674
+        "x": 4.556765028052115,
+        "y": 4.0066226118971855
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.6,
+      "rotationDegrees": 147.91264855998025,
+      "rotateFast": false
+    }
+  ],
   "constraintZones": [],
   "eventMarkers": [
     {
       "name": "New Event Marker",
-      "waypointRelativePos": 0.8,
+      "waypointRelativePos": 0.85,
       "command": {
         "type": "parallel",
         "data": {
@@ -67,19 +57,19 @@
   ],
   "globalConstraints": {
     "maxVelocity": 5.5,
-    "maxAcceleration": 3.3,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
-    "velocity": 3.5,
-    "rotation": 179.07810640301713,
+    "velocity": 3.0,
+    "rotation": 178.4324848020286,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "FineDance",
+  "folder": "DarkSide",
   "previewStartingState": {
-    "rotation": -179.53905357289187,
+    "rotation": 109.43666401728665,
     "velocity": 0
   },
   "useDefaultConstraints": false

@@ -19,6 +19,7 @@ public class AutoShoot extends Command {
     public void initialize() {
         simTime = Timer.getFPGATimestamp();
         frc.robot.RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoShoot);
+        // frc.robot.RobotState.getInstance().setAutoShootOverride(false);
     }
     @Override
     public boolean isFinished() {

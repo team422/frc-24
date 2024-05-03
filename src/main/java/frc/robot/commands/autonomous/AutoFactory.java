@@ -22,10 +22,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.RobotState;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.RobotState;
 import frc.robot.RobotState.RobotCurrentAction;
-import frc.robot.commands.shooting.ShootAtPositionWithVelocity;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DriveProfiles;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
@@ -86,6 +85,7 @@ public class AutoFactory extends Command {
       RobotState.getInstance().goToIntakePosition();
       m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
       RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
+      RobotState.getInstance().setIndexer(IndexerState.INTAKING);
       RobotState.getInstance().setShooterSpeed(0);
     }));
     NamedCommands.registerCommand("2SecondLimit",Commands.waitSeconds(1).andThen(Commands.runOnce(()->{
@@ -118,6 +118,8 @@ public class AutoFactory extends Command {
       }
       // RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kAutoAutoIntake);
     }).andThen(new AutoIntake()));
+    NamedCommands.registerCommand("AutoIntakeScanLeftDeadline",new AutoIntakeDeadline(true).withTimeout(1.0));
+
     NamedCommands.registerCommand("AutoIntakeScanRight",Commands.runOnce(()->{
       if(DriverStation.getAlliance().get().equals(Alliance.Red)){
         RobotState.getInstance().autoIntakeLeftOrRight = 1;
@@ -171,30 +173,6 @@ public class AutoFactory extends Command {
   
 
   public Command getAutoCommand(String nameString) {
-    // hello
-    // Create Auto builder
-    // AutoBuilder.configureHolonomic(
-    //     m_drive::getPose,
-    //     m_drive::resetPose,
-    //     m_drive::getChassisSpeeds,
-    //     m_drive::drive,
-    //     new HolonomicPathFollowerConfig(linearPIDConstants, angularPIDConstants,
-    //         DriveConstants.kMaxModuleSpeedMetersPerSecond, DriveConstants.kTrackWidth, new ReplanningConfig()),
-    //     m_drive);
-    // if (PathPlannerUtil.getExistingPaths().contains(nameString) == false) {
-    //   return Commands.runOnce(() -> {
-    //     System.out.println("Path not found");
-    //   });
-    // }
-    // try {
-    //   auto = PathPlannerPath.fromPathFile(nameString);
-    // } catch (Exception e) {
-    //   return Commands.runOnce(() -> {
-    //     System.out.println("Path not found");
-    //   });
-    // }
-    
-    // Command autoCommand = AutoBuilder.followPath(auto);
     Command autoCommand = AutoBuilder.buildAuto(nameString);
 
     return autoCommand.andThen(m_drive.brakeCommand());

@@ -5,7 +5,7 @@
       "x": 1.270677204431332,
       "y": 2.771307907231199
     },
-    "rotation": 125.44446348238154
+    "rotation": 114.56601945931264
   },
   "command": {
     "type": "sequential",
@@ -57,49 +57,57 @@
         {
           "type": "path",
           "data": {
-            "pathName": "87just"
+            "pathName": "farshoot6"
           }
         },
         {
-          "type": "named",
+          "type": "race",
           "data": {
-            "name": "AutoIntakeScanLeft"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "7shootjust"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoShoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "76just"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoIntakeScanLeft"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "AutoIntakeScanRight"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "2SecondLimit"
+                }
+              }
+            ]
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "6shootjust"
+            "pathName": "6farshot"
           }
         },
         {
-          "type": "named",
+          "type": "sequential",
           "data": {
-            "name": "AutoShoot"
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.5
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AutoShoot"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "farshotend"
           }
         }
       ]

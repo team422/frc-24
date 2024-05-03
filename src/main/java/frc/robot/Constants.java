@@ -105,7 +105,7 @@ public final class Constants {
     public static final double intakeSpeedToMPS = 1 * Units.inchesToMeters(1.5) * Math.PI;
     public static final double pivotGearRatio = 36.0/16;
     public static final Rotation2d kIntakeMaxMovedAngle = Rotation2d.fromDegrees(90);
-    public static final Rotation2d kIntakeMaxAngle = Rotation2d.fromDegrees(110);
+    public static final Rotation2d kIntakeMaxAngle = Rotation2d.fromDegrees(118);
     public static final Rotation2d kIntakeMinAngle = Rotation2d.fromDegrees(7);
     public static final Rotation2d kIntakeHomeAngle = Rotation2d.fromDegrees(29);
     public static final Rotation2d kAmpAngle = Rotation2d.fromDegrees(70);
@@ -155,7 +155,7 @@ public final class Constants {
       public static final LoggedTunableNumber kFlywheelSpeedRight = new LoggedTunableNumber("Flywheel Speed Right", 0.0, "Shooter");
       public static final LoggedTunableNumber kAmpSpeed = new LoggedTunableNumber("Flywheel amp speed", 5.70000, "Amp");
       public static final LoggedTunableNumber kFlywheelHockeyPuck = new LoggedTunableNumber("Flywheel hockey puck speed", 9.5, "Hockey Puck");
-      public static final LoggedTunableNumber kSourceIntakeSpeed =  new LoggedTunableNumber("Source intake speed", -20, "Source Intake");
+      public static final LoggedTunableNumber kSourceIntakeSpeed =  new LoggedTunableNumber("Source intake speed", -12, "Source Intake");
       public static final LoggedTunableNumber kSourceIntakeStopTime = new LoggedTunableNumber("Source intake Stop time", .4, "Source Intake");
     }
 
