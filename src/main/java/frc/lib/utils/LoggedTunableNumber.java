@@ -3,7 +3,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 import frc.robot.Constants;
 // FROM 6328 Mechanical Advantage
 

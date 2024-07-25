@@ -23,17 +23,17 @@ public class ManualController {
         return m_controller.getLeftY();
     }
 
-    public Trigger cimberLockToggle() {
-        return new Trigger(()->false);
-    }
+    // public Trigger cimberLockToggle() {
+    //     return new Trigger(()->false);
+    // }
 
-    public Trigger intakeUpDegrees() {
-        return new Trigger(()->false);
-    }
+    // public Trigger intakeUpDegrees() {
+    //     return new Trigger(()->false);
+    // }
 
-    public Trigger intakeDownDegrees() {
-        return new Trigger(()->false);
-    }
+    // public Trigger intakeDownDegrees() {
+    //     return new Trigger(()->false);
+    // }
 
     public Trigger finalShoot() {
         return m_controller.R1();
@@ -57,17 +57,17 @@ public class ManualController {
     }
 
 
-    public Trigger toggleBeamBreakOne() {
-        return new Trigger(()->false);
-    }
+    // public Trigger toggleBeamBreakOne() {
+    //     return new Trigger(()->false);
+    // }
 
-    public Trigger toggleBeamBreakTwo() {
-        return new Trigger(()->false);
-    }
+    // public Trigger toggleBeamBreakTwo() {
+    //     return new Trigger(()->false);
+    // }
 
-    public Trigger beambreakGamePiece() {
-        return new Trigger(()->false);
-    }
+    // public Trigger beambreakGamePiece() {
+    //     return new Trigger(()->false);
+    // }
 
     public Trigger zeroAmp() {
         return m_controller.povLeft();

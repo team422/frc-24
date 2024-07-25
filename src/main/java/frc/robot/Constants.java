@@ -21,6 +21,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
+import frc.lib.utils.Alert;
+import frc.lib.utils.Alert.AlertType;
 import frc.lib.utils.CustomHolmonomicDrive;
 import frc.lib.utils.LoggedTunableNumber;
 import frc.lib.utils.TunableNumber;
@@ -29,6 +32,37 @@ import frc.robot.utils.swerve.ModuleLimits;
 
 public final class Constants {
     public static final boolean tuningMode = true;
+    public static final boolean isTunableNetwork = false;
+    private static RobotType robotType = RobotType.COMPBOT;
+    public static final Mode curRobotMode = Mode.REPLAY;
+    public static RobotType getRobot() {
+    if (RobotBase.isReal() && robotType == RobotType.SIMBOT) {
+      new Alert("Invalid robot selected, using competition robot as default.", AlertType.ERROR)
+          .set(true);
+      robotType = RobotType.COMPBOT;
+    }
+    return robotType;
+  }
+    public static Mode getMode() {
+      return switch (robotType) {
+        case  COMPBOT -> RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
+        case SIMBOT -> Mode.SIM;
+      };
+    }
+    public enum RobotType {
+      SIMBOT,
+      COMPBOT
+    }
+    public enum Mode {
+      /** Running on a real robot. */
+      REAL,
+  
+      /** Running a physics simulator. */
+      SIM,
+  
+      /** Replaying from a log file. */
+      REPLAY
+    }
     // public static final TunableNumber tuning = new TunableNumber("Tuning Enabled", 0,"Tuning");
     public static final boolean fullManualShooterAndPivotSpeedControls = false;
     public static final boolean fullManualIntakePivotAndSpeedControls = false;
@@ -106,7 +140,7 @@ public final class Constants {
     public static final double pivotGearRatio = 36.0/16;
     public static final Rotation2d kIntakeMaxMovedAngle = Rotation2d.fromDegrees(90);
     public static final Rotation2d kIntakeMaxAngle = Rotation2d.fromDegrees(118);
-    public static final Rotation2d kIntakeMinAngle = Rotation2d.fromDegrees(7);
+    public static final Rotation2d kIntakeMinAngle = Rotation2d.fromDegrees(9.3);
     public static final Rotation2d kIntakeHomeAngle = Rotation2d.fromDegrees(29);
     public static final Rotation2d kAmpAngle = Rotation2d.fromDegrees(70);
 
@@ -118,7 +152,7 @@ public final class Constants {
 
     public static final double kIntakeStowTime = 0.75; // Seconds from indexer receiving game piece to stowing the intake
 
-    public static final LoggedTunableNumber kIntakeP = new LoggedTunableNumber("Intake P", .8, "Intake");
+    public static final LoggedTunableNumber kIntakeP = new LoggedTunableNumber("Intake P", .6, "Intake");
     public static final LoggedTunableNumber kIntakeI = new LoggedTunableNumber("Intake I", 0.0, "Intake");
     public static final LoggedTunableNumber kIntakeD = new LoggedTunableNumber("Intake D", 0.05, "Intake");
     public static final LoggedTunableNumber kIntakeKS = new LoggedTunableNumber("Intake KS", 0.0,"Intake FF");

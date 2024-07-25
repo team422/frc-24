@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -16,6 +18,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
+import frc.robot.utils.CtreBaseRefreshManager;
 
 /** Generic roller IO implementation for a roller or series of rollers using a Kraken. */
 public abstract class GenericRollerSystemIOKrakenFOC implements GenericRollerSystemIO {
@@ -54,6 +57,14 @@ public abstract class GenericRollerSystemIOKrakenFOC implements GenericRollerSys
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, position, velocity, appliedVoltage, outputCurrent, tempCelsius);
+    ArrayList<StatusSignal> signals = new ArrayList<>();
+    signals.add(position);
+    signals.add(velocity);
+    signals.add(appliedVoltage);
+    signals.add(outputCurrent);
+    signals.add(tempCelsius);
+
+    CtreBaseRefreshManager.getInstance().addSignals(signals); // Add all of the signals to the refresh manager
 
     talon.optimizeBusUtilization(1.0);
   }

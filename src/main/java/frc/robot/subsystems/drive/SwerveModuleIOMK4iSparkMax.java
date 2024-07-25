@@ -159,7 +159,7 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
         + m_turningMotor.getOutputCurrent() * m_turningMotor.getBusVoltage();
   }
 
-  @Override
+  // @Override
   public SwerveModuleState getAbsoluteState() {
     return new SwerveModuleState(getDriveVelocityMetersPerSecond(), getAbsoluteRotation());
   }
@@ -288,7 +288,7 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     return m_driveEncoder.getVelocity();
   }
 
-  @Override
+  // @Override
   public Rotation2d getAngle() {
     double angle = Units.degreesToRadians(m_turningEncoder.getPosition());
     return new Rotation2d(MathUtil.angleModulus(angle));

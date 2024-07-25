@@ -20,19 +20,19 @@ public class GyroIOSim implements GyroIO {
 
   }
 
-  @Override
+  // @Override
   public Rotation2d getAngle() {
     return Rotation2d.fromRotations(m_sim.getAngle());
   }
 
-  @Override
-  public void addAngle(Rotation2d angle) {
-    m_sim.setAngle(m_sim.getAngle() + angle.getDegrees());
-  }
+  // @Override
+  // public void addAngle(Rotation2d angle) {
+  //   m_sim.setAngle(m_sim.getAngle() + angle.getDegrees());
+  // }
 
-  @Override
-  public Rotation2d getPitch() {
-    return Rotation2d.fromDegrees(0);
-  }
+  // @Override
+  // public Rotation2d getPitch() {
+  //   return Rotation2d.fromDegrees(0);
+  // }
 
 }

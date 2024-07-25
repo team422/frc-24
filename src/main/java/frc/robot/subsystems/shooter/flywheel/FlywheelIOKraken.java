@@ -1,5 +1,9 @@
 package frc.robot.subsystems.shooter.flywheel;
 
+import java.util.ArrayList;
+
+import javax.print.attribute.standard.MediaSize.Other;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -29,6 +33,7 @@ import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.ShooterConstants.FlywheelConstants;
 import frc.robot.subsystems.shooter.Shooter.ShooterProfile;
+import frc.robot.utils.CtreBaseRefreshManager;
 
 public class FlywheelIOKraken implements FlywheelIO {
 
@@ -46,6 +51,8 @@ public class FlywheelIOKraken implements FlywheelIO {
     private final StatusSignal<Double> AppliedVoltsLeft;
     private final StatusSignal<Double> TorqueCurrentLeft;
     private final StatusSignal<Double> TempCelsiusLeft;
+    private final StatusSignal<Double> OutputCurrentLeft;
+    private final StatusSignal<Double> OutputCurrent;
 
     // Control
     private final Slot0Configs controllerConfigLeft = new Slot0Configs();
@@ -104,20 +111,23 @@ public class FlywheelIOKraken implements FlywheelIO {
 
         // Set signals
         Position = m_krakenLeft.getPosition();
-        Velocity = m_krakenLeft.getVelocity();
+        Velocity = m_krakenRight.getVelocity();
         // VelocityLeft = m_krakenRight.getVelocity();
         AppliedVolts = m_krakenLeft.getMotorVoltage();
 
         TorqueCurrent = m_krakenLeft.getTorqueCurrent();
         TempCelsius = m_krakenRight.getDeviceTemp();
         PositionLeft = m_krakenRight.getPosition();
-        VelocityLeft = m_krakenRight.getVelocity();
+        VelocityLeft = m_krakenLeft.getVelocity();
         AppliedVoltsLeft = m_krakenRight.getMotorVoltage();
         TorqueCurrentLeft = m_krakenRight.getTorqueCurrent();
         TempCelsiusLeft = m_krakenLeft.getDeviceTemp();
+        OutputCurrentLeft = m_krakenLeft.getSupplyCurrent();
+        OutputCurrent = m_krakenRight.getSupplyCurrent();
+        
 
         BaseStatusSignal.setUpdateFrequencyForAll(
-                100.0,
+                250.0,
                 Position,
                 Velocity,
                 AppliedVolts,
@@ -129,8 +139,27 @@ public class FlywheelIOKraken implements FlywheelIO {
                 TorqueCurrentLeft,
                 TempCelsiusLeft);
 
+                ArrayList<StatusSignal> signals = new ArrayList<StatusSignal>();
+                signals.add(Position);
+                signals.add(Velocity);
+                signals.add(AppliedVolts);
+                signals.add(TorqueCurrent);
+                signals.add(TempCelsius);
+                signals.add(PositionLeft);
+                signals.add(VelocityLeft);
+                signals.add(PositionLeft);
+                signals.add(TorqueCurrentLeft);
+                signals.add(TempCelsiusLeft);
+                signals.add(OutputCurrent);
+                signals.add(OutputCurrentLeft);
+                signals.add(AppliedVolts);
+                signals.add(AppliedVoltsLeft);
+                CtreBaseRefreshManager.getInstance().addSignals(signals);
+
     }
 
+
+ 
     public double metersPerSecondToRPM(double metersPerSecond) {
         double diameter = FlywheelConstants.kFlywheelDiameter;
         double circumference = Math.PI * diameter;
@@ -256,31 +285,33 @@ public class FlywheelIOKraken implements FlywheelIO {
                 FlywheelConstants.kFlywheelD, FlywheelConstants.kFlywheelKARight, FlywheelConstants.kFlywheelKSRight,
                 FlywheelConstants.kFlywheelKVRight, FlywheelConstants.kFlywheelKVLeft,
                 FlywheelConstants.kFlywheelKSLeft, FlywheelConstants.kFlywheelKALeft);
-        inputs.firstMotorConnected = BaseStatusSignal.refreshAll(
-                Position,
-                Velocity,
-                AppliedVolts,
-                TorqueCurrent,
-                TempCelsius,
-                PositionLeft,
-                VelocityLeft,
-                PositionLeft,
-                TorqueCurrentLeft,
-                TempCelsiusLeft, AppliedVolts, AppliedVoltsLeft)
-                .isOK();
+        // inputs.firstMotorConnected = BaseStatusSignal.refreshAll(
+        //         Position,
+        //         Velocity,
+        //         AppliedVolts,
+        //         TorqueCurrent,
+        //         TempCelsius,
+        //         PositionLeft,
+        //         VelocityLeft,
+        //         PositionLeft,
+        //         TorqueCurrentLeft,
+        //         OutputCurrent,
+        //         OutputCurrentLeft,
+        //         TempCelsiusLeft, AppliedVolts, AppliedVoltsLeft)
+        //         .isOK();
         inputs.secondMotorConnected = m_krakenRight.isAlive();
 
         inputs.PositionRads = Units.rotationsToRadians(Position.getValueAsDouble());
         inputs.VelocityRpm = VelocityLeft.getValueAsDouble() * 60.0;
         inputs.AppliedVolts = AppliedVolts.getValueAsDouble();
-        inputs.OutputCurrent = m_krakenRight.getSupplyCurrent().getValueAsDouble();
+        inputs.OutputCurrent = OutputCurrent.getValueAsDouble();
         inputs.TempCelsius = TempCelsius.getValueAsDouble();
         inputs.PositionRadsLeft = Units.rotationsToRadians(PositionLeft.getValueAsDouble());
         inputs.VelocityRpmLeft = Velocity.getValueAsDouble() * 60.0;
-        inputs.VelocityLeft = m_krakenLeft.getRotorVelocity().getValueAsDouble();
-        inputs.Velocity = m_krakenRight.getRotorVelocity().getValueAsDouble();
+        inputs.VelocityLeft = VelocityLeft.getValueAsDouble();
+        inputs.Velocity = Velocity.getValueAsDouble();
         inputs.AppliedVoltsLeft = AppliedVolts.getValueAsDouble();
-        inputs.OutputCurrentLeft = m_krakenLeft.getSupplyCurrent().getValueAsDouble();
+        inputs.OutputCurrentLeft = OutputCurrentLeft.getValueAsDouble();
         inputs.TempCelsiusLeft = TempCelsiusLeft.getValueAsDouble();
         inputs.AppliedVoltsLeft = AppliedVoltsLeft.getValueAsDouble();
         if (Robot.isSimulation()) {

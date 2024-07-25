@@ -22,8 +22,11 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.Timer;
+import frc.lib.advantagekit.LoggerUtil;
 import frc.lib.utils.VirtualSubsystem;
+import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState;
 import frc.robot.RobotState.VisionObservation;
@@ -40,6 +43,7 @@ public class AprilTagVision extends VirtualSubsystem {
 
   private final Map<Integer, Double> lastFrameTimes = new HashMap<>();
   private final Map<Integer, Double> lastTagDetectionTimes = new HashMap<>();
+  private final ArrayList<Pose2d> averageStoppedPositions = new ArrayList<>();
 
   public AprilTagVision(AprilTagVisionIO... io) {
     this.io = io;
@@ -87,6 +91,13 @@ public class AprilTagVision extends VirtualSubsystem {
       for (int frameIndex = 0; frameIndex < inputs[instanceIndex].timestamps.length; frameIndex++) {
         lastFrameTimes.put(instanceIndex, Timer.getFPGATimestamp());
         var timestamp = inputs[instanceIndex].timestamps[frameIndex];
+        if (Constants.getMode() == Constants.Mode.REPLAY) {
+          timestamp = Timer.getFPGATimestamp() -0.1;
+        }
+        // subtract out the frame time
+        if (inputs[instanceIndex].fps > 0){
+          timestamp -=  1/inputs[instanceIndex].fps;
+        }
         var values = inputs[instanceIndex].frames[frameIndex];
 
         // Exit if blank frame
@@ -259,6 +270,31 @@ public class AprilTagVision extends VirtualSubsystem {
         .sorted(Comparator.comparingDouble(VisionObservation::timestamp))
         .forEach(RobotState.getInstance()::addVisionObservation);
          // Logger.recordOutput("AprilTagVision/TagPoses", allTagPoses.toArray(Pose3d[]::new));
-         
+    double totalMovement = Math.abs(RobotState.getInstance().getDrive().getReplayChassisSpeeds().omegaRadiansPerSecond) + Math.abs(RobotState.getInstance().getDrive().getChassisSpeeds().vxMetersPerSecond) + Math.abs(RobotState.getInstance().getDrive().getChassisSpeeds().vyMetersPerSecond);
+    Logger.recordOutput("AprilTagVision/isStopped", totalMovement < 0.2);
+    Logger.recordOutput("AprilTagVision/totaleMovement", totalMovement);
+    if(totalMovement < 0.2){
+      for(VisionObservation visionObservation: allVisionObservations) {
+        averageStoppedPositions.add(visionObservation.visionPose());
+      }
+      double averageX = 0;
+      double averageY = 0;
+      double averageTheta = 0;
+      for(Pose2d pose: averageStoppedPositions){
+        averageX += pose.getX();
+        averageY += pose.getY();
+        averageTheta += pose.getRotation().getRadians();
+      }
+      averageX = averageX/averageStoppedPositions.size();
+      averageY = averageY/averageStoppedPositions.size();
+      averageTheta = averageTheta/averageStoppedPositions.size();
+      Pose2d averagePosition = new Pose2d(averageX, averageY, new Rotation2d(averageTheta));
+      Logger.recordOutput("AprilTagVision/averageStoppedPosition", averagePosition);
+      RobotState.getInstance().setStoppedPosition(averagePosition);
+
+  }else {
+    averageStoppedPositions.clear();
+    RobotState.getInstance().setStoppedPosition(null);
+  }
   }
 }

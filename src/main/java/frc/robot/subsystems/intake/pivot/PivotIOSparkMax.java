@@ -75,11 +75,11 @@ public class PivotIOSparkMax implements IntakePivotIO {
         
         
 
-        if(inputs.curAngle < 15 && inputs.desiredAngle < 15 ){
-            m_motor.setSecondaryCurrentLimit(10);
-        }else {
-            m_motor.setSecondaryCurrentLimit(80);
-        }
+        // if(inputs.curAngle < 15 && inputs.desiredAngle < 15 ){
+        //     m_motor.setSecondaryCurrentLimit(10);
+        // }else {
+        //     m_motor.setSecondaryCurrentLimit(80);
+        // }
 
     }
 

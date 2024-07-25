@@ -6,8 +6,12 @@ package frc.robot;
 
 import java.sql.DriverPropertyInfo;
 
+import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.rlog.RLOGServer;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,14 +47,14 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
     // Initialize the AdvantageKit Logger
-    LoggerUtil.initializeLogger();
+    
     // System.out.println(new ObjectMapper().writeValueAsString(AprilTagFields.k2024Crescendo.loadAprilTagLayoutField()));
     // try {
     // //   // System.out.println(new ObjectMapper().writeValueAsString(AprilTagFields.k2024Crescendo.loadAprilTagLayoutField()));
     // } catch (JsonProcessingException e) {
     //   throw new RuntimeException("Failed to serialize AprilTag layout JSON for Northstar");
     // }
-      PathfindingCommand.warmupCommand();
+      
 
     if (Robot.isSimulation()) {
       DriverStation.silenceJoystickConnectionWarning(true);
@@ -58,6 +62,29 @@ public class Robot extends LoggedRobot {
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
+    
+    switch (Constants.getMode()) {
+      case REAL:
+        // Running on a real robot, log to a USB stick ("/U/logs")
+        Logger.addDataReceiver(new WPILOGWriter());
+        Logger.addDataReceiver(new RLOGServer());
+        break;
+
+      case SIM:
+        // Running a physics simulator, log to NT
+        Logger.addDataReceiver(new RLOGServer());
+        break;
+
+      case REPLAY:
+        // Replaying a log, set up replay source
+        setUseTiming(true); // Run as fast as possible
+        String logPath = "/Volumes/NO NAME/Log_24-04-20_08-50-32_e2.wpilog";
+        Logger.setReplaySource(new WPILOGReader(logPath));
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"), 0.01));
+        break;
+    }
+    LoggerUtil.initializeLogger();
+    PathfindingCommand.warmupCommand();
     robotContainer = new RobotContainer();
     robotContainer.lowerCurrentLimits();
   }
@@ -78,6 +105,8 @@ public class Robot extends LoggedRobot {
     // the Command-based framework to work.
     long start = HALUtil.getFPGATime();
     CommandScheduler.getInstance().run();
+    // CommandScheduler.getInstance().getActiveButtonLoop().poll();
+    
     Logger.recordOutput("LoggedRobot/CommandScheduler", (HALUtil.getFPGATime()-start)/1000);
     robotContainer.updateRobotState();
   }

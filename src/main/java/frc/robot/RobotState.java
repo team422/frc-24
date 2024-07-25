@@ -44,6 +44,7 @@ import frc.robot.Constants.AmpConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.Mode;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShooterMathConstants;
@@ -68,6 +69,7 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterProfile;
 import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.AutoBuilderManager;
+import frc.robot.utils.CtreBaseRefreshManager;
 import frc.robot.utils.DynamicCurrentLimitsManager;
 import frc.robot.utils.NoteVisualizer;
 import frc.robot.utils.ShooterMath;
@@ -139,6 +141,8 @@ public class RobotState {
   public double kSourceIntakeStopTime = -1;
 
   public boolean lastInContactWithNote = true;
+
+  public Pose2d stoppedPose = null;
 
   // auto intake timing stuff for auto
   public double lastTimeNoteSeen = -1;
@@ -226,12 +230,21 @@ public class RobotState {
   }
 
   public boolean hasNoteOverride() { // FOR TESTING ONLY
-    return m_testingController.hasNoteOverride().getAsBoolean();
+    return false;
+    // return m_testingController.hasNoteOverride().getAsBoolean();
   }
 
   public static RobotState getInstance() {
 
     return instance;
+  }
+
+  public void setStoppedPosition(Pose2d pose) {
+    stoppedPose = pose;
+  }
+
+  public Pose2d getStoppedPosition() {
+    return stoppedPose;
   }
 
   public void resetAutoBuilder() {
@@ -357,11 +370,13 @@ public class RobotState {
     // }
     // difference between estimate and vision pose
     m_drive.addVisionMeasurement(observation);
-    last3VisionUpdates[visionNumber] = observation.visionPose();
+      Logger.recordOutput("TimeStamps/visionUpdateNum", observation.timestamp());
+      Logger.recordOutput("TimeStamps/realTime", Timer.getFPGATimestamp());
+    // last3VisionUpdates[visionNumber] = observation.visionPose();
     visionNumber += 1;
-    if (visionNumber == 1) {
-      visionNumber = 0;
-    }
+    // if (visionNumber == 1) {
+    //   visionNumber = 0;
+    // }
 
     // System.out.println(observation.stdDevs());
     // Transform2d transform = new Transform2d(estimateAtTime,
@@ -583,16 +598,17 @@ public class RobotState {
       ArrayList<Rotation2d> headingAndPivotAngles = m_shooterMath.setNextShootingPoseAndVelocity(getEstimatedPose(),
           robotVelocity, AllianceFlipUtil.apply(FieldConstants.kShooterCenter));
       ArrayList<Double> shooterSpeeds = m_shooterMath.getShooterMetersPerSecond(distance);
-      m_shooter.setPivotAngle(headingAndPivotAngles.get(1));
-      m_shooter.setFlywheelSpeedWithSpin(shooterSpeeds.get(0), shooterSpeeds.get(1));
+      // m_shooter.setPivotAngle(headingAndPivotAngles.get(1));
+      // m_shooter.setFlywheelSpeedWithSpin(shooterSpeeds.get(0), shooterSpeeds.get(1));
     } else {
-      m_shooter.setProfile(ShooterProfile.notReving);
+      // m_shooter.setProfile(ShooterProfile.notReving);
     }
     // m_shooter.setProfile(ShooterProfile);
   }
 
   public void updateRobotState() {
     Logger.recordOutput("Current State Space", curAction);
+    CtreBaseRefreshManager.getInstance().updateAll();
     DynamicCurrentLimitsManager.getInstance().update();
     if (mUpdatingAutoBuilder) {
       // mAutoBuilderManager.update();
@@ -771,10 +787,13 @@ public class RobotState {
       Logger.recordOutput("ReadyToShoot/HeadingTolerance",
           m_shooterMath.calculateShootingHeadingTolerance(shootingDistance));
       if (headingWithinTolerance && pivotInTolerance && speedWithinTolerance && flywheelInTolerance) {
-        if (mDriveControls.goToShootPositionAndRev().getAsBoolean()) {
-          m_indexer.setState(Indexer.IndexerState.SHOOTING);
-          m_led.setState(LedState.SHOOTER_READY);
-        }
+        // if (mDriveControls.goToShootPositionAndRev().getAsBoolean()) {
+        //   m_indexer.setState(Indexer.IndexerState.SHOOTING);
+        //   m_led.setState(LedState.SHOOTER_READY);
+        //   // if(Constants.getMode() == Mode.REPLAY){
+        //   m_drive.onShootResetOdometryFocus();
+        //   // }
+        // }
       }
       // if
       // ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees())

@@ -159,7 +159,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
 
   }
 
-  @Override
+  // @Override
   public SwerveModuleState getAbsoluteState() {
     return getState();
   }

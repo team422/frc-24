@@ -8,7 +8,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.lib.advantagekit.LoggedIO;
 import frc.robot.subsystems.drive.SwerveModuleIO.SwerveModuleInputs;
 
-public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
+public interface SwerveModuleIO {
   @AutoLog
   public static class SwerveModuleInputs {
     public double turnAngleRads;
@@ -32,30 +32,34 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
     public double desiredAngleDegrees;
   }
 
-  public SwerveModulePosition getPosition();
+  public default void updateInputs(SwerveModuleInputs inputs){};
+
+  // public SwerveModulePosition getPosition();
 
   public default void setUpModuleFirmware() {
   };
 
-  public void resetDistance();
+  public default void resetDistance() {
+  };
 
-  public void syncTurningEncoder();
+  public default void syncTurningEncoder() {
+  };
 
-  public void resetEncoders();
+  public default void resetEncoders() {};
 
-  public Rotation2d getAngle();
+  // public Rotation2d getAngle();
 
-  public void setDesiredState(SwerveModuleState swerveModuleState);
+  public default void setDesiredState(SwerveModuleState swerveModuleState){};
 
-  public SwerveModuleState getState();
+  // public SwerveModuleState getState();
 
-  public void runDriveVelocitySetpoint(double velocityMetersPerSecond, double feedforwardVolts);
+  public default void runDriveVelocitySetpoint(double velocityMetersPerSecond, double feedforwardVolts){};
 
-  public SwerveModuleState getAbsoluteState();
+  // public SwerveModuleState getAbsoluteState();
 
-  public void setVoltage(double voltageDrive, double voltageTurn);
+  public default void setVoltage(double voltageDrive, double voltageTurn){};
 
-  default public void setVoltageDriveOnly(double voltageDrive, SwerveModulePosition voltageTurn) {};
+  default  public void setVoltageDriveOnly(double voltageDrive, SwerveModulePosition voltageTurn) {};
 
     
   default void runTurnPositionSetpoint(double angleRads) {};
@@ -74,25 +78,46 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
     return;
   }
 
-  public double getVoltage();
+  public default double getVoltage(){
+    return 0;
+  }
 
-  public double getDriveCurrent();
+  public default double getDriveCurrent(){
+    return 0;
+  }
 
-  public void updateWheelSpeedCalculusSolver();
+  public default void updateWheelSpeedCalculusSolver(){
+    return;
+  }
 
-  public void updateCurrentCalculusSolver();
+  public default void updateCurrentCalculusSolver(){
+    return;
+  }
 
-  public double getDeltaDriveCurrent();
+  public default double getDeltaDriveCurrent(){
+    return 0;
+  }
 
-  public double getDeltaWheelSpeed();
+  public default double getDeltaWheelSpeed(){
+    return 0;
+  }
 
-  public double getWheelSpeed();
 
-  public void setBrakeMode(boolean mode);
+  public default double getWheelSpeed(){
+    return 0;
+  }
 
-  public void setVoltageDriveIgnoreTurn(double driveVoltage);
+  public default void setBrakeMode(boolean mode){
+    return;
+  }
 
-  public void setVoltageTurnIgnoreDrive(double turnVoltage);
+  public default void setVoltageDriveIgnoreTurn(double driveVoltage){
+    return;
+  }
+
+  public default void setVoltageTurnIgnoreDrive(double turnVoltage){
+    return;
+  }
 
   public default void setDriveVelocitySetpoint(double velocityRadsPerSec, double ffVolts) {
   };
@@ -100,9 +125,13 @@ public interface SwerveModuleIO extends LoggedIO<SwerveModuleInputs> {
   public default void setTurnPositionSetpoint(double angleRads) {
   };
 
-  public void setDrivePID(double p, double i, double d);
+  public default void setDrivePID(double p, double i, double d){
+    return;
+  }
 
-  public void setTurnPID(double p, double i, double d);
+  public default void setTurnPID(double p, double i, double d){
+    return;
+  }
   
 
   public default void setTurnFF(double ks, double kv, double ka){

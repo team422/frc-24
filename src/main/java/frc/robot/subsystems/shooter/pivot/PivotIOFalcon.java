@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter.pivot;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
@@ -40,6 +41,7 @@ import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.Robot;
 import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
 import frc.robot.RobotState.RobotCurrentAction;
+import frc.robot.utils.CtreBaseRefreshManager;
 
 public class PivotIOFalcon implements PivotIO {
     // Hardware
@@ -138,7 +140,7 @@ public class PivotIOFalcon implements PivotIO {
         armTempCelsius = List.of(leaderTalon.getDeviceTemp(), followerTalon.getDeviceTemp());
 
         BaseStatusSignal.setUpdateFrequencyForAll(
-            100,
+            250,
             armInternalPositionRotations,
             armVelocityRps,
             armAppliedVoltage.get(0),
@@ -149,6 +151,21 @@ public class PivotIOFalcon implements PivotIO {
             armTorqueCurrent.get(1),
             armTempCelsius.get(0),
             armTempCelsius.get(1));
+
+        ArrayList<StatusSignal> signals = new ArrayList<>();
+        signals.add(armInternalPositionRotations);
+        signals.add(armVelocityRps);
+        signals.add(armAppliedVoltage.get(0));
+        signals.add(armAppliedVoltage.get(1));
+        signals.add(armOutputCurrent.get(0));
+        signals.add(armOutputCurrent.get(1));
+        signals.add(armTorqueCurrent.get(0));
+        signals.add(armTorqueCurrent.get(1));
+        signals.add(armTempCelsius.get(0));
+        signals.add(armTempCelsius.get(1));
+
+        CtreBaseRefreshManager.getInstance().addSignals(signals);
+
 
         // Optimize bus utilization
         leaderTalon.optimizeBusUtilization(1.0);
@@ -216,22 +233,22 @@ public class PivotIOFalcon implements PivotIO {
         //     leaderTalon.setPosition(getCurrentAngle().getRotations(), 0.002);
         // }
         
-        inputs.firstMotorConnected =
-            BaseStatusSignal.refreshAll(
-                    armInternalPositionRotations,
-                    armVelocityRps,
-                    armAppliedVoltage.get(0),
-                    armOutputCurrent.get(0),
-                    armTorqueCurrent.get(0),
-                    armTempCelsius.get(0))
-                .isOK();
-        inputs.secondMotorConnected =
-            BaseStatusSignal.refreshAll(
-                    armAppliedVoltage.get(1),
-                    armOutputCurrent.get(1),
-                    armTorqueCurrent.get(1),
-                    armTempCelsius.get(1))
-                .isOK();
+        // inputs.firstMotorConnected =
+        //     BaseStatusSignal.refreshAll(
+        //             armInternalPositionRotations,
+        //             armVelocityRps,
+        //             armAppliedVoltage.get(0),
+        //             armOutputCurrent.get(0),
+        //             armTorqueCurrent.get(0),
+        //             armTempCelsius.get(0))
+        //         .isOK();
+        // inputs.secondMotorConnected =
+        //     BaseStatusSignal.refreshAll(
+        //             armAppliedVoltage.get(1),
+        //             armOutputCurrent.get(1),
+        //             armTorqueCurrent.get(1),
+        //             armTempCelsius.get(1))
+        //         .isOK();
 
         inputs.armPositionRads = Units.rotationsToDegrees(armInternalPositionRotations.getValue());
         inputs.absolutePositionDegrees = getCurrentAngle().getDegrees();

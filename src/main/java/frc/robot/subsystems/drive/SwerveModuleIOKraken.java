@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import java.util.ArrayList;
 import java.util.Queue;
 import java.util.function.Supplier;
 
@@ -45,6 +46,7 @@ import frc.lib.utils.LoggedTunableNumber;
 import frc.lib.utils.TunableNumber;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
+import frc.robot.utils.CtreBaseRefreshManager;
 import frc.robot.Robot;
 public class SwerveModuleIOKraken implements SwerveModuleIO {
     private TalonFX m_driveMotor;
@@ -198,7 +200,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
         turnSupplyCurrent = m_turnMotor.getSupplyCurrent();
         turnTorqueCurrent = m_turnMotor.getTorqueCurrent();
         BaseStatusSignal.setUpdateFrequencyForAll(
-            100.0,
+            250.0,
             driveVelocity,
             driveAppliedVolts,
             driveSupplyCurrent,
@@ -207,6 +209,22 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
             turnAppliedVolts,
             turnSupplyCurrent,
             turnTorqueCurrent
+        );
+        ArrayList<StatusSignal> signals = new ArrayList<>();
+        signals.add(drivePosition);
+        signals.add(driveVelocity);
+        signals.add(driveAppliedVolts);
+        signals.add(driveSupplyCurrent);
+        signals.add(driveTorqueCurrent);
+        signals.add(turnPosition);
+        signals.add(turnVelocity);
+        signals.add(turnAppliedVolts);
+        signals.add(turnSupplyCurrent);
+        signals.add(turnTorqueCurrent);
+            
+
+        CtreBaseRefreshManager.getInstance().addSignals(
+            signals
         );
 
 // STUFF NEEDED FOR OUR ODO
@@ -285,18 +303,19 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
 
         
 
-                inputs.driveMotorConnected =
-        BaseStatusSignal.refreshAll(
-                drivePosition,
-                driveVelocity,
-                driveAppliedVolts,
-                driveSupplyCurrent,
-                driveTorqueCurrent)
-            .isOK();
-    inputs.turnMotorConnected =
-        BaseStatusSignal.refreshAll(
-                turnPosition, turnVelocity, turnAppliedVolts, turnSupplyCurrent, turnTorqueCurrent)
-            .isOK();
+                inputs.driveMotorConnected = true;
+        // BaseStatusSignal.refreshAll(
+        //         drivePosition,
+        //         driveVelocity,
+        //         driveAppliedVolts,
+        //         driveSupplyCurrent,
+        //         driveTorqueCurrent,
+        //         turnPosition, turnVelocity, turnAppliedVolts, turnSupplyCurrent, turnTorqueCurrent)
+        //     .isOK();
+    inputs.turnMotorConnected = true;
+        // BaseStatusSignal.refreshAll(
+        //         )
+        //     .isOK();
 
         inputs.driveDistanceMeters = getDriveDistanceMeters();
         inputs.driveVelocityMetersPerSecond = getDriveVelocityMetersPerSecond();
@@ -351,7 +370,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
     }
 
 
-    @Override
+    // @Override
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(getDriveDistanceMeters(), getAngle());
     }
@@ -378,7 +397,7 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
     }
 
 
-    @Override
+    // @Override
     public Rotation2d getAngle() {
         // return Rotation2d.fromRadians(turnPosition.getValueAsDouble());
         return Rotation2d.fromRadians(MathUtil.angleModulus(turnAbsolutePosition.get().getRadians()));
@@ -395,13 +414,13 @@ public class SwerveModuleIOKraken implements SwerveModuleIO {
     }
 
 
-    @Override
+    // @Override
     public SwerveModuleState getState() {
         return new SwerveModuleState(getDriveVelocityMetersPerSecond(), getAngle());
     }
 
 
-    @Override
+    // @Override
     public SwerveModuleState getAbsoluteState() {
         // TODO Auto-generated method stub
         return new SwerveModuleState(getDriveVelocityMetersPerSecond(),getAngle());

@@ -55,14 +55,15 @@ if (phoenixDrive) {
     }
   }
 
-  @Override
+  // @Override
   public Rotation2d getAngle() {
     return m_gyro.getRotation2d();
   }
 
   @Override
   public void updateInputs(GyroInputs inputs) {
-    inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
+    // inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity).equals(StatusCode.OK);
+    inputs.connected = true;
     inputs.angle = getAngle().getDegrees();
     inputs.pitch = getPitch().getDegrees();
     // m_gyro.(yprDegrees);
@@ -80,6 +81,9 @@ if (phoenixDrive) {
     inputs.yawPositionRad = rotation.getZ();
 
     inputs.rollVelocityRadPerSec = Rotation2d.fromDegrees(m_gyro.getAngularVelocityXDevice().getValue()).getRadians();
+    inputs.zMetersSecondSquare = m_gyro.getAccelerationZ().getValueAsDouble();
+    inputs.xMetersSecondSquare = m_gyro.getAccelerationX().getValueAsDouble();
+    inputs.yMetersSecondSquare = m_gyro.getAccelerationY().getValueAsDouble();
     inputs.pitchVelocityRadPerSec = Rotation2d.fromDegrees(m_gyro.getAngularVelocityYDevice().getValue()).getRadians();
     inputs.yawVelocityRadPerSec = Rotation2d.fromDegrees(m_gyro.getAngularVelocityZDevice().getValue()).getRadians();
 
@@ -91,16 +95,15 @@ if (phoenixDrive) {
 
   }
 
-  @Override
-  public void addAngle(Rotation2d angle) {
-    // m_gyro.add(angle.getDegrees());
-    if(Robot.isReal()){
-    m_gyroConfig.setYaw(angle.plus(m_gyro.getRotation2d()).getDegrees());
-    }
+  // @Override
+  // public void addAngle(Rotation2d angle) {
+  //   // m_gyro.add(angle.getDegrees());
+  //   if(Robot.isReal()){
+  //   m_gyroConfig.setYaw(angle.plus(m_gyro.getRotation2d()).getDegrees());
+  //   }
 
-  }
+  // }
 
-  @Override
   public Rotation2d getPitch() {
     return Rotation2d.fromDegrees(m_gyro.getPitch().getValue());
   }

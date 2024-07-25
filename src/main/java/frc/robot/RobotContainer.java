@@ -28,6 +28,7 @@ import frc.lib.autonPlanning.PathPlannerUtil;
 import frc.lib.utils.NetworkTablesTEBInterfacer;
 import frc.lib.utils.VirtualSubsystem;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.Mode;
 import frc.robot.Constants.Ports;
 import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.commands.autonomous.AutoFactory;
@@ -49,6 +50,7 @@ import frc.robot.subsystems.drive.SwerveModuleIO;
 import frc.robot.subsystems.drive.SwerveModuleIOKraken;
 import frc.robot.subsystems.drive.SwerveModuleIOSim;
 import frc.robot.subsystems.drive.generatedConstants.TunerConstants;
+import frc.robot.subsystems.drive.gyro.GyroIO;
 import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
@@ -159,29 +161,29 @@ public class RobotContainer {
         m_robotState.setDriveType(DriveProfiles.kDefault);
       }));
       
-      m_testingController.toggleBeamBreakOne().onTrue(
-        Commands.runOnce(() -> m_indexer.io.setInitalBeamBreak(true))
-      );
-      m_testingController.toggleBeamBreakOne().onFalse(
-        Commands.runOnce(() -> m_indexer.io.setInitalBeamBreak(false))
-      );
-      m_testingController.toggleBeamBreakTwo().onTrue(
-        Commands.runOnce(() -> m_indexer.io.setFinalBeamBreak(true))
-      );
-      m_testingController.toggleBeamBreakTwo().onFalse(
-        Commands.runOnce(() -> m_indexer.io.setFinalBeamBreak(false))
-      );
+      // m_testingController.toggleBeamBreakOne().onTrue(
+      //   Commands.runOnce(() -> m_indexer.io.setInitalBeamBreak(true))
+      // );
+      // m_testingController.toggleBeamBreakOne().onFalse(
+      //   Commands.runOnce(() -> m_indexer.io.setInitalBeamBreak(false))
+      // );
+      // m_testingController.toggleBeamBreakTwo().onTrue(
+      //   Commands.runOnce(() -> m_indexer.io.setFinalBeamBreak(true))
+      // );
+      // m_testingController.toggleBeamBreakTwo().onFalse(
+      //   Commands.runOnce(() -> m_indexer.io.setFinalBeamBreak(false))
+      // );
 
-      m_testingController.beambreakGamePiece().onTrue(
-        Commands.runOnce(() -> m_indexer.io.gamepiece())
-      );
-
-
+      // m_testingController.beambreakGamePiece().onTrue(
+      //   Commands.runOnce(() -> m_indexer.io.gamepiece())
+      // );
 
 
-      m_testingController.cimberLockToggle().onTrue(Commands.runOnce(()->{
-        m_climb.toggleServo();
-      }));
+
+
+      // m_testingController.cimberLockToggle().onTrue(Commands.runOnce(()->{
+      //   m_climb.toggleServo();
+      // }));
 
       new Trigger(()->{if(Math.abs(m_testingController.climberStick()) > 0.2) {return true;} else {return false;}}).whileTrue(Commands.run(()->m_climb.setSpeed(m_testingController.climberStick()))).onFalse(Commands.runOnce(()->m_climb.setSpeed(0)));
       // new Trigger(()->{if(Math.abs(m_testingController.climberStick()) > 0.2){return true;}else{return false;}} ) .whileTrue(Commands.runOnce(()->{
@@ -457,7 +459,7 @@ public class RobotContainer {
     // m_shooter = new Shooter(new PivotIOSim(), new FlywheelIOSim());
     Unmanaged.setPhoenixDiagnosticsStartTime(-1);
     
-    if (Robot.isSimulation()) {
+    if (Robot.isSimulation() && Constants.getMode() == Mode.SIM) {
       m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim());
       
       m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
@@ -493,7 +495,34 @@ public class RobotContainer {
       m_amp = new Amp(new AmpIOFalcon(Ports.ampMotor));
       // new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort)
     }
-    else{
+    else if(Robot.isSimulation() && Constants.getMode() == Mode.REPLAY){
+      m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) ,new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort) );
+      // m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim());
+    m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
+    m_amp = new Amp(new AmpIOFalcon(Ports.ampMotor));
+      CommandSwerveDrivetrain m_CommandSwerveDrivetrain = new CommandSwerveDrivetrain(TunerConstants.DrivetrainConstants, TunerConstants.FrontLeft, TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);
+      SwerveModuleIO[] m_SwerveModuleIOs = {
+        // new SwerveModuleIOMK4Talon(1,2,3),
+        new SwerveModuleIO(){},
+        // new SwerveModuleIOSim(),
+        new SwerveModuleIO(){},
+        // new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(1).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(1).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(1).getCANcoder(), false),
+        // new SwerveModuleIOKraken(7, 8, 9, false),
+        // new SwerveModuleIOSim(),
+        new SwerveModuleIO(){},
+        // new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(2).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(2).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(2).getCANcoder(), false),
+        // new SwerveModuleIOKraken(4,5, 6, false),
+        // new SwerveModuleIOSim(),
+        new SwerveModuleIO(){},
+        // new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(3).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(3).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(3).getCANcoder(), false),
+        // new SwerveModuleIOKraken(1,2,3,false),
+        // new SwerveModuleIOMK4Talon(4,5,6),
+        // new SwerveModuleIOMK4Talon(7,8,9),
+        // new SwerveModuleIOMK4Talon(10,11,12),
+      };
+      m_drive = new Drive(new GyroIO() {},new Pose2d(),m_CommandSwerveDrivetrain,m_SwerveModuleIOs);
+    }
+    else {
       m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) ,new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort) );
       // m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim());
     m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
@@ -542,6 +571,7 @@ public class RobotContainer {
           // new SwerveModuleIOMK4Talon(7,8,9),
           // new SwerveModuleIOMK4Talon(10,11,12),
         };
+        m_drive = new Drive(new GyroIOPigeon(22,new Rotation2d(),true),new Pose2d(),m_CommandSwerveDrivetrain,m_SwerveModuleIOs);
         // SwerveModuleIO[] m_SwerveModuleIOs = {
         //   new SwerveModuleIOKraken(new TalonFX(1),new TalonFX(2),new CANcoder(6),false),
         //   new SwerveModuleIOKraken(new TalonFX(3),new TalonFX(4),new CANcoder(5),false), 
@@ -549,7 +579,6 @@ public class RobotContainer {
         //   new SwerveModuleIOKraken(new TalonFX(10),new TalonFX(11),new CANcoder(12),false)
 
         // };
-        m_drive = new Drive(new GyroIOPigeon(22,new Rotation2d(),true),new Pose2d(),m_CommandSwerveDrivetrain,m_SwerveModuleIOs);
         // m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_0",frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionConstants.cameraIds[0]));
       }
       m_aprilTagVision = new frc.robot.subsystems.northstarAprilTagVision.AprilTagVision(new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_0",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_1",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_3",""),new frc.robot.subsystems.northstarAprilTagVision.AprilTagVisionIONorthstar("northstar_2",""));

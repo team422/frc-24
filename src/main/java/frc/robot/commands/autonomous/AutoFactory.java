@@ -174,7 +174,7 @@ public class AutoFactory extends Command {
 
   public Command getAutoCommand(String nameString) {
     Command autoCommand = AutoBuilder.buildAuto(nameString);
-
+    
     return autoCommand.andThen(m_drive.brakeCommand());
     // return Commands.sequence(m_drive.brakeCommand(), autoCommand.andThen(m_drive.brakeCommand()));
   }
