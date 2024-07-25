@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.sql.DriverPropertyInfo;
-
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -13,18 +11,14 @@ import org.littletonrobotics.junction.rlog.RLOGServer;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.advantagekit.LoggerUtil;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.subsystems.drive.Drive.DriveProfiles;
 

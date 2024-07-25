@@ -106,7 +106,6 @@ public class RobotContainer {
   public RobotContainer() {
     configureControllers();
     configureSubsystems();
-    configureBindings();
     configureCommands();
     configureBindings();
   }

@@ -1,25 +1,18 @@
 package frc.robot.subsystems.intake.pivot;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
-
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.MotorFeedbackSensor;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
+import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.lib.advantagekit.LoggedIO;
-import frc.lib.utils.CanSparkMaxSetup;
 import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.subsystems.intake.pivot.IntakePivotIO.IntakePivotIOInputs;
 
 public class PivotIOSparkMax implements IntakePivotIO {
 

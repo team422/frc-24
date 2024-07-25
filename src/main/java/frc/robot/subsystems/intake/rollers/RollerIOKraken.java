@@ -1,15 +1,12 @@
 package frc.robot.subsystems.intake.rollers;
 
 
-import java.util.function.Supplier;
-
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 
-import edu.wpi.first.units.Measure;
 import frc.robot.Constants.IntakeConstants;
 
 public class RollerIOKraken implements RollerIO {

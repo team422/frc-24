@@ -30,6 +30,7 @@ import frc.lib.utils.TunableNumber;
 import frc.robot.utils.Note;
 import frc.robot.utils.swerve.ModuleLimits;
 
+
 public final class Constants {
     public static final boolean tuningMode = true;
     public static final boolean isTunableNetwork = false;
@@ -160,8 +161,6 @@ public final class Constants {
     public static final LoggedTunableNumber kIntakeKG = new LoggedTunableNumber("Intake KG", 0.0,"Intake FF");
 
 
-  public static final class IntakeConstants {
-    public static final double kIntakeVoltage = 12;
   }
 
   public static final class ShooterConstants {
@@ -405,7 +404,7 @@ public final class Constants {
 
   }
 
-  public static final class FieldConstants {
+    public static final class FieldConstants {
     public static final double kFieldLengthMeters = Units.feetToMeters(54.27083);
     public static final double kFieldWidthMeters = Units.feetToMeters(26.2916);
     public static final Pose2d kOppositeField = new Pose2d(kFieldLengthMeters, kFieldWidthMeters,
@@ -492,11 +491,10 @@ public final class Constants {
         Units.inchesToMeters(6.366), Units.inchesToMeters(-8.055), Units.inchesToMeters(27.269)),
         new Rotation3d(0, Units.degreesToRadians(-10), Units.degreesToRadians(-15)));
       public static final Transform3d kleftCameraTransform = new Pose3d(new Translation3d(
-          Units.inchesToMeters(6.366), Units.inchesToMeters(8.055), Units.inchesToMeters(26.269)),
-          new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(15))).minus(new Pose3d());
+        Units.inchesToMeters(6.366), Units.inchesToMeters(8.055), Units.inchesToMeters(26.269)),
+        new Rotation3d(0, Units.degreesToRadians(10), Units.degreesToRadians(15))).minus(new Pose3d());
 
     }
-
     public static final class ObjectDetection {
       public static final LoggedTunableNumber distanceClose = new LoggedTunableNumber("distance close width", 0.56,"Objectmagic");
       public static final LoggedTunableNumber distanceFar = new LoggedTunableNumber("distance far width", 1.5,"Objectmagic");

@@ -6,15 +6,11 @@ import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.hardwareprofiler.ProfiledSubsystem;
 import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.Constants;
-import frc.robot.Constants;
-import frc.robot.RobotState;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.subsystems.drive.SwerveModuleIO;
+import frc.robot.RobotState;
 import frc.robot.subsystems.intake.pivot.IntakePivotIO;
 import frc.robot.subsystems.intake.pivot.IntakePivotIOInputsAutoLogged;
 import frc.robot.subsystems.intake.rollers.RollerIO;
@@ -72,9 +68,6 @@ public class Intake extends ProfiledSubsystem {
         Logger.recordOutput("LoggedRobot/IntakePeriodic", (HALUtil.getFPGATime()-start)/1000);
     }
 
-    public void setRollerVoltage(double voltage) {
-        m_RollerIO.setVoltage(voltage);
-    }
 
     public void setPivotAngle(Rotation2d angle) {
         m_rotation = angle;

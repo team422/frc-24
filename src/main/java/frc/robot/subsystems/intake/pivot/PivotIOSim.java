@@ -1,7 +1,5 @@
 package frc.robot.subsystems.intake.pivot;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
