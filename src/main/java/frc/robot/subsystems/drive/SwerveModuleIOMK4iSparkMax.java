@@ -1,15 +1,22 @@
 package frc.robot.subsystems.drive;
 
+import javax.print.CancelablePrintJob;
 
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CANcoderConfigurator;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.core.CoreCANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMax;
+// import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 
@@ -20,14 +27,15 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import frc.lib.utils.CalculusSolver;
 import frc.lib.utils.CanSparkMaxSetup;
-import frc.lib.utils.TunableNumber;
+import frc.lib.utils.LoggedTunableNumber;
 import frc.robot.Constants;
+
 
 public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
 
   private final CANSparkMax m_driveMotor;
   private final CANSparkMax m_turningMotor;
-  
+
   private final RelativeEncoder m_driveEncoder;
   private final RelativeEncoder m_turningEncoder;
 
@@ -36,10 +44,8 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
   // robot is turned on
   //    private final Rotation2d m_CANCoderOffset;
 
-  private final CANcoderConfigurator m_turningCANCoderConfig;
-
-  private final SparkMaxPIDController m_turningController;
-  private final SparkMaxPIDController m_driveController;
+  private final SparkPIDController m_turningController;
+  private final SparkPIDController m_driveController;
 
   private double adjustedSpeed;
   private String name;
@@ -49,13 +55,13 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
   public static class ModuleConstants {
     public static final double kDriveConversionFactor = 1 / 22.0409;
     public static final double kTurnPositionConversionFactor = 21.428;
-    public static final TunableNumber kDriveP = Constants.ModuleConstants.kDriveP;
-    public static final TunableNumber kDriveI = Constants.ModuleConstants.kDriveI;
-    public static final TunableNumber kDriveD = Constants.ModuleConstants.kDriveD;
-    public static final TunableNumber kTurningP = Constants.ModuleConstants.kTurningP;
-    public static final TunableNumber kTurningI = Constants.ModuleConstants.kTurningI;
-    public static final TunableNumber kTurningD = Constants.ModuleConstants.kTurningD;
-    // public static final TunableNumber kDriveFF = RobotContainer.robotConstants.kDriveFF;
+    public static final LoggedTunableNumber kDriveP = Constants.ModuleConstants.kDriveP;
+    public static final LoggedTunableNumber kDriveI = Constants.ModuleConstants.kDriveI;
+    public static final LoggedTunableNumber kDriveD = Constants.ModuleConstants.kDriveD;
+    public static final LoggedTunableNumber kTurningP = Constants.ModuleConstants.FLkTurningP;
+    public static final LoggedTunableNumber kTurningI = Constants.ModuleConstants.FLkTurningI;
+    public static final LoggedTunableNumber kTurningD = Constants.ModuleConstants.FLkTurningD;
+    // public static final LoggedTunableNumber kDriveFF = RobotContainer.robotConstants.kDriveFF;
 
   }
 
@@ -91,9 +97,13 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     m_turningEncoder = m_turningMotor.getEncoder();
 
     m_turningCANCoder = new CANcoder(turningCANCoderChannel);
-    m_turningCANCoderConfig = m_turningCANCoder.getConfigurator();
-    m_turningCANCoderConfig.apply(new CANcoderConfiguration());
-    m_turningCANCoderConfig.apply(new MagnetSensorConfigs().withAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf));
+    CANcoderConfigurator cfg = m_turningCANCoder.getConfigurator();
+    MagnetSensorConfigs  magnetSensorConfiguration = new MagnetSensorConfigs();
+    cfg.refresh(magnetSensorConfiguration);
+    cfg.apply(magnetSensorConfiguration
+                  .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf)
+                  .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
+    // m_turningCANCoder.configAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf);
     // m_turningCANCoder.configSensorDirection(false);
 
     // m_driveEncoder returns RPM by default. Use setVelocityConversionFactor() to
@@ -102,7 +112,7 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     m_driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveConversionFactor);
 
     m_turningEncoder.setVelocityConversionFactor((360.0 / ModuleConstants.kTurnPositionConversionFactor) / 60.0);
-    m_turningEncoder.setPositionConversionFactor((360.0 / ModuleConstants.kTurnPositionConversionFactor)); // FIX THIS LATER ****
+    m_turningEncoder.setPositionConversionFactor((360 / ModuleConstants.kTurnPositionConversionFactor)); // FIX THIS LATER ****
     m_turningMotor.setInverted(true);
 
     m_turningController = m_turningMotor.getPIDController();
@@ -149,7 +159,7 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
         + m_turningMotor.getOutputCurrent() * m_turningMotor.getBusVoltage();
   }
 
-  @Override
+  // @Override
   public SwerveModuleState getAbsoluteState() {
     return new SwerveModuleState(getDriveVelocityMetersPerSecond(), getAbsoluteRotation());
   }
@@ -167,20 +177,20 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
   }
 
   public double getAbsoluteEncoder() {
-    return m_turningCANCoder.getAbsolutePosition().getValue();
+    return m_turningCANCoder.getAbsolutePosition().getValue() *360;
   }
 
   public Rotation2d getAbsoluteRotation() {
     // double angle = (Math.abs((1.0 - m_turningCANCoder.getAbsolutePosition() / 180)) * 2 * Math.PI); FOR ANALOG
-    return Rotation2d.fromDegrees(m_turningCANCoder.getAbsolutePosition().getValue());
+    return Rotation2d.fromRotations(m_turningCANCoder.getAbsolutePosition().getValue());
   }
 
   public Rotation2d adjustedAngle = new Rotation2d();
 
   @Override
   public void setVoltage(double voltageDrive, double voltageTurn) {
-    m_driveController.setReference(voltageDrive, ControlType.kVoltage);
-    m_turningController.setReference(voltageTurn, ControlType.kVoltage);
+    m_driveController.setReference(voltageDrive, CANSparkBase.ControlType.kVoltage);
+    m_turningController.setReference(voltageTurn, CANSparkBase.ControlType.kVoltage);
   }
 
   public void setVoltageDriveOnly(double voltageDrive, SwerveModulePosition state) {
@@ -255,15 +265,30 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     m_turningEncoder.setPosition(0.0);
 
     m_turningCANCoder.setPosition(0.0);
-    m_turningCANCoderConfig.apply(new MagnetSensorConfigs().withMagnetOffset(new MagnetSensorConfigs().MagnetOffset- m_turningCANCoder.getAbsolutePosition().getValueAsDouble()));
-        // m_turningCANCoder.() - m_turningCANCoder.getAbsolutePosition());
+    System.out.println("old position"+m_turningCANCoder.getAbsolutePosition());
+    CANcoderConfigurator cfg = m_turningCANCoder.getConfigurator();
+    MagnetSensorConfigs  magCfg = new MagnetSensorConfigs().withMagnetOffset(0);
+    StatusCode           error  = cfg.refresh(magCfg);
+    System.out.println("New position"+m_turningCANCoder.getAbsolutePosition());
+    error = cfg.apply(magCfg.withMagnetOffset(m_turningCANCoder.getAbsolutePosition().getValueAsDouble() / 360));
+    // m_turningCANCoder.configMagnetOffset(
+    //     m_turningCANCoder.configGetMagnetOffset() - m_turningCANCoder.getAbsolutePosition());
+    // double error = cfg.apply(magCfg.withMagnetOffset(offset / 360));
+    // CanCoderConfigurator.apply(new MagnetSensorConfigs().withMagnetOffset(m_turningCANCoder.getAbsolutePosition().getValueAsDouble()));
+
+    
+  }
+
+  @Override
+  public void runDriveVelocitySetpoint(double velocityRadsPerSec, double feedForward) {
+    m_driveController.setReference(velocityRadsPerSec, ControlType.kVelocity, 0, feedForward);
   }
 
   public double getDriveVelocityMetersPerSecond() {
     return m_driveEncoder.getVelocity();
   }
 
-  @Override
+  // @Override
   public Rotation2d getAngle() {
     double angle = Units.degreesToRadians(m_turningEncoder.getPosition());
     return new Rotation2d(MathUtil.angleModulus(angle));
@@ -280,6 +305,9 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
     inputs.driveVelocityMetersPerSecond = getDriveVelocityMetersPerSecond();
     inputs.driveVelocityMetersPerSecondAbs = Math.abs(getDriveVelocityMetersPerSecond());
     inputs.turnAngleRads = getAngle().getRadians();
+    inputs.angleDegrees = m_turningEncoder.getPosition();
+    inputs.angleDegreesCanCoder = m_turningCANCoder.getAbsolutePosition().getValueAsDouble();
+    inputs.angleDegreesCanCoderPosition = m_turningCANCoder.getPosition().getValueAsDouble(); 
     inputs.turnRadsPerSecond = Units.degreesToRadians(m_driveEncoder.getVelocity());
     inputs.currentAmpsDrive = m_driveMotor.getOutputCurrent();
     inputs.voltageOutDrive = m_driveMotor.getBusVoltage();
@@ -342,6 +370,20 @@ public class SwerveModuleIOMK4iSparkMax implements SwerveModuleIO {
   public void setVoltageTurnIgnoreDrive(double turnVoltage) {
     m_turningMotor.setVoltage(turnVoltage);
 
+  }
+
+  @Override
+  public void setDrivePID(double p, double i, double d) {
+    m_driveController.setP(p);
+    m_driveController.setI(i);
+    m_driveController.setD(d);
+  }
+
+  @Override
+  public void setTurnPID(double p, double i, double d) {
+    m_turningController.setP(p);
+    m_turningController.setI(i);
+    m_turningController.setD(d);
   }
 
 }

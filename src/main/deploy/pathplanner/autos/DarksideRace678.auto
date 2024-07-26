@@ -1,0 +1,98 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.3575119988781643,
+      "y": 2.7596467470814856
+    },
+    "rotation": 112.10217362550661
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "preloadsend6"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoIntakeScanRight"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "6shootjust"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "stageShootIntake78"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoIntakeScanRight"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "7outfarshot"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.5
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AutoShoot"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "farshotend"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoIntakeScanLeft"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

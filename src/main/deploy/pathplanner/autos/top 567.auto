@@ -1,0 +1,79 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.9895680037519334,
+      "y": 6.9544275219278004
+    },
+    "rotation": -151.97450048839679
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "start5Run"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoIntakeScanRight"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "5shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "5shoot6"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoIntakeScanRight"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "6shootShort"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "stageEnd"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

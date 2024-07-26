@@ -25,6 +25,10 @@ public class SubsystemProfiles {
     currentProfile = profile;
   }
 
+  public Enum<?> getCurrentProfile(){
+    return currentProfile;
+  }
+
   public void revertToLastProfile() {
     setCurrentProfile(lastProfile);
   }

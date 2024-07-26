@@ -1,0 +1,61 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.2980077691160283,
+      "y": 5.420154893618611
+    },
+    "rotation": 179.11933783622652
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SOTM Subwoofer to first stage"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SOTM Stage to middle"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "STOM Middle to third"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SOTM third to center far left"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SOTM fourth to fifth"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SOTM fifth to sixth"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

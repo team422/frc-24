@@ -1,0 +1,120 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.7662142632802422,
+        "y": 6.903366113717522
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.7662142632802422,
+        "y": 6.903366113717522
+      },
+      "isLocked": false,
+      "linkedName": "end of third"
+    },
+    {
+      "anchor": {
+        "x": 7.959155916779971,
+        "y": 7.40485651850593
+      },
+      "prevControl": {
+        "x": 6.9602600133062955,
+        "y": 7.451834960620388
+      },
+      "nextControl": {
+        "x": 8.253786973260222,
+        "y": 7.390999911442226
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.76601365741193,
+        "y": 6.630138039506848
+      },
+      "prevControl": {
+        "x": 6.671647673107044,
+        "y": 6.971901355156641
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "shoot left wing"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.15,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "deployIntake"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 1.5,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "AutoSOTM"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.0,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "AutoSOTM"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 1.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -160.98628740427347,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": {
+    "rotation": -146.01138350944677,
+    "velocity": 0.4
+  },
+  "useDefaultConstraints": true
+}

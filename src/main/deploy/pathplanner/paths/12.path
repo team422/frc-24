@@ -1,0 +1,52 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.9291168354089159,
+        "y": 4.3022830163307395
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.3932620451025213,
+        "y": 4.778593986569101
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.9291168354089159,
+        "y": 5.514656953793075
+      },
+      "prevControl": {
+        "x": 1.2664147050107826,
+        "y": 5.13890536053131
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -178.39928182630672,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "FineDance",
+  "previewStartingState": {
+    "rotation": 150.07311239177454,
+    "velocity": 0
+  },
+  "useDefaultConstraints": false
+}

@@ -1,44 +1,16 @@
 {
-  "HALProvider": {
-    "Other Devices": {
-      "window": {
-        "visible": false
-      }
-    }
-  },
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
-      "/SmartDashboard/Field": "Field2d"
-    },
-    "windows": {
-      "/SmartDashboard/Field": {
-        "bottom": 1476,
-        "height": 8.210550308227539,
-        "left": 150,
-        "right": 2961,
-        "top": 79,
-        "width": 16.541748046875,
-        "window": {
-          "visible": true
-        }
-      }
-    }
-  },
-  "NetworkTables": {
-    "transitory": {
-      "AdvantageKit": {
-        "RealOutputs": {
-          "Drive": {
-            "open": true
-          },
-          "RobotState": {
-            "open": true
-          },
-          "open": true
-        },
-        "open": true
-      }
+      "/SmartDashboard/Auto Chooser": "String Chooser",
+      "/SmartDashboard/End Chooser": "String Chooser",
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/Scouting Chooser": "String Chooser",
+      "/SmartDashboard/Scouting Number": "String Chooser",
+      "/SmartDashboard/northstar_0 Sim Field": "Field2d",
+      "/SmartDashboard/northstar_1 Sim Field": "Field2d",
+      "/SmartDashboard/northstar_2 Sim Field": "Field2d",
+      "/SmartDashboard/northstar_3 Sim Field": "Field2d"
     }
   },
   "NetworkTables Info": {

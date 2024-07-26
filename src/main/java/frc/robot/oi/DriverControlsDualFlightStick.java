@@ -36,8 +36,15 @@ public class DriverControlsDualFlightStick implements DriverControls {
   }
 
   @Override
-  public Trigger setShooter45() {
-    return m_rightJoystick.button(1);
+  public Trigger resetFieldCentric() {
+    return new Trigger(()->false);
   }
+
+
+  @Override
+  public Trigger goToIntakePosition(){
+    return m_leftJoystick.button(1);
+  }
+
 
 }

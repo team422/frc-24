@@ -1,0 +1,73 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.2887040472303983,
+      "y": 2.9171765742428555
+    },
+    "rotation": 125.44446348238154
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "87"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoIntakeScanLeft"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "7shootjust"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "76just"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoIntakeScanLeft"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "6shootjust"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShoot"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

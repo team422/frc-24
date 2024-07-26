@@ -1,0 +1,49 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.2689484845881456,
+      "y": 5.413424541616241
+    },
+    "rotation": 178.55359643769256
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoFender"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "0to3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3to2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2to1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoShoot"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
