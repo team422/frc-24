@@ -104,6 +104,8 @@ public class AprilTagVision extends VirtualSubsystem {
         if (values.length == 0 || values[0] == 0) {
           continue;
         }
+        
+
         // System.out.println(System.currentTimeMillis());
         // Switch based on number of poses
         Pose3d cameraPose = null;
@@ -180,9 +182,13 @@ public class AprilTagVision extends VirtualSubsystem {
         // Get 2D robot pose
         Pose2d robotPose = robotPose3d.toPose2d();
 
+        double elapsedMicroseconds = values[values[0] == 1 ? 9 : 17];
+        double elapsedSeconds = elapsedMicroseconds / 1e6;
+        timestamp = timestamp - elapsedSeconds;
+
         // Get tag poses and update last detection times
         List<Pose3d> tagPoses = new ArrayList<>();
-        for (int i = (values[0] == 1 ? 9 : 17); i < values.length; i++) {
+        for (int i = (values[0] == 1 ? 10 : 18); i < values.length; i++) {
           int tagId = (int) values[i];
           lastTagDetectionTimes.put(tagId, Timer.getFPGATimestamp());
           Optional<Pose3d> tagPose = FieldConstants.getAprilTags().getTagPose((int) values[i]);

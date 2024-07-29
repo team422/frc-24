@@ -35,7 +35,7 @@ public final class Constants {
     public static final boolean tuningMode = true;
     public static final boolean isTunableNetwork = false;
     private static RobotType robotType = RobotType.COMPBOT;
-    public static final Mode curRobotMode = Mode.REPLAY;
+    public static final Mode curRobotMode = Mode.REAL;
     public static RobotType getRobot() {
     if (RobotBase.isReal() && robotType == RobotType.SIMBOT) {
       new Alert("Invalid robot selected, using competition robot as default.", AlertType.ERROR)

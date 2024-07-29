@@ -57,26 +57,26 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     
-    switch (Constants.getMode()) {
-      case REAL:
-        // Running on a real robot, log to a USB stick ("/U/logs")
-        Logger.addDataReceiver(new WPILOGWriter());
-        Logger.addDataReceiver(new RLOGServer());
-        break;
+    // switch (Constants.getMode()) {
+    //   case REAL:
+    //     // Running on a real robot, log to a USB stick ("/U/logs")
+    //     Logger.addDataReceiver(new WPILOGWriter());
+    //     Logger.addDataReceiver(new RLOGServer());
+    //     break;
 
-      case SIM:
-        // Running a physics simulator, log to NT
-        Logger.addDataReceiver(new RLOGServer());
-        break;
+    //   case SIM:
+    //     // Running a physics simulator, log to NT
+    //     Logger.addDataReceiver(new RLOGServer());
+    //     break;
 
-      case REPLAY:
-        // Replaying a log, set up replay source
-        setUseTiming(true); // Run as fast as possible
-        String logPath = "/Volumes/NO NAME/Log_24-04-20_08-50-32_e2.wpilog";
-        Logger.setReplaySource(new WPILOGReader(logPath));
-        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"), 0.01));
-        break;
-    }
+    //   case REPLAY:
+    //     // Replaying a log, set up replay source
+    //     setUseTiming(true); // Run as fast as possible
+    //     String logPath = "/Volumes/NO NAME/Log_24-04-20_08-50-32_e2.wpilog";
+    //     Logger.setReplaySource(new WPILOGReader(logPath));
+    //     Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"), 0.01));
+    //     break;
+    // }
     LoggerUtil.initializeLogger();
     PathfindingCommand.warmupCommand();
     robotContainer = new RobotContainer();
