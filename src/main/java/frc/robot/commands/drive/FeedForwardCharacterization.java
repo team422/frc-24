@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -62,6 +64,7 @@ public class FeedForwardCharacterization extends Command {
     voltageConsumer.accept(0.0);
     timer.stop();
     data.print();
+    data.log();
   }
 
   // Returns true when the command should end.
@@ -97,6 +100,26 @@ public class FeedForwardCharacterization extends Command {
       System.out.println(String.format("\tR2=%.5f", regression.R2()));
       System.out.println(String.format("\tkS=%.5f", regression.beta(0)));
       System.out.println(String.format("\tkV=%.5f", regression.beta(1)));
+    }
+
+    public void log() {
+      if (velocityData.size() == 0 || voltageData.size() == 0) {
+        return;
+      }
+
+      PolynomialRegression regression =
+          new PolynomialRegression(
+              velocityData.stream().mapToDouble(Double::doubleValue).toArray(),
+              voltageData.stream().mapToDouble(Double::doubleValue).toArray(),
+              1);
+
+      String[] res = new String[5];
+      res[0] = ("FF Characterization Results:");
+      res[1] = ("\tCount=" + Integer.toString(velocityData.size()) + "");
+      res[2] = (String.format("\tR2=%.5f", regression.R2()));
+      res[3] = (String.format("\tkS=%.5f", regression.beta(0)));
+      res[4] = (String.format("\tkV=%.5f", regression.beta(1)));
+      Logger.recordOutput("Drive/FFCharacterization/Results", res);
     }
   }
 }

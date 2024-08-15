@@ -165,6 +165,7 @@ bin/
 *-window.json
 simgui*.json
 networktables.json
+*.dat
 
 # Version file
 src/main/java/frc/robot/BuildConstants.java

@@ -33,7 +33,7 @@ import frc.robot.utils.swerve.ModuleLimits;
 
 public final class Constants {
     public static final boolean tuningMode = true;
-    public static final boolean isTunableNetwork = false;
+    public static final boolean isTunableNetwork = true;
     private static RobotType robotType = RobotType.COMPBOT;
     public static final Mode curRobotMode = Mode.REAL;
     public static RobotType getRobot() {

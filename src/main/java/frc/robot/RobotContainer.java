@@ -526,7 +526,7 @@ public class RobotContainer {
       // m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim());
     m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
     m_amp = new Amp(new AmpIOFalcon(Ports.ampMotor));
-      // m_shooter = new Shooter(new frc.robot.subsystems.shooter.pivot.PivotIOSim(), new FlywheelIOSim);
+      // m_shooter = new Shooter(new frc.robot.subsystems.shooter.pivot.PivotIOSim(), new FlywheelIOSim());
     //   SwerveModuleIO[] m_swerveModuleIOs = {
     //     new SwerveModuleIOMK4iSparkMax(Constants.Ports.leftFrontDrivingMotorPort, Ports.leftFrontTurningMotorPort,
     //         Ports.leftFrontCanCoderPort),
