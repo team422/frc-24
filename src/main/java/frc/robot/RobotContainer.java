@@ -32,26 +32,21 @@ import frc.robot.Constants.Mode;
 import frc.robot.Constants.Ports;
 import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.commands.autonomous.AutoFactory;
-import frc.robot.commands.drive.FeedForwardCharacterization;
 import frc.robot.commands.drive.TeleopControllerNoAugmentation;
-import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.oi.DriverControls;
-import frc.robot.oi.DriverControlsXboxController;
+import frc.robot.oi.DriverControlsXboxReal;
 import frc.robot.oi.ManualController;
 import frc.robot.subsystems.amp.Amp;
 import frc.robot.subsystems.amp.Amp.AmpState;
 import frc.robot.subsystems.amp.AmpIOFalcon;
 import frc.robot.subsystems.climb.Climb;
 import frc.robot.subsystems.climb.ClimbIOTalon;
-import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DriveProfiles;
-import frc.robot.subsystems.drive.SwerveModuleIO;
-import frc.robot.subsystems.drive.SwerveModuleIOKraken;
-import frc.robot.subsystems.drive.SwerveModuleIOSim;
-import frc.robot.subsystems.drive.generatedConstants.TunerConstants;
-import frc.robot.subsystems.drive.gyro.GyroIO;
-import frc.robot.subsystems.drive.gyro.GyroIOPigeon;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.indexer.Indexer;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
 import frc.robot.subsystems.intake.Intake;
@@ -111,20 +106,20 @@ public class RobotContainer {
   }
 
   public void configureControllers(){
-    m_driverControls = new DriverControlsXboxController(1);
-    // m_driverControls = new DriverControlsXboxReal(3);
+    // m_driverControls = new DriverControlsXboxController(1);
+    m_driverControls = new DriverControlsXboxReal(3);
     m_testingController = new ManualController(5);
     
   }
 
   public void lowerCurrentLimits(){
-    m_drive.setCurrentLimits(70);
+    // m_drive.setCurrentLimits(70);
   }
   public void configureCommands(){
     // m_drive.setDefaultCommand();
     DataLogManager.logNetworkTables(true);
     
-    m_driverControls.resetFieldCentric().onTrue(Commands.runOnce(()->m_drive.resetPose(new Pose2d(m_robotState.getEstimatedPose().getTranslation(),AllianceFlipUtil.apply(Rotation2d.fromDegrees(180))))));
+    m_driverControls.resetFieldCentric().onTrue(Commands.runOnce(()->m_drive.setPose(new Pose2d(m_robotState.getEstimatedPose().getTranslation(),AllianceFlipUtil.apply(Rotation2d.fromDegrees(180))))));
   
       m_driverControls.finalShoot().onTrue(Commands.runOnce(()->{
         System.out.println("NOW SHOOT");
@@ -316,7 +311,7 @@ public class RobotContainer {
       // .onFalse(Commands.runOnce(()->{
       //   autoDriveCommand.cancel();
       //   m_autoFactory.cancel();
-      //   // m_drive.drive(new ChassisSpeeds(0.0, 0.0,Rotation2d.fromDegrees(0).getRadians()));
+      //   // m_drive.runVelocity(new ChassisSpeeds(0.0, 0.0,Rotation2d.fromDegrees(0).getRadians()));
       //   System.out.println("CANCELLING AUTO DRIVE");
       //   m_drive.setProfile(DriveProfiles.kDefault);
       // }));
@@ -341,19 +336,19 @@ public class RobotContainer {
         RobotState.getInstance().mUpdatingAutoBuilder = true;
       })));
     }
-    m_autoChooser.addOption(
-      "Drive Wheel Radius Characterization",
-      m_drive
-          .orientModules(Drive.getCircleOrientations())
-          .andThen(
-              new WheelRadiusCharacterization(
-                  m_drive, WheelRadiusCharacterization.Direction.COUNTER_CLOCKWISE))
-          .withName("Drive Wheel Radius Characterization"));
-    m_autoChooser.addOption(
-        "Drive FF Characterization",
-        new FeedForwardCharacterization(
-                m_drive, m_drive::runCharacterization, m_drive::getCharacterizationVelocity)
-            .finallyDo(m_drive::endCharacterization));
+    // m_autoChooser.addOption(
+    //   "Drive Wheel Radius Characterization",
+    //   m_drive
+    //       .orientModules(Drive.getCircleOrientations())
+    //       .andThen(
+    //           new WheelRadiusCharacterization(
+    //               m_drive, WheelRadiusCharacterization.Direction.COUNTER_CLOCKWISE))
+          // .withName("Drive Wheel Radius Characterization"));
+    // m_autoChooser.addOption(
+    //     "Drive FF Characterization",
+    //     new FeedForwardCharacterization(
+    //             m_drive, m_drive::runCharacterization, m_drive::getCharacterizationVelocity)
+    //         .finallyDo(m_drive::endCharacterization));
 
   }
 
@@ -413,7 +408,7 @@ public class RobotContainer {
   
   public void onDSConnected(){
     configureAutonomous();
-    m_drive.setModuleCurrentLimit(70);
+    // m_drive.setModuleCurrentLimit(70);
     if (Robot.isSimulation()) {
       m_simVisionSystems = new SimVisionSystem[4];
       for (int i = 0; i < 4; i++) {
@@ -462,30 +457,17 @@ public class RobotContainer {
       m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim());
       
       m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
-      CommandSwerveDrivetrain m_CommandSwerveDrivetrain = new CommandSwerveDrivetrain(TunerConstants.DrivetrainConstants, TunerConstants.FrontLeft, TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);
-      SwerveModuleIO[] m_SwerveModuleIOs = {
-        // new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(0).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(0).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(0).getCANcoder(), false),
-          new SwerveModuleIOSim(),
-          // new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(1).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(1).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(1).getCANcoder(), false),
-          // new SwerveModuleIOKraken(7, 8, 9, false),
-          new SwerveModuleIOSim(),
-          // new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(2).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(2).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(2).getCANcoder(), false),
-          // new SwerveModuleIOKraken(4,5, 6, false),
-          new SwerveModuleIOSim(),
-          // new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(3).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(3).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(3).getCANcoder(), false),
-        // new SwerveModuleIOMK4Talon(1,2,3),
-        // new SwerveModuleIOKraken(1,2,3,false),
-        // new SwerveModuleIOKraken(4,5, 6, false),
-        // new SwerveModuleIOKraken(7, 8, 9, false),
-        // new SwerveModuleIOKraken(10, 11, 12, false),
-        new SwerveModuleIOSim(),
-        // new SwerveModuleIOMK4Talon(4,5,6),
-        // new SwerveModuleIOSim(),
-        // new SwerveModuleIOMK4Talon(7,8,9),
-        // new SwerveModuleIOSim(),
-        // new SwerveModuleIOMK4Talon(10,11,12),
-      };
-      m_drive = new Drive(new GyroIOPigeon(24,new Rotation2d(),true), new Pose2d(),m_CommandSwerveDrivetrain,m_SwerveModuleIOs );
+      ModuleIO frontLeftModule = new ModuleIOSim();
+      ModuleIO frontRightModule = new ModuleIOSim();
+      ModuleIO backLeftModule = new ModuleIOSim();
+      ModuleIO backRightModule = new ModuleIOSim();
+      m_drive = new Drive(
+        new GyroIOPigeon2(true),
+        frontLeftModule,
+        frontRightModule,
+        backLeftModule,
+        backRightModule
+      );
           // new SwerveModuleIOSim(), new SwerveModuleIOSim(), new SwerveModuleIOSim(), new SwerveModuleIOSim());
       // new SwerveModuleIOMK4Talon(1,2,3),
       //     new SwerveModuleIOMK4Talon(4,5,6),
@@ -497,29 +479,14 @@ public class RobotContainer {
     else if(Robot.isSimulation() && Constants.getMode() == Mode.REPLAY){
       m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) ,new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort) );
       // m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim());
-    m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
-    m_amp = new Amp(new AmpIOFalcon(Ports.ampMotor));
-      CommandSwerveDrivetrain m_CommandSwerveDrivetrain = new CommandSwerveDrivetrain(TunerConstants.DrivetrainConstants, TunerConstants.FrontLeft, TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);
-      SwerveModuleIO[] m_SwerveModuleIOs = {
-        // new SwerveModuleIOMK4Talon(1,2,3),
-        new SwerveModuleIO(){},
-        // new SwerveModuleIOSim(),
-        new SwerveModuleIO(){},
-        // new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(1).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(1).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(1).getCANcoder(), false),
-        // new SwerveModuleIOKraken(7, 8, 9, false),
-        // new SwerveModuleIOSim(),
-        new SwerveModuleIO(){},
-        // new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(2).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(2).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(2).getCANcoder(), false),
-        // new SwerveModuleIOKraken(4,5, 6, false),
-        // new SwerveModuleIOSim(),
-        new SwerveModuleIO(){},
-        // new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(3).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(3).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(3).getCANcoder(), false),
-        // new SwerveModuleIOKraken(1,2,3,false),
-        // new SwerveModuleIOMK4Talon(4,5,6),
-        // new SwerveModuleIOMK4Talon(7,8,9),
-        // new SwerveModuleIOMK4Talon(10,11,12),
-      };
-      m_drive = new Drive(new GyroIO() {},new Pose2d(),m_CommandSwerveDrivetrain,m_SwerveModuleIOs);
+      m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
+      m_amp = new Amp(new AmpIOFalcon(Ports.ampMotor));
+      
+      ModuleIO frontLeftModule = new ModuleIOTalonFX(0);
+      ModuleIO frontRightModule = new ModuleIOTalonFX(1);
+      ModuleIO backLeftModule = new ModuleIOTalonFX(2);
+      ModuleIO backRightModule = new ModuleIOTalonFX(3);
+      m_drive = new Drive(new GyroIOPigeon2(true), frontLeftModule, frontRightModule, backLeftModule, backRightModule);
     }
     else {
       m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) ,new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort) );
@@ -553,24 +520,12 @@ public class RobotContainer {
         //   // new SwerveModuleIOSim(),
         //   // new SwerveModuleIOMK4Talon(10,11,12),
         // };
-        CommandSwerveDrivetrain m_CommandSwerveDrivetrain = new CommandSwerveDrivetrain(TunerConstants.DrivetrainConstants, TunerConstants.FrontLeft, TunerConstants.FrontRight, TunerConstants.BackLeft, TunerConstants.BackRight);
-        SwerveModuleIO[] m_SwerveModuleIOs = {
-          // new SwerveModuleIOMK4Talon(1,2,3),
-          new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(0).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(0).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(0).getCANcoder(), false),
-          // new SwerveModuleIOSim(),
-          new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(1).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(1).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(1).getCANcoder(), false),
-          // new SwerveModuleIOKraken(7, 8, 9, false),
-          // new SwerveModuleIOSim(),
-          new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(2).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(2).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(2).getCANcoder(), false),
-          // new SwerveModuleIOKraken(4,5, 6, false),
-          // new SwerveModuleIOSim(),
-          new SwerveModuleIOKraken(m_CommandSwerveDrivetrain.getModule(3).getDriveMotor(),m_CommandSwerveDrivetrain.getModule(3).getSteerMotor(),m_CommandSwerveDrivetrain.getModule(3).getCANcoder(), false),
-          // new SwerveModuleIOKraken(1,2,3,false),
-          // new SwerveModuleIOMK4Talon(4,5,6),
-          // new SwerveModuleIOMK4Talon(7,8,9),
-          // new SwerveModuleIOMK4Talon(10,11,12),
-        };
-        m_drive = new Drive(new GyroIOPigeon(22,new Rotation2d(),true),new Pose2d(),m_CommandSwerveDrivetrain,m_SwerveModuleIOs);
+        // modules dont do anything for replay
+        ModuleIO frontLeftModule = new ModuleIO() {};
+        ModuleIO frontRightModule = new ModuleIO() {};
+        ModuleIO backLeftModule = new ModuleIO() {};
+        ModuleIO backRightModule = new ModuleIO() {};
+        m_drive = new Drive(new GyroIOPigeon2(true), frontLeftModule, frontRightModule, backLeftModule, backRightModule);
         // SwerveModuleIO[] m_SwerveModuleIOs = {
         //   new SwerveModuleIOKraken(new TalonFX(1),new TalonFX(2),new CANcoder(6),false),
         //   new SwerveModuleIOKraken(new TalonFX(3),new TalonFX(4),new CANcoder(5),false), 
@@ -670,7 +625,7 @@ public class RobotContainer {
       //   m_amp.m_state = AmpState.PositionFollowing;
       // }).schedule();
       // m_drive.setCurrentLimits(70);
-      m_drive.drive(new ChassisSpeeds(0,0,0));
+      m_drive.runVelocity(new ChassisSpeeds(0,0,0));
       new TeleopControllerNoAugmentation(m_drive,()->m_driverControls.getDriveForward(),()->m_driverControls.getDriveLeft() , ()-> m_driverControls.getDriveRotation(), DriveConstants.controllerDeadzone).schedule();
 
     }else{

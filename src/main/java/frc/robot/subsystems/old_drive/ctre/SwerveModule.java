@@ -5,7 +5,7 @@
  * an issue tracker at https://github.com/CrossTheRoadElec/Phoenix-Releases
  */
 
-package frc.robot.subsystems.drive.ctre;
+package frc.robot.subsystems.old_drive.ctre;
  
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
@@ -220,8 +220,8 @@ public class SwerveModule {
         m_voltageOpenLoopSetter.UpdateFreqHz = 0;
 
         /* Set the drive motor closed-loop output type */
-        m_steerClosedLoopOutput = frc.robot.subsystems.drive.ctre.SwerveModule.ClosedLoopOutputType.Voltage;
-        m_driveClosedLoopOutput = frc.robot.subsystems.drive.ctre.SwerveModule.ClosedLoopOutputType.Voltage;
+        m_steerClosedLoopOutput = frc.robot.subsystems.old_drive.ctre.SwerveModule.ClosedLoopOutputType.Voltage;
+        m_driveClosedLoopOutput = frc.robot.subsystems.old_drive.ctre.SwerveModule.ClosedLoopOutputType.Voltage;
         
         /* Get the expected speed when applying 12 volts */
         m_speedAt12VoltsMps = constants.SpeedAt12VoltsMps;

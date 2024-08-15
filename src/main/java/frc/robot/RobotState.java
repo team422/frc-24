@@ -309,7 +309,7 @@ public class RobotState {
 
   public void setDriveToPieceChassisSpeeds(ChassisSpeeds speeds) {
     Logger.recordOutput("Drive to piece", speeds);
-    m_drive.setDriveToPieceChassisSpeeds(speeds);
+    m_drive.setDesiredSpeedDriveToPiece(speeds);
   }
 
   public void addVisionObservation(VisionObservation observation) {
@@ -1089,7 +1089,7 @@ public class RobotState {
       double shootingDistance = m_shooterMath.getDistanceFromTarget(predPose, finalTarget);
       ArrayList<Double> speeds = m_shooterMath.getShooterMetersPerSecond(shootingDistance);
       m_shooter.setPivotAngle(mRotations.get(1));
-      // m_drive.drive(new ChassisSpeeds(0, 0, 0));
+      // m_drive.setDesiredSpeed(new ChassisSpeeds(0, 0, 0));
       // m_shooter.setFlywheelSpeedWithSpin(speeds.get(0),speeds.get(1)); burblesquirp
       // and we da goats
       m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(0),
@@ -1133,7 +1133,7 @@ public class RobotState {
       ArrayList<Double> speeds = m_shooterMath
           .getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose, finalTarget));
       m_shooter.setPivotAngle(mRotations.get(1));
-      // m_drive.drive(new ChassisSpeeds(0, 0, 0));
+      // m_drive.setDesiredSpeed(new ChassisSpeeds(0, 0, 0));
       // m_shooter.setFlywheelSpeedWithSpin(speeds.get(0),speeds.get(1));
       double shootingDistance = m_shooterMath.getDistanceFromTarget(predPose, finalTarget);
       m_shooter.setFlywheelSpeedWithSpin(
@@ -1181,7 +1181,7 @@ public class RobotState {
       double shootingDistance = m_shooterMath.getDistanceFromTarget(predPose, finalTarget);
       ArrayList<Double> speeds = m_shooterMath.getShooterMetersPerSecond(shootingDistance);
       m_shooter.setPivotAngle(mRotations.get(1));
-      // m_drive.drive(new ChassisSpeeds(0, 0, 0));
+      // m_drive.setDesiredSpeed(new ChassisSpeeds(0, 0, 0));
       // m_shooter.setFlywheelSpeedWithSpin(speeds.get(0),speeds.get(1));
       m_shooter.setFlywheelSpeedWithSpin(m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(0),
           m_shooterMath.getShooterMetersPerSecond(shootingDistance).get(1));
@@ -1220,10 +1220,10 @@ public class RobotState {
         m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
         if (AllianceFlipUtil.apply(getEstimatedPose().getX()) > 3) {
           if (DriverStation.getAlliance().get().equals(Alliance.Red)) {
-            m_drive.driveAuto(ChassisSpeeds.fromFieldRelativeSpeeds(5, 0, 0, getEstimatedPose().getRotation()));
+            m_drive.setDesiredSpeedAuto(ChassisSpeeds.fromFieldRelativeSpeeds(5, 0, 0, getEstimatedPose().getRotation()));
 
           } else {
-            m_drive.driveAuto(ChassisSpeeds.fromFieldRelativeSpeeds(-5, 0, 0, getEstimatedPose().getRotation()));
+            m_drive.setDesiredSpeedAuto(ChassisSpeeds.fromFieldRelativeSpeeds(-5, 0, 0, getEstimatedPose().getRotation()));
           }
         }
         return;
@@ -1239,19 +1239,19 @@ public class RobotState {
           // if(Math.abs(getEstimatedPose().getRotation().minus(Rotation2d.fromDegrees(0)).getDegrees())<90){
           // if(DriverStation.getAlliance().get().equals(Alliance.Blue)){
             if(DriverStation.getAlliance().get().equals(Alliance.Red)){
-          m_drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(0.0, autoIntakeLeftOrRight * -1,
+          m_drive.setDesiredSpeed(ChassisSpeeds.fromFieldRelativeSpeeds(0.0, autoIntakeLeftOrRight * -1,
               Rotation2d.fromDegrees(autoIntakeLeftOrRight * 90).getRadians(), getEstimatedPose().getRotation()));
             }else{
-              m_drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(0.0, autoIntakeLeftOrRight * 1,
+              m_drive.setDesiredSpeed(ChassisSpeeds.fromFieldRelativeSpeeds(0.0, autoIntakeLeftOrRight * 1,
               Rotation2d.fromDegrees(autoIntakeLeftOrRight * 90).getRadians(), getEstimatedPose().getRotation()));
             }
           // } else {
-          // m_drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(0.0,
+          // m_drive.setDesiredSpeed(ChassisSpeeds.fromFieldRelativeSpeeds(0.0,
           // autoIntakeLeftOrRight *1, Rotation2d.fromDegrees(autoIntakeLeftOrRight
           // *90).getRadians(),getEstimatedPose().getRotation()));
           // }
           // }else{
-          // m_drive.drive(new ChassisSpeeds(-1, 0, 0));
+          // m_drive.setDesiredSpeed(new ChassisSpeeds(-1, 0, 0));
           // }
           // if(getEstimatedPose())
         }
@@ -1266,9 +1266,9 @@ public class RobotState {
       Translation2d robotToPiece = m_drive.getPose().getTranslation().minus(mDriveToPiecePose.getTranslation());
       Rotation2d robotToPieceRot = robotToPiece.getAngle();
       m_drive.setDriveTurnOverride(robotToPieceRot);
-      m_drive.setDriveToPieceChassisSpeeds(DriveConstants.holonomicDrive.calculate(getEstimatedPose(), closestNote));
+      m_drive.setDesiredSpeedDriveToPiece(DriveConstants.holonomicDrive.calculate(getEstimatedPose(), closestNote));
       if (m_intake.hasNote()) {
-        m_drive.setDriveToPieceChassisSpeeds(new ChassisSpeeds());
+        m_drive.setDesiredSpeedDriveToPiece(new ChassisSpeeds());
         // setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
         // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
 
@@ -1300,7 +1300,7 @@ public class RobotState {
       ArrayList<Double> speeds = m_shooterMath
           .getShooterMetersPerSecond(m_shooterMath.getDistanceFromTarget(predPose, finalTarget));
       m_shooter.setPivotAngle(ShooterPivotConstants.kFenderAngle);
-      m_drive.drive(new ChassisSpeeds(0, 0, 0));
+      m_drive.setDesiredSpeed(new ChassisSpeeds(0, 0, 0));
       // m_shooter.setFlywheelSpeedWithSpin(speeds.get(0),speeds.get(1));
       m_shooter.setFlywheelSpeedWithSpin(10, 10);
       // m_drive.setDriveTurnOverride(mRotations.get(0));
@@ -1352,7 +1352,7 @@ public class RobotState {
       // if(closestNote.getTranslation().getDistance(getEstimatedPose().getTranslation())
       // < 1.0 && m_intake.getAngle().getDegrees() > -10){
       // m_drive.setProfile(DriveProfiles.kDefault);
-      // m_drive.drive(new ChassisSpeeds());
+      // m_drive.setDesiredSpeed(new ChassisSpeeds());
       // return;
       // }
 
@@ -1364,10 +1364,10 @@ public class RobotState {
       Translation2d robotToPiece = m_drive.getPose().getTranslation().minus(mDriveToPiecePose.getTranslation());
       Rotation2d robotToPieceRot = robotToPiece.getAngle();
       m_drive.setDriveTurnOverride(robotToPieceRot);
-      m_drive.setDriveToPieceChassisSpeeds(DriveConstants.holonomicDrive.calculate(getEstimatedPose(), closestNote));
+      m_drive.setDesiredSpeedDriveToPiece(DriveConstants.holonomicDrive.calculate(getEstimatedPose(), closestNote));
       m_led.setState(LedState.AUTO_DRIVING_TO_NOTE);
       if (m_intake.hasNote()) {
-        m_drive.setDriveToPieceChassisSpeeds(new ChassisSpeeds());
+        m_drive.setDesiredSpeedDriveToPiece(new ChassisSpeeds());
         // setRobotCurrentAction(RobotCurrentAction.kStow);
         m_drive.setProfile(DriveProfiles.kDefault);
       }
@@ -1477,8 +1477,8 @@ public class RobotState {
   }
 
   // @AutoLogOutput(key= "RobotState/PoseTimeAgo")
-  public Pose2d getPoseTimeAgo(double time) {
-    return m_drive.getPoseTimeAgo(time);
+  public Pose2d getPoseTimeAgo() {
+    return m_drive.getPoseTimeAgo();
   }
 
   @AutoLogOutput(key = "RobotState/OdometryPose")

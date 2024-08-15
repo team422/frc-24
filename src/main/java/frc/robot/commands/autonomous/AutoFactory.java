@@ -74,7 +74,7 @@ public class AutoFactory extends Command {
     NamedCommands.registerCommand("StayStill",Commands.runOnce(()->{
       RobotState.getInstance().getDrive().setProfile(DriveProfiles.kDefault);
       RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kStow);
-      RobotState.getInstance().getDrive().drive(new ChassisSpeeds(0,0,0));
+      RobotState.getInstance().getDrive().setDesiredSpeed(new ChassisSpeeds());
     }));
 
     NamedCommands.registerCommand("Shoot", Commands.runOnce(()->{
@@ -135,7 +135,7 @@ public class AutoFactory extends Command {
         m_drive::getPose, // Robot pose supplier
         (Pose2d pose)->{},
         m_drive::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        m_drive::driveAuto, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+        m_drive::setDesiredSpeedAuto, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
                     new PIDConstants(2.5, 0.0, 0.0), // Translation PID constants
                     new PIDConstants(4, 1.6, 0.0), // Rotation PID constants
@@ -175,7 +175,7 @@ public class AutoFactory extends Command {
   public Command getAutoCommand(String nameString) {
     Command autoCommand = AutoBuilder.buildAuto(nameString);
     
-    return autoCommand.andThen(m_drive.brakeCommand());
+    return autoCommand;
     // return Commands.sequence(m_drive.brakeCommand(), autoCommand.andThen(m_drive.brakeCommand()));
   }
 

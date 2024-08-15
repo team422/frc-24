@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drive.gyro;
+package frc.robot.subsystems.old_drive.gyro;
 
 import java.util.Queue;
 
@@ -13,7 +13,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
-// import frc.robot.subsystems.drive.PhoenixOdometryThread;
+// import frc.robot.subsystems.old_drive.PhoenixOdometryThread;
 // import frc.robot.subsystems.drive.PhoenixOdometryThread;
 import frc.robot.subsystems.drive.SparkMaxOdometryThread;
 

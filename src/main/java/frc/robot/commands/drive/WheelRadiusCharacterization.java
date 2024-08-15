@@ -58,7 +58,7 @@ public class WheelRadiusCharacterization extends Command {
     accumGyroYawRads = 0.0;
 
     startWheelPositions = drive.getWheelRadiusCharacterizationPosition();
-    drive.setProfile(DriveProfiles.WHEEL_RADIUS_CHARACTERIZATION);
+    drive.setProfile(DriveProfiles.kWheelRadiusCharacterization);
     omegaLimiter.reset(0);
   }
 

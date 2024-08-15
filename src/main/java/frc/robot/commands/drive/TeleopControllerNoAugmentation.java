@@ -88,6 +88,6 @@ public class TeleopControllerNoAugmentation extends Command {
 
     speeds = ChassisSpeeds.fromFieldRelativeSpeeds(curXSpeed, curYSpeed, curZRotation,
         m_drive.getPose().getRotation());
-    m_drive.drive(speeds);
+    m_drive.setDesiredSpeed(speeds);
   }
 }
