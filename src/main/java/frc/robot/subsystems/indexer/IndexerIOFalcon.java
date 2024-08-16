@@ -180,7 +180,8 @@ private final PositionTorqueCurrentFOC positionControl =
             
         }
         else{
-            hadNote = !m_initialBeamBreak.get() || !m_finalBeamBreak.get();
+            // hadNote = !m_initialBeamBreak.get() || !m_finalBeamBreak.get();
+            hadNote = false; // beam breaks disconnected rn, CHANGE LATER
         }
         return hadNote;
     }

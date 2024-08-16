@@ -454,6 +454,8 @@ public class RobotContainer {
     
     // m_shooter = new Shooter(new PivotIOSim(), new FlywheelIOSim());
     Unmanaged.setPhoenixDiagnosticsStartTime(-1);
+
+    Logger.recordOutput("RobotMode", Constants.getMode());
     
     if (Robot.isSimulation() && Constants.getMode() == Mode.SIM) {
       m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim());
@@ -484,10 +486,10 @@ public class RobotContainer {
       m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
       m_amp = new Amp(new AmpIOFalcon(Ports.ampMotor));
       
-      ModuleIO frontLeftModule = new ModuleIOTalonFX(0);
-      ModuleIO frontRightModule = new ModuleIOTalonFX(1);
-      ModuleIO backLeftModule = new ModuleIOTalonFX(2);
-      ModuleIO backRightModule = new ModuleIOTalonFX(3);
+      ModuleIO frontLeftModule = new ModuleIO() {};
+      ModuleIO frontRightModule = new ModuleIO() {};
+      ModuleIO backLeftModule = new ModuleIO() {};
+      ModuleIO backRightModule = new ModuleIO() {};
       m_drive = new Drive(new GyroIOPigeon2(true), frontLeftModule, frontRightModule, backLeftModule, backRightModule);
     }
     else {
@@ -523,10 +525,10 @@ public class RobotContainer {
         //   // new SwerveModuleIOMK4Talon(10,11,12),
         // };
         // modules dont do anything for replay
-        ModuleIO frontLeftModule = new ModuleIO() {};
-        ModuleIO frontRightModule = new ModuleIO() {};
-        ModuleIO backLeftModule = new ModuleIO() {};
-        ModuleIO backRightModule = new ModuleIO() {};
+        ModuleIO frontLeftModule = new ModuleIOTalonFX(0);
+        ModuleIO frontRightModule = new ModuleIOTalonFX(1);
+        ModuleIO backLeftModule = new ModuleIOTalonFX(2);
+        ModuleIO backRightModule = new ModuleIOTalonFX(3);
         m_drive = new Drive(new GyroIOPigeon2(true), frontLeftModule, frontRightModule, backLeftModule, backRightModule);
         // SwerveModuleIO[] m_SwerveModuleIOs = {
         //   new SwerveModuleIOKraken(new TalonFX(1),new TalonFX(2),new CANcoder(6),false),

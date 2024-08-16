@@ -1344,7 +1344,7 @@ public class RobotState {
       // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
       // }
       if (closestNote == null) {
-        if (lastTimeNoteSeen + 0.1 < Timer.getFPGATimestamp()) {
+        if (lastTimeNoteSeen + 1.0 < Timer.getFPGATimestamp()) {
           m_drive.setProfile(DriveProfiles.kDefault);
         }
         return;
