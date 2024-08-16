@@ -25,7 +25,7 @@ import frc.robot.Constants.ModuleConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
-  private static final double WHEEL_RADIUS = Units.inchesToMeters(2.0);
+  private static final double WHEEL_RADIUS = Units.inchesToMeters(4.0);
   static final double ODOMETRY_FREQUENCY = 250.0;
 
   private final ModuleIO io;
@@ -190,9 +190,9 @@ public class Module {
     return inputs.odometryTimestamps;
   }
 
-  /** Returns the drive velocity in radians/sec. */
+  /** Returns the drive velocity in meters/sec. */
   public double getCharacterizationVelocity() {
-    return inputs.driveVelocityRadPerSec;
+    return getVelocityMetersPerSec();
   }
 
   public double getWheelRotations(){

@@ -42,6 +42,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.utils.SubsystemProfiles;
@@ -85,6 +86,8 @@ public class Drive extends SubsystemBase {
   private PIDController m_autoAlignController = new PIDController(3.5, 0.0, 0.09);
 
   private double characterizationInput = 0;
+
+  public boolean modulesOrienting = false;
 
   private SwerveDriveKinematics kinematics = DriveConstants.kDriveKinematics;
   private Rotation2d rawGyroRotation = new Rotation2d();
@@ -460,7 +463,49 @@ public class Drive extends SubsystemBase {
     return positions;
   }
 
+  
+
   public ChassisSpeeds getReplayChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
+  }
+
+  public static Rotation2d[] getCircleOrientations() {
+    Rotation2d[] orientations = new Rotation2d[4];
+    ChassisSpeeds turn = new ChassisSpeeds(0, 0, 1);
+    SwerveModuleState[] movements = DriveConstants.kDriveKinematics.toSwerveModuleStates(turn);
+    for(int i = 0; i<movements.length; i++){
+      orientations[i] = movements[i].angle;
+    }
+    return orientations;
+  }
+
+  public Command orientModules(Rotation2d[] orientations) {
+    return runOnce(() -> {
+        setProfile(DriveProfiles.kWheelRadiusCharacterization);
+        characterizationInput = .1;
+          // for (int i = 0; i < orientations.length; i++) {
+          //   m_modules[i].runTurnPositionSetpoint(orientations[i].getRadians());
+          // }
+        }).andThen(Commands.waitSeconds(2))
+        .beforeStarting(() -> modulesOrienting = true)
+        .finallyDo(() -> modulesOrienting = false)
+        .withName("Orient Modules");
+  }
+
+  public void runCharacterization(double input){
+    setProfile(DriveProfiles.kCharacterization);
+    characterizationInput = input;
+  }
+
+  public void endCharacterization() {
+    setProfile(DriveProfiles.kDefault);
+  }
+
+  public double getCharacterizationVelocity() {
+    double driveVelocityAverage = 0.0;
+    for (var module : modules) {
+      driveVelocityAverage += module.getCharacterizationVelocity();
+    }
+    return driveVelocityAverage / 4.0;
   }
 }

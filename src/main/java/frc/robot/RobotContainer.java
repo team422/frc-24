@@ -32,7 +32,9 @@ import frc.robot.Constants.Mode;
 import frc.robot.Constants.Ports;
 import frc.robot.RobotState.RobotCurrentAction;
 import frc.robot.commands.autonomous.AutoFactory;
+import frc.robot.commands.drive.FeedForwardCharacterization;
 import frc.robot.commands.drive.TeleopControllerNoAugmentation;
+import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsXboxReal;
 import frc.robot.oi.ManualController;
@@ -336,19 +338,19 @@ public class RobotContainer {
         RobotState.getInstance().mUpdatingAutoBuilder = true;
       })));
     }
-    // m_autoChooser.addOption(
-    //   "Drive Wheel Radius Characterization",
-    //   m_drive
-    //       .orientModules(Drive.getCircleOrientations())
-    //       .andThen(
-    //           new WheelRadiusCharacterization(
-    //               m_drive, WheelRadiusCharacterization.Direction.COUNTER_CLOCKWISE))
-          // .withName("Drive Wheel Radius Characterization"));
-    // m_autoChooser.addOption(
-    //     "Drive FF Characterization",
-    //     new FeedForwardCharacterization(
-    //             m_drive, m_drive::runCharacterization, m_drive::getCharacterizationVelocity)
-    //         .finallyDo(m_drive::endCharacterization));
+    m_autoChooser.addOption(
+      "Drive Wheel Radius Characterization",
+      m_drive
+          .orientModules(Drive.getCircleOrientations())
+          .andThen(
+              new WheelRadiusCharacterization(
+                  m_drive, WheelRadiusCharacterization.Direction.COUNTER_CLOCKWISE))
+          .withName("Drive Wheel Radius Characterization"));
+    m_autoChooser.addOption(
+        "Drive FF Characterization",
+        new FeedForwardCharacterization(
+                m_drive, m_drive::runCharacterization, m_drive::getCharacterizationVelocity)
+            .finallyDo(m_drive::endCharacterization));
 
   }
 
