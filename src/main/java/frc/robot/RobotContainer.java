@@ -37,6 +37,7 @@ import frc.robot.commands.drive.TeleopControllerNoAugmentation;
 import frc.robot.commands.drive.WheelRadiusCharacterization;
 import frc.robot.oi.DriverControls;
 import frc.robot.oi.DriverControlsXboxController;
+import frc.robot.oi.DriverControlsXboxReal;
 import frc.robot.oi.ManualController;
 import frc.robot.subsystems.amp.Amp;
 import frc.robot.subsystems.amp.Amp.AmpState;
@@ -111,8 +112,8 @@ public class RobotContainer {
   }
 
   public void configureControllers(){
-    m_driverControls = new DriverControlsXboxController(1);
-    // m_driverControls = new DriverControlsXboxReal(3);
+    // m_driverControls = new DriverControlsXboxController(1);
+    m_driverControls = new DriverControlsXboxReal(3);
     m_testingController = new ManualController(5);
     
   }
