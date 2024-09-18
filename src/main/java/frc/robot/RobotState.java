@@ -398,6 +398,7 @@ public class RobotState {
       mDriveToPiece = null;
     }
     if (action == RobotCurrentAction.kAmpLineup) {
+
       mDriveToPiece = null;
     }
     stowAmpTimer = null;

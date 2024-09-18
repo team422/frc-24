@@ -123,6 +123,8 @@ public class Drive extends ProfiledSubsystem {
 
   public Integer m_activeWheel;
   private SwerveDriveWheelPositions lastPositions = null;
+
+  private int m_withinToleranceFrames = 0;
   
 
   @AutoLog
@@ -150,7 +152,7 @@ public class Drive extends ProfiledSubsystem {
   }
 
   public enum DriveProfiles {
-    kDefault, kTuning, kTesting, kFFdrive, kFFPIDDrive, kModuleAndAccuracyTesting, kTrajectoryFollowing, kAutoAlign, kShootWithTrajectory,kAutoPiecePickup,kAutoShoot,WHEEL_RADIUS_CHARACTERIZATION,CHARACTERIZATION,WHEEL_RADIUS_CHARACTERIZATION_ORIENTATION,kAutoAlignAndDrive
+    kDefault, kTuning, kTesting, kFFdrive, kFFPIDDrive, kModuleAndAccuracyTesting, kTrajectoryFollowing, kAutoAlign, kShootWithTrajectory,kAutoPiecePickup,kAutoShoot,WHEEL_RADIUS_CHARACTERIZATION,CHARACTERIZATION,WHEEL_RADIUS_CHARACTERIZATION_ORIENTATION,kAutoAlignAndDrive, kAmpLineup
   }
 
   // Profiling variables
@@ -1072,6 +1074,22 @@ LoggedTunableNumber.ifChanged(hashCode(), ()->{
 
     } else if(m_profiles.getCurrentProfile() == DriveProfiles.WHEEL_RADIUS_CHARACTERIZATION_ORIENTATION){
       m_desChassisSpeeds = new ChassisSpeeds(0, 0, 1);
+      defaultPeriodic();
+    }
+    else if (m_profiles.getCurrentProfile() == DriveProfiles.kAmpLineup) {
+      // since we use turn override we calculate same as auto align
+      m_desChassisSpeeds = calculateAutoAlignChassisSpeeds();
+      if (Math.abs(m_autoAlignController.getPositionError()) < Units.degreesToRadians(5)) {
+        m_withinToleranceFrames++;
+        if (m_withinToleranceFrames > 10) {
+          // if we reach the setpoint switch back to default
+          Logger.recordOutput("stow at setpoint/time", Timer.getFPGATimestamp());
+          setProfile(DriveProfiles.kDefault);
+          m_desChassisSpeeds.omegaRadiansPerSecond = 0;
+        }
+      } else {
+        m_withinToleranceFrames = 0;
+      }
       defaultPeriodic();
     }
     else{

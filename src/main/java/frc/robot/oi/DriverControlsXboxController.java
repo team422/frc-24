@@ -115,6 +115,11 @@ public class DriverControlsXboxController implements DriverControls {
     return m_controller.povDown();
   }
 
+  @Override
+  public Trigger cancelAmpAlign() {
+    return new Trigger(() -> Math.abs(m_controller.getRightX()) > 0.3);
+  }
+
 
 
 

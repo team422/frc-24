@@ -121,6 +121,10 @@ public class RobotContainer {
   public void lowerCurrentLimits(){
     m_drive.setCurrentLimits(70);
   }
+
+  // i dont feel like adding this to robotstate
+  // this codebase is alr a mess so why not
+  boolean m_ampToggle = false;
   public void configureCommands(){
     // m_drive.setDefaultCommand();
     DataLogManager.logNetworkTables(true);
@@ -130,6 +134,15 @@ public class RobotContainer {
       m_driverControls.finalShoot().onTrue(Commands.runOnce(()->{
         System.out.println("NOW SHOOT");
         m_indexer.setState(IndexerState.SHOOTING);
+        if (m_robotState.curAction == RobotCurrentAction.kAmpLineup){
+          // stow after 1 second
+          Commands.waitSeconds(1).andThen(
+            Commands.runOnce(()->{
+              m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+              m_ampToggle = false;
+            })
+          ).schedule();
+        }
       }));
       // .onFalse(Commands.runOnce(()->{
       //   m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
@@ -250,8 +263,14 @@ public class RobotContainer {
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
 
-      m_driverControls.ampAutoLineup().whileTrue(Commands.runOnce(()->{
-        m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpLineup);
+      m_driverControls.ampAutoLineup().onTrue(Commands.runOnce(()->{
+        m_ampToggle = !m_ampToggle;
+        if (m_ampToggle) {
+        
+          m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpLineup);
+          m_drive.setProfile(DriveProfiles.kAmpLineup);
+          m_drive.setDriveTurnOverride(AllianceFlipUtil.apply(frc.robot.FieldConstants.kAmpBlue).getRotation());
+        }
         
         // autoDriveCommand = m_autoFactory.trajectoryGenerateToPosition(FieldConstants.kAmpBlue,DriveConstants.kAutoAlignToAmpSpeed ,DriverStation.getAlliance().equals(Alliance.Red));
         // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
@@ -259,14 +278,15 @@ public class RobotContainer {
         // autoDriveCommand.andThen(Commands.runOnce(()->{
         //   m_drive.setProfile(DriveProfiles.kDefault);
         // })).schedule();
+        else {
+          Logger.recordOutput("stow Trigger 13", Timer.getFPGATimestamp());
+          m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+          m_robotState.setDriveType(DriveProfiles.kDefault);
+        }
+        
 
 
-      })).onFalse(Commands.runOnce(()->{
-        Logger.recordOutput("stow Trigger 13", Timer.getFPGATimestamp());
-        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
-        m_robotState.setDriveType(DriveProfiles.kDefault);
-      
-      }));
+        }));
 
       m_driverControls.autoAlignToGamePiece().whileTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kGamePieceLock);
@@ -321,6 +341,13 @@ public class RobotContainer {
       //   System.out.println("CANCELLING AUTO DRIVE");
       //   m_drive.setProfile(DriveProfiles.kDefault);
       // }));
+
+      m_driverControls.cancelAmpAlign().onTrue(Commands.runOnce(() -> {
+        // cancel the auto align part of amp but not the rest
+        if (m_robotState.curAction == RobotCurrentAction.kAmpLineup) {
+          m_drive.setProfile(DriveProfiles.kDefault);
+        }
+      }));
 
 
       m_driverControls.testRumble().whileTrue(Commands.runEnd(
