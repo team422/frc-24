@@ -234,13 +234,13 @@ private final PositionTorqueCurrentFOC positionControl =
         } else if (state == IndexerState.SHOOTING) {
             if (edu.wpi.first.wpilibj.RobotState.isAutonomous()){
                 if (autoTimerShot == -1){
-                    autoTimerShot = Timer.getFPGATimestamp() + 1.;
+                    autoTimerShot = Timer.getFPGATimestamp() + 2.0;
                 }
                 m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
                 m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
             }else{
                 if (autoTimerShot == -1){
-                    autoTimerShot = Timer.getFPGATimestamp() + 1.;
+                    autoTimerShot = Timer.getFPGATimestamp() + 2.0;
                 } 
                 m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
                 m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));

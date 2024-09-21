@@ -118,6 +118,7 @@ public class RobotState {
 
   public RobotCurrentAction curAction = RobotCurrentAction.kStow;
   public Timer stowAmpTimer;
+  public Timer ampStowIntakeTimer;
 
   public Rotation2d shooterOverrideAngle = null;
   public long angleOverrideTime = 0;
@@ -402,6 +403,7 @@ public class RobotState {
       mDriveToPiece = null;
     }
     stowAmpTimer = null;
+    ampStowIntakeTimer = null;
 
     if (action == RobotCurrentAction.kAutoShoot) {
       startedTryingToShoot = Timer.getFPGATimestamp();
@@ -699,8 +701,12 @@ public class RobotState {
 
       m_indexer.setState(IndexerState.INTAKING);
 
-      m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
       goToIntakePosition();
+      if (Math.abs(m_intake.getAngle().getDegrees() - m_intake.getCurrentAngle().getDegrees()) < 5) {
+        m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
+      } else {
+        m_intake.setIntakeSpeed(0);
+      }
       m_shooter.setFlywheelSpeedWithSpin(0, 0);
     } else if (curAction == RobotCurrentAction.kSourceIntake) {
       // m_drive.setProfile(DriveProfiles.kDefault);
@@ -1026,7 +1032,15 @@ public class RobotState {
         stowAmpTimer = new Timer();
         stowAmpTimer.start();
       }
-      m_intake.setPivotAngle(IntakeConstants.kAmpAngle.minus(Rotation2d.fromDegrees(10)));
+      if (ampStowIntakeTimer == null) {
+        ampStowIntakeTimer = new Timer();
+        ampStowIntakeTimer.start();
+      }
+      if (ampStowIntakeTimer.get() > 1) {
+        stowAndStopIntake();
+      } else {
+        m_intake.setPivotAngle(IntakeConstants.kAmpAngle.minus(Rotation2d.fromDegrees(10)));
+      }
       if (stowAmpTimer.get() > .1) {
         m_amp.setPivotAngle(Rotation2d.fromDegrees(AmpConstants.kAmpShot.get()));
       }

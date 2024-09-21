@@ -141,7 +141,7 @@ public final class Constants {
     public static final double pivotGearRatio = 36.0/16;
     public static final Rotation2d kIntakeMaxMovedAngle = Rotation2d.fromDegrees(90);
     public static final Rotation2d kIntakeMaxAngle = Rotation2d.fromDegrees(118);
-    public static final Rotation2d kIntakeMinAngle = Rotation2d.fromDegrees(9.3);
+    public static final Rotation2d kIntakeMinAngle = Rotation2d.fromDegrees(7);
     public static final Rotation2d kIntakeHomeAngle = Rotation2d.fromDegrees(29);
     public static final Rotation2d kAmpAngle = Rotation2d.fromDegrees(70);
 

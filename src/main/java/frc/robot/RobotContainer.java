@@ -112,8 +112,8 @@ public class RobotContainer {
   }
 
   public void configureControllers(){
-    // m_driverControls = new DriverControlsXboxController(1);
-    m_driverControls = new DriverControlsXboxReal(3);
+    m_driverControls = new DriverControlsXboxController(1);
+    // m_driverControls = new DriverControlsXboxReal(3);
     m_testingController = new ManualController(5);
     
   }
