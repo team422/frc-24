@@ -1083,7 +1083,6 @@ LoggedTunableNumber.ifChanged(hashCode(), ()->{
         m_withinToleranceFrames++;
         if (m_withinToleranceFrames > 10) {
           // if we reach the setpoint switch back to default
-          Logger.recordOutput("stow at setpoint/time", Timer.getFPGATimestamp());
           setProfile(DriveProfiles.kDefault);
           m_desChassisSpeeds.omegaRadiansPerSecond = 0;
         }

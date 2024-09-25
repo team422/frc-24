@@ -115,7 +115,7 @@ public final class Constants {
 
     // beambreak ports
     public static final int beamBreakPort = 8;
-    public static final int beamBreakPort2 = 7;
+    public static final int beamBreakPort2 = 5;
 
     public static final int shooterLeft = 35;
     public static final int shooterRight = 36;
@@ -263,6 +263,8 @@ public final class Constants {
 
 
   public static final class AmpConstants {
+    
+    public static final LoggedTunableNumber kAmpHome = new LoggedTunableNumber("Amp Home", 0, "Amp");
     public static final LoggedTunableNumber kAmpShot = new LoggedTunableNumber("Amp Shot", 196.0, "Amp");
     public static final LoggedTunableNumber kAmpAngle = new LoggedTunableNumber("Amp Angle",196.0, "Amp");
     public static final LoggedTunableNumber kAmpP = new LoggedTunableNumber("Amp P", 6.0, "Amp");

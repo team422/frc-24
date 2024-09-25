@@ -112,8 +112,8 @@ public class RobotContainer {
   }
 
   public void configureControllers(){
-    m_driverControls = new DriverControlsXboxController(1);
-    // m_driverControls = new DriverControlsXboxReal(3);
+    // m_driverControls = new DriverControlsXboxController(1);
+    m_driverControls = new DriverControlsXboxReal(1);
     m_testingController = new ManualController(5);
     
   }
@@ -138,6 +138,7 @@ public class RobotContainer {
           // stow after 1 second
           Commands.waitSeconds(1).andThen(
             Commands.runOnce(()->{
+              Logger.recordOutput("stow Trigger 12", Timer.getFPGATimestamp());
               m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
               m_ampToggle = false;
             })
@@ -159,6 +160,7 @@ public class RobotContainer {
       m_testingController.amp().onTrue(Commands.runOnce(()->{
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpLineup);
       })).onFalse(Commands.runOnce(()->{
+        Logger.recordOutput("stow Trigger 11", Timer.getFPGATimestamp());
         m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
       m_testingController.finalShoot().onTrue(Commands.runOnce(()->{
@@ -229,6 +231,7 @@ public class RobotContainer {
       m_testingController.sourceIntake().onTrue(Commands.runOnce(()->{
         RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kSourceIntake);
       })).onFalse(Commands.runOnce(()->{
+        Logger.recordOutput("stow Trigger 6", Timer.getFPGATimestamp());
         RobotState.getInstance().setIndexer(IndexerState.IDLE);
         RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kStow);
       }));
@@ -552,7 +555,8 @@ public class RobotContainer {
     else {
       m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSparkMax(Ports.wristMotorPort) ,new frc.robot.subsystems.intake.rollers.RollerIOKraken(Ports.intakeMotorPort) );
       // m_intake = new Intake(new frc.robot.subsystems.intake.pivot.PivotIOSim() ,new frc.robot.subsystems.intake.rollers.RollerIOSim());
-    m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,9 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
+    m_shooter = new Shooter(new PivotIOFalcon(Ports.shooterPivot, Ports.shooterPivotFollower,7 ), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
+    // m_shooter = new Shooter(new frc.robot.subsystems.shooter.pivot.PivotIOSim(), new FlywheelIOKraken(Ports.shooterLeft, Ports.shooterRight));
     m_amp = new Amp(new AmpIOFalcon(Ports.ampMotor));
       // m_shooter = new Shooter(new frc.robot.subsystems.shooter.pivot.PivotIOSim(), new FlywheelIOSim());
     //   SwerveModuleIO[] m_swerveModuleIOs = {

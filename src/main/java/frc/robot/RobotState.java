@@ -667,7 +667,7 @@ public class RobotState {
         }
 
         if (stowAmpTimer.get() > .1) {
-          m_amp.setPivotAngle(Rotation2d.fromDegrees(0));
+          m_amp.setPivotAngle(Rotation2d.fromDegrees(AmpConstants.kAmpHome.get()));
           m_intake.setPivotAngle(IntakeConstants.kAmpAngle.minus(Rotation2d.fromDegrees(10)));
 
         }
@@ -775,6 +775,7 @@ public class RobotState {
       boolean RollAndYawPerSecondIsSlow = (Math.abs(wheelyAmounts.get(0)) < .05
           && Math.abs(wheelyAmounts.get(1)) < .05);
 
+      Logger.recordOutput("Distance to shoot", shootingDistance);
       Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
       Logger.recordOutput("ReadyToShoot/PivotWithinTolerance", pivotInTolerance);
       Logger.recordOutput("ReadyToShoot/HeadingInTolerance", headingWithinTolerance);
@@ -784,13 +785,13 @@ public class RobotState {
       Logger.recordOutput("ReadyToShoot/HeadingTolerance",
           m_shooterMath.calculateShootingHeadingTolerance(shootingDistance));
       if (headingWithinTolerance && pivotInTolerance && speedWithinTolerance && flywheelInTolerance) {
-        // if (mDriveControls.goToShootPositionAndRev().getAsBoolean()) {
-        //   m_indexer.setState(Indexer.IndexerState.SHOOTING);
-        //   m_led.setState(LedState.SHOOTER_READY);
-        //   // if(Constants.getMode() == Mode.REPLAY){
-        //   m_drive.onShootResetOdometryFocus();
-        //   // }
-        // }
+        if (mDriveControls.goToShootPositionAndRev().getAsBoolean()) {
+          m_indexer.setState(Indexer.IndexerState.SHOOTING);
+          m_led.setState(LedState.SHOOTER_READY);
+          // if(Constants.getMode() == Mode.REPLAY){
+          m_drive.onShootResetOdometryFocus();
+          // }
+        }
       }
       // if
       // ((Math.abs(getEstimatedPose().getRotation().minus(mRotations.get(0)).getDegrees())

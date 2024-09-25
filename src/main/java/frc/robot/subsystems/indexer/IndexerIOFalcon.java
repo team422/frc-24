@@ -69,6 +69,8 @@ private final PositionTorqueCurrentFOC positionControl =
 
     double m_timeout = -1;
 
+    Timer m_indexingTimer;
+
     boolean hadNote = true;
 
     private final VelocityTorqueCurrentFOC velocityControl = new VelocityTorqueCurrentFOC(0.0);
@@ -218,6 +220,12 @@ private final PositionTorqueCurrentFOC positionControl =
                 
                 Logger.recordOutput("Autostow noteindexer", Timer.getFPGATimestamp());
             }
+            if (!m_initialBeamBreak.get()) {
+                if (m_indexingTimer == null) {
+                    m_indexingTimer = new Timer();
+                    m_indexingTimer.start();
+                }
+            }
         } else if (state == IndexerState.INDEXING) {
             
             m_falconSecond.setControl(velocityControl.withVelocity(0));
@@ -251,7 +259,7 @@ private final PositionTorqueCurrentFOC positionControl =
                     RobotState.getInstance().setIndexer(IndexerState.INTAKING);
                 }else{
                 RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
-                Commands.waitSeconds(.5).andThen(Commands.runOnce(()->{
+                Commands.waitSeconds(1.0).andThen(Commands.runOnce(()->{
                     RobotState.getInstance().setIndexer(IndexerState.IDLE);
                 })).schedule();
             }
@@ -269,6 +277,15 @@ private final PositionTorqueCurrentFOC positionControl =
             // m_falconFirst.setControl(positionControl.withPosition());
             // m_falconSecond.setControl(positionControl.withPosition(-IndexerConstants.kIndexerSpeed/2));
 
+        }
+
+        if (m_indexingTimer != null && m_indexingTimer.get() < 0.5) {
+            Logger.recordOutput("Indexer/indexing timer", m_indexingTimer.get());
+            Logger.recordOutput("Indexer/indexing timer activate", Timer.getFPGATimestamp());
+
+            m_falconFirst.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerSpeed));
+        } else {
+            m_indexingTimer = null;
         }
     }
 
