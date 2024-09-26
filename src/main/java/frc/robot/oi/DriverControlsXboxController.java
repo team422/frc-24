@@ -40,7 +40,7 @@ public class DriverControlsXboxController implements DriverControls {
 //burblesquirp
   @Override
   public Trigger resetFieldCentric(){
-    return m_controller.povUp();
+    return m_controller.povLeft();
   }
 
 
@@ -101,23 +101,23 @@ public class DriverControlsXboxController implements DriverControls {
   }
 
   @Override
-  public Trigger autoAlignToGamePiece(){
-    return m_controller.povLeft();
-  }
-
-  @Override
   public Trigger testRumble() {
     return m_controller.cross();
   }
 
   @Override
-  public Trigger ampBackTrigger(){
-    return m_controller.povDown();
+  public Trigger cancelAmpAlign() {
+    return new Trigger(() -> Math.abs(m_controller.getRightX()) > 0.3);
   }
 
   @Override
-  public Trigger cancelAmpAlign() {
-    return new Trigger(() -> Math.abs(m_controller.getRightX()) > 0.3);
+  public Trigger climbUp() {
+    return m_controller.povUp();
+  }
+
+  @Override
+  public Trigger climbDown() {
+    return m_controller.povDown();
   }
 
 

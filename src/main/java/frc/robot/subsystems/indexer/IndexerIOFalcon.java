@@ -36,6 +36,7 @@ import frc.robot.Constants.ShooterConstants.ShooterPivotConstants;
 import frc.robot.RobotState.GamePieceLocation;
 import frc.robot.subsystems.indexer.Indexer.IndexerState;
 import frc.robot.utils.NoteVisualizer;
+import java.util.ArrayList;
 
 public class IndexerIOFalcon implements IndexerIO {
 
@@ -129,12 +130,21 @@ private final PositionTorqueCurrentFOC positionControl =
 
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
-        inputs.curVelocity = m_falconFirst.getVelocity().getValueAsDouble();
-        inputs.voltage = m_falconFirst.getMotorVoltage().getValueAsDouble();
+        inputs.curFeederVelocity = m_falconFirst.getVelocity().getValueAsDouble();
+        inputs.curKickerVelocity = m_falconSecond.getVelocity().getValueAsDouble();
+        inputs.feederVoltage = m_falconFirst.getMotorVoltage().getValueAsDouble();
+        inputs.kickerVoltage = m_falconSecond.getMotorVoltage().getValueAsDouble();
         inputs.beamBreakOneBroken = m_initialBeamBreak.get();
-        inputs.outputCurrent = m_falconFirst.getSupplyCurrent().getValueAsDouble();
+        inputs.feederOutputCurrent = m_falconFirst.getSupplyCurrent().getValueAsDouble();
+        inputs.kickerOutputCurrent = m_falconSecond.getSupplyCurrent().getValueAsDouble();
         inputs.beamBreakTwoBroken = m_finalBeamBreak.get();
         inputs.inContactWithGamePiece = inContactWithGamePiece();
+        inputs.desiredFeederSpeeds = Double.parseDouble(m_falconFirst.getAppliedControl().getControlInfo().computeIfAbsent("Velocity", (x) -> {
+            return "0.0";
+        }));
+        inputs.desiredKickerSpeeds = Double.parseDouble(m_falconSecond.getAppliedControl().getControlInfo().computeIfAbsent("Velocity", (x) -> {
+            return "0.0";
+        }));
 
         if (RobotBase.isSimulation()) {
             simulationPeriodic();
@@ -255,10 +265,10 @@ private final PositionTorqueCurrentFOC positionControl =
             }
             if (m_finalBeamBreak.get()) {
                 if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
-                    RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
+                    // RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
                     RobotState.getInstance().setIndexer(IndexerState.INTAKING);
                 }else{
-                RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
+                // RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
                 Commands.waitSeconds(1.0).andThen(Commands.runOnce(()->{
                     RobotState.getInstance().setIndexer(IndexerState.IDLE);
                 })).schedule();
@@ -268,7 +278,7 @@ private final PositionTorqueCurrentFOC positionControl =
             // if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
                 if(autoTimerShot < Timer.getFPGATimestamp()){
                     RobotState.getInstance().setIndexer(IndexerState.IDLE);
-                    RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
+                    // RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
                     autoTimerShot = -1;
                 }
         // }

@@ -702,7 +702,7 @@ public class RobotState {
       m_indexer.setState(IndexerState.INTAKING);
 
       goToIntakePosition();
-      if (Math.abs(m_intake.getAngle().getDegrees() - m_intake.getCurrentAngle().getDegrees()) < 5) {
+      if (Math.abs(m_intake.getAngle().getDegrees() - m_intake.getCurrentAngle().getDegrees()) < 10) {
         m_intake.setIntakeSpeed(IntakeConstants.intakeSpeed);
       } else {
         m_intake.setIntakeSpeed(0);

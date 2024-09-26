@@ -37,6 +37,7 @@ public class Indexer extends ProfiledSubsystem {
         io.updateInputs(m_inputs);
         io.manageState(m_state);
         Logger.processInputs("Indexer",m_inputs);
+        Logger.recordOutput("Indexer/State", m_state);
     }
 
     public boolean inContactWithGamePiece() {

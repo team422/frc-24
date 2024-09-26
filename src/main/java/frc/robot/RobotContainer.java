@@ -112,8 +112,8 @@ public class RobotContainer {
   }
 
   public void configureControllers(){
-    // m_driverControls = new DriverControlsXboxController(1);
-    m_driverControls = new DriverControlsXboxReal(1);
+    m_driverControls = new DriverControlsXboxController(1);
+    // m_driverControls = new DriverControlsXboxReal(1);
     m_testingController = new ManualController(5);
     
   }
@@ -131,7 +131,21 @@ public class RobotContainer {
     
     m_driverControls.resetFieldCentric().onTrue(Commands.runOnce(()->m_drive.resetPose(new Pose2d(m_robotState.getEstimatedPose().getTranslation(),AllianceFlipUtil.apply(Rotation2d.fromDegrees(180))))));
   
-      m_driverControls.finalShoot().onTrue(Commands.runOnce(()->{
+      m_driverControls.finalShoot().whileTrue(Commands.startEnd(()->{
+        System.out.println("NOW SHOOT");
+        m_indexer.setState(IndexerState.SHOOTING);
+        if (m_robotState.curAction == RobotCurrentAction.kAmpLineup){
+          // stow after 1 second
+          Commands.waitSeconds(1).andThen(
+            Commands.runOnce(()->{
+              Logger.recordOutput("stow Trigger 12", Timer.getFPGATimestamp());
+              m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+              m_ampToggle = false;
+            })
+          ).schedule();
+          }
+        },
+        ()->{
         System.out.println("NOW SHOOT");
         m_indexer.setState(IndexerState.SHOOTING);
         if (m_robotState.curAction == RobotCurrentAction.kAmpLineup){
@@ -350,6 +364,18 @@ public class RobotContainer {
         if (m_robotState.curAction == RobotCurrentAction.kAmpLineup) {
           m_drive.setProfile(DriveProfiles.kDefault);
         }
+      }));
+
+      m_driverControls.climbUp().onTrue(Commands.runOnce(() -> {
+        m_climb.setSpeed(-0.5);
+      })).onFalse(Commands.runOnce(() -> {
+        m_climb.setSpeed(0);
+      }));
+
+      m_driverControls.climbDown().onTrue(Commands.runOnce(() -> {
+        m_climb.setSpeed(0.5);
+      })).onFalse(Commands.runOnce(() -> {
+        m_climb.setSpeed(0);
       }));
 
 

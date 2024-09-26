@@ -11,13 +11,16 @@ public interface IndexerIO extends LoggedIO<IndexerIO.IndexerIOInputs> {
         public boolean gamePieceReady;
         public boolean beamBreakOneBroken;
         public boolean beamBreakTwoBroken;
-        public double voltage;
-        public double current;
+        public double feederVoltage;
+        public double kickerVoltage;
         public double distanceToFront;
-        public double curVelocity;
-        public double outputCurrent;
-        public double desiredSpeeds;
-
+        public double curFeederVelocity;
+        public double curKickerVelocity;
+        public double feederOutputCurrent;
+        public double kickerOutputCurrent;
+        public double desiredFeederSpeeds;
+        public double desiredKickerSpeeds;
+        
     }
 
     public boolean inContactWithGamePiece();

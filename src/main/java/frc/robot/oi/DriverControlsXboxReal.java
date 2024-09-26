@@ -38,7 +38,7 @@ public class DriverControlsXboxReal implements DriverControls {
 
   @Override
   public Trigger resetFieldCentric(){
-    return m_controller.povUp();
+    return m_controller.povLeft();
   }
 
 
@@ -107,6 +107,16 @@ public class DriverControlsXboxReal implements DriverControls {
   @Override
   public Trigger cancelAmpAlign() {
     return new Trigger(() -> Math.abs(m_controller.getRightX()) > 0.3);
+  }
+
+  @Override
+  public Trigger climbUp() {
+    return m_controller.povUp();
+  }
+
+  @Override
+  public Trigger climbDown() {
+    return m_controller.povDown();
   }
 
 
