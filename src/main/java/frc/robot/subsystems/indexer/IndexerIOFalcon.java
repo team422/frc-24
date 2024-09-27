@@ -132,19 +132,21 @@ private final PositionTorqueCurrentFOC positionControl =
     public void updateInputs(IndexerIOInputs inputs) {
         inputs.curFeederVelocity = m_falconFirst.getVelocity().getValueAsDouble();
         inputs.curKickerVelocity = m_falconSecond.getVelocity().getValueAsDouble();
+        
         inputs.feederVoltage = m_falconFirst.getMotorVoltage().getValueAsDouble();
         inputs.kickerVoltage = m_falconSecond.getMotorVoltage().getValueAsDouble();
-        inputs.beamBreakOneBroken = m_initialBeamBreak.get();
+        
         inputs.feederOutputCurrent = m_falconFirst.getSupplyCurrent().getValueAsDouble();
         inputs.kickerOutputCurrent = m_falconSecond.getSupplyCurrent().getValueAsDouble();
+        
+        inputs.beamBreakOneBroken = m_initialBeamBreak.get();
         inputs.beamBreakTwoBroken = m_finalBeamBreak.get();
         inputs.inContactWithGamePiece = inContactWithGamePiece();
-        inputs.desiredFeederSpeeds = Double.parseDouble(m_falconFirst.getAppliedControl().getControlInfo().computeIfAbsent("Velocity", (x) -> {
-            return "0.0";
-        }));
-        inputs.desiredKickerSpeeds = Double.parseDouble(m_falconSecond.getAppliedControl().getControlInfo().computeIfAbsent("Velocity", (x) -> {
-            return "0.0";
-        }));
+
+        var feederControlInfoMap = m_falconFirst.getAppliedControl().getControlInfo();
+        inputs.desiredFeederSpeeds = Double.parseDouble(feederControlInfoMap.getOrDefault("Velocity", "0.0"));
+        var kickerControlInfoMap = m_falconSecond.getAppliedControl().getControlInfo();
+        inputs.desiredKickerSpeeds = Double.parseDouble(kickerControlInfoMap.getOrDefault("Velocity", "0.0"));
 
         if (RobotBase.isSimulation()) {
             simulationPeriodic();
@@ -264,23 +266,23 @@ private final PositionTorqueCurrentFOC positionControl =
                 m_falconSecond.setControl(velocityControl.withVelocity(IndexerConstants.kIndexerShootingSpeed));
             }
             if (m_finalBeamBreak.get()) {
-                if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
-                    // RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
-                    RobotState.getInstance().setIndexer(IndexerState.INTAKING);
-                }else{
-                // RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
+                // if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
+                //     // RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
+                //     RobotState.getInstance().setIndexer(IndexerState.INTAKING);
+                // }else{
+                // // RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
                 Commands.waitSeconds(1.0).andThen(Commands.runOnce(()->{
                     RobotState.getInstance().setIndexer(IndexerState.IDLE);
                 })).schedule();
-            }
+            // }
             }
             
             // if(edu.wpi.first.wpilibj.RobotState.isAutonomous()){
-                if(autoTimerShot < Timer.getFPGATimestamp()){
-                    RobotState.getInstance().setIndexer(IndexerState.IDLE);
-                    // RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
-                    autoTimerShot = -1;
-                }
+                // if(autoTimerShot < Timer.getFPGATimestamp()){
+                //     RobotState.getInstance().setIndexer(IndexerState.IDLE);
+                //     // RobotState.getInstance().setGamePieceLocation(GamePieceLocation.SHOOTER);
+                //     autoTimerShot = -1;
+                // }
         // }
 
         } else if (state == IndexerState.BACKTOINTAKE){

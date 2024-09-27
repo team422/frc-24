@@ -131,7 +131,7 @@ public class RobotContainer {
     
     m_driverControls.resetFieldCentric().onTrue(Commands.runOnce(()->m_drive.resetPose(new Pose2d(m_robotState.getEstimatedPose().getTranslation(),AllianceFlipUtil.apply(Rotation2d.fromDegrees(180))))));
   
-      m_driverControls.finalShoot().whileTrue(Commands.startEnd(()->{
+      m_driverControls.finalShoot().onTrue(Commands.runOnce(()->{
         System.out.println("NOW SHOOT");
         m_indexer.setState(IndexerState.SHOOTING);
         if (m_robotState.curAction == RobotCurrentAction.kAmpLineup){
@@ -144,21 +144,7 @@ public class RobotContainer {
             })
           ).schedule();
           }
-        },
-        ()->{
-        System.out.println("NOW SHOOT");
-        m_indexer.setState(IndexerState.SHOOTING);
-        if (m_robotState.curAction == RobotCurrentAction.kAmpLineup){
-          // stow after 1 second
-          Commands.waitSeconds(1).andThen(
-            Commands.runOnce(()->{
-              Logger.recordOutput("stow Trigger 12", Timer.getFPGATimestamp());
-              m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
-              m_ampToggle = false;
-            })
-          ).schedule();
-        }
-      }));
+        }));
       // .onFalse(Commands.runOnce(()->{
       //   m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
       // }));
