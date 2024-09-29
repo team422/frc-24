@@ -158,11 +158,29 @@ public class RobotContainer {
 
 
       m_testingController.amp().onTrue(Commands.runOnce(()->{
-        m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpLineup);
-      })).onFalse(Commands.runOnce(()->{
-        Logger.recordOutput("stow Trigger 11", Timer.getFPGATimestamp());
-        m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
-      }));
+        m_ampToggle = !m_ampToggle;
+        if (m_ampToggle) {
+        
+          m_robotState.setRobotCurrentAction(RobotCurrentAction.kAmpLineup);
+          m_drive.setProfile(DriveProfiles.kAmpLineup);
+          m_drive.setDriveTurnOverride(AllianceFlipUtil.apply(frc.robot.FieldConstants.kAmpBlue).getRotation());
+        }
+        
+        // autoDriveCommand = m_autoFactory.trajectoryGenerateToPosition(FieldConstants.kAmpBlue,DriveConstants.kAutoAlignToAmpSpeed ,DriverStation.getAlliance().equals(Alliance.Red));
+        // m_drive.setProfile(DriveProfiles.kTrajectoryFollowing);
+        
+        // autoDriveCommand.andThen(Commands.runOnce(()->{
+        //   m_drive.setProfile(DriveProfiles.kDefault);
+        // })).schedule();
+        else {
+          Logger.recordOutput("stow Trigger 13", Timer.getFPGATimestamp());
+          m_robotState.setRobotCurrentAction(RobotCurrentAction.kStow);
+          m_robotState.setDriveType(DriveProfiles.kDefault);
+        }
+        
+
+
+        }));
       m_testingController.finalShoot().onTrue(Commands.runOnce(()->{
         System.out.println("NOW SHOOT");
         m_indexer.setState(IndexerState.SHOOTING);
@@ -200,7 +218,7 @@ public class RobotContainer {
       //   m_climb.toggleServo();
       // }));
 
-      new Trigger(()->{if(Math.abs(m_testingController.climberStick()) > 0.2) {return true;} else {return false;}}).whileTrue(Commands.run(()->m_climb.setSpeed(m_testingController.climberStick()))).onFalse(Commands.runOnce(()->m_climb.setSpeed(0)));
+      new Trigger(()->{if(Math.abs(m_testingController.climberStick()) > 0.2) {return true;} else {return false;}}).whileTrue(Commands.run(()->m_climb.setSpeed(-m_testingController.climberStick()))).onFalse(Commands.runOnce(()->m_climb.setSpeed(0)));
       // new Trigger(()->{if(Math.abs(m_testingController.climberStick()) > 0.2){return true;}else{return false;}} ) .whileTrue(Commands.runOnce(()->{
       //   m_climb.setSpeed(m_testingController.climberStick());
       // })).whileFalse(Commands.runOnce(()->m_climb.setSpeed(0)));
@@ -353,13 +371,13 @@ public class RobotContainer {
       }));
 
       m_driverControls.climbUp().onTrue(Commands.runOnce(() -> {
-        m_climb.setSpeed(-0.5);
+        m_climb.setSpeed(0.5);
       })).onFalse(Commands.runOnce(() -> {
         m_climb.setSpeed(0);
       }));
 
       m_driverControls.climbDown().onTrue(Commands.runOnce(() -> {
-        m_climb.setSpeed(0.5);
+        m_climb.setSpeed(-0.5);
       })).onFalse(Commands.runOnce(() -> {
         m_climb.setSpeed(0);
       }));

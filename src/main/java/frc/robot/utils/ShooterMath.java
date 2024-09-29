@@ -65,7 +65,7 @@ public class ShooterMath {
         m_distanceAngle.put(Units.inchesToMeters(84)+constantAddition,31.0);
         m_distanceAngle.put(Units.inchesToMeters(96)+constantAddition,28.5);
         m_distanceAngle.put(Units.inchesToMeters(108)+constantAddition,27.0);
-        m_distanceAngle.put(Units.inchesToMeters(120)+constantAddition,25.75);
+        m_distanceAngle.put(Units.inchesToMeters(120)+constantAddition,26.25);
         m_distanceAngle.put(Units.inchesToMeters(140)+constantAddition,25.0);
         m_distanceAngle.put(Units.inchesToMeters(160)+constantAddition,23.75);
         m_distanceAngle.put(Units.inchesToMeters(180)+constantAddition,23.0);

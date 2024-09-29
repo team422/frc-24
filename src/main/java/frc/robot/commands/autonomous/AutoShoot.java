@@ -29,7 +29,7 @@ public class AutoShoot extends Command {
                 frc.robot.RobotState.getInstance().setRobotCurrentAction(RobotCurrentAction.kPathPlanner);
                 return true;
             }
-        frc.robot.RobotState.getInstance().setIndexer(IndexerState.INDEXING);
+        // frc.robot.RobotState.getInstance().setIndexer(IndexerState.INDEXING);
         return frc.robot.RobotState.getInstance().curAction != RobotCurrentAction.kAutoShoot;
     }
 

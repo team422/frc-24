@@ -839,6 +839,7 @@ public class RobotState {
       boolean RollAndYawPerSecondIsSlow = (Math.abs(wheelyAmounts.get(0)) < .05
           && Math.abs(wheelyAmounts.get(1)) < .05);
 
+      Logger.recordOutput("Distance to shoot", shootingDistance);
       Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
       Logger.recordOutput("ReadyToShoot/PivotWithinTolerance", pivotInTolerance);
       Logger.recordOutput("ReadyToShoot/HeadingInTolerance", headingWithinTolerance);
@@ -881,6 +882,7 @@ public class RobotState {
           .abs(getEstimatedPose().getTranslation().getX() - predPose.getTranslation().getX()) < .3
           && Math.abs(getEstimatedPose().getTranslation().getY() - predPose.getTranslation().getY()) < .3);
 
+      Logger.recordOutput("Distance to shoot", shootingDistance);
       Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
       Logger.recordOutput("ReadyToShoot/PivotWithinTolerance", pivotInTolerance);
       Logger.recordOutput("ReadyToShoot/HeadingInTolerance", headingWithinTolerance);
@@ -939,6 +941,7 @@ public class RobotState {
       boolean speedWithinTolerance = (actualSpeed.vxMetersPerSecond < .5 && actualSpeed.vyMetersPerSecond < .5
           && actualSpeed.omegaRadiansPerSecond < .2);
 
+      Logger.recordOutput("Distance to shoot", shootingDistance);
       Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
       Logger.recordOutput("ReadyToShoot/PivotWithinTolerance", pivotInTolerance);
       Logger.recordOutput("ReadyToShoot/HeadingInTolerance", headingWithinTolerance);
@@ -1127,6 +1130,7 @@ public class RobotState {
       // averageVisionPoses().getTranslation().getDistance(getEstimatedPose().getTranslation())
       // < Units.inchesToMeters(ShooterMathConstants.allowedDistance.get()) ||
       // Timer.getFPGATimestamp() > startedTryingToShoot + 0.5;
+      Logger.recordOutput("Distance to shoot", shootingDistance);
       Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
       Logger.recordOutput("ReadyToShoot/PivotWithinTolerance", pivotInTolerance);
       Logger.recordOutput("ReadyToShoot/PivotTolerance",
@@ -1166,6 +1170,7 @@ public class RobotState {
       boolean speedWithinTolerance = (actualSpeed.vxMetersPerSecond < .5 && actualSpeed.vyMetersPerSecond < .5
           && actualSpeed.omegaRadiansPerSecond < .2);
 
+      Logger.recordOutput("Distance to shoot", shootingDistance);
       Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
       Logger.recordOutput("ReadyToShoot/PivotWithinTolerance", pivotInTolerance);
       Logger.recordOutput("ReadyToShoot/HeadingInTolerance", headingWithinTolerance);
@@ -1212,6 +1217,7 @@ public class RobotState {
       boolean speedWithinTolerance = (actualSpeed.vxMetersPerSecond < .5 && actualSpeed.vyMetersPerSecond < .5
           && actualSpeed.omegaRadiansPerSecond < .2);
 
+      Logger.recordOutput("Distance to shoot", shootingDistance);
       Logger.recordOutput("ReadyToShoot/FlywheelInTolerance", flywheelInTolerance);
       Logger.recordOutput("ReadyToShoot/PivotWithinTolerance", pivotInTolerance);
       Logger.recordOutput("ReadyToShoot/HeadingInTolerance", headingWithinTolerance);
